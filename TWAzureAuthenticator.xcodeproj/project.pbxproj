@@ -1,0 +1,594 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552D2387ABA6000D8787 /* AppDelegate.swift */; };
+		2AF655302387ABA6000D8787 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */; };
+		2AF655322387ABA6000D8787 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655312387ABA6000D8787 /* ViewController.swift */; };
+		2AF655352387ABA6000D8787 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655332387ABA6000D8787 /* Main.storyboard */; };
+		2AF655372387ABA8000D8787 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655362387ABA8000D8787 /* Assets.xcassets */; };
+		2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */; };
+		2AF655452387ABA8000D8787 /* TWAzureAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */; };
+		2AF655502387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2AF655412387ABA8000D8787 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AF655222387ABA6000D8787 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2AF655292387ABA6000D8787;
+			remoteInfo = TWAzureAuthenticator;
+		};
+		2AF6554C2387ABA8000D8787 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2AF655222387ABA6000D8787 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2AF655292387ABA6000D8787;
+			remoteInfo = TWAzureAuthenticator;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TWAzureAuthenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AF6552D2387ABA6000D8787 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		2AF655312387ABA6000D8787 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		2AF655342387ABA6000D8787 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		2AF655362387ABA8000D8787 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2AF655392387ABA8000D8787 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		2AF6553B2387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2AF655402387ABA8000D8787 /* TWAzureAuthenticatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWAzureAuthenticatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TWAzureAuthenticatorTests.swift; sourceTree = "<group>"; };
+		2AF655462387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWAzureAuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TWAzureAuthenticatorUITests.swift; sourceTree = "<group>"; };
+		2AF655512387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2AF655272387ABA6000D8787 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AF6553D2387ABA8000D8787 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AF655482387ABA8000D8787 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2AF655212387ABA6000D8787 = {
+			isa = PBXGroup;
+			children = (
+				2AF6552C2387ABA6000D8787 /* TWAzureAuthenticator */,
+				2AF655432387ABA8000D8787 /* TWAzureAuthenticatorTests */,
+				2AF6554E2387ABA8000D8787 /* TWAzureAuthenticatorUITests */,
+				2AF6552B2387ABA6000D8787 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2AF6552B2387ABA6000D8787 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */,
+				2AF655402387ABA8000D8787 /* TWAzureAuthenticatorTests.xctest */,
+				2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2AF6552C2387ABA6000D8787 /* TWAzureAuthenticator */ = {
+			isa = PBXGroup;
+			children = (
+				2AF6552D2387ABA6000D8787 /* AppDelegate.swift */,
+				2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */,
+				2AF655312387ABA6000D8787 /* ViewController.swift */,
+				2AF655332387ABA6000D8787 /* Main.storyboard */,
+				2AF655362387ABA8000D8787 /* Assets.xcassets */,
+				2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */,
+				2AF6553B2387ABA8000D8787 /* Info.plist */,
+			);
+			path = TWAzureAuthenticator;
+			sourceTree = "<group>";
+		};
+		2AF655432387ABA8000D8787 /* TWAzureAuthenticatorTests */ = {
+			isa = PBXGroup;
+			children = (
+				2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */,
+				2AF655462387ABA8000D8787 /* Info.plist */,
+			);
+			path = TWAzureAuthenticatorTests;
+			sourceTree = "<group>";
+		};
+		2AF6554E2387ABA8000D8787 /* TWAzureAuthenticatorUITests */ = {
+			isa = PBXGroup;
+			children = (
+				2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */,
+				2AF655512387ABA8000D8787 /* Info.plist */,
+			);
+			path = TWAzureAuthenticatorUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2AF655292387ABA6000D8787 /* TWAzureAuthenticator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticator" */;
+			buildPhases = (
+				2AF655262387ABA6000D8787 /* Sources */,
+				2AF655272387ABA6000D8787 /* Frameworks */,
+				2AF655282387ABA6000D8787 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TWAzureAuthenticator;
+			productName = TWAzureAuthenticator;
+			productReference = 2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */;
+			productType = "com.apple.product-type.application";
+		};
+		2AF6553F2387ABA8000D8787 /* TWAzureAuthenticatorTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorTests" */;
+			buildPhases = (
+				2AF6553C2387ABA8000D8787 /* Sources */,
+				2AF6553D2387ABA8000D8787 /* Frameworks */,
+				2AF6553E2387ABA8000D8787 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2AF655422387ABA8000D8787 /* PBXTargetDependency */,
+			);
+			name = TWAzureAuthenticatorTests;
+			productName = TWAzureAuthenticatorTests;
+			productReference = 2AF655402387ABA8000D8787 /* TWAzureAuthenticatorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		2AF6554A2387ABA8000D8787 /* TWAzureAuthenticatorUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorUITests" */;
+			buildPhases = (
+				2AF655472387ABA8000D8787 /* Sources */,
+				2AF655482387ABA8000D8787 /* Frameworks */,
+				2AF655492387ABA8000D8787 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2AF6554D2387ABA8000D8787 /* PBXTargetDependency */,
+			);
+			name = TWAzureAuthenticatorUITests;
+			productName = TWAzureAuthenticatorUITests;
+			productReference = 2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2AF655222387ABA6000D8787 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1100;
+				LastUpgradeCheck = 1100;
+				TargetAttributes = {
+					2AF655292387ABA6000D8787 = {
+						CreatedOnToolsVersion = 11.0;
+					};
+					2AF6553F2387ABA8000D8787 = {
+						CreatedOnToolsVersion = 11.0;
+						TestTargetID = 2AF655292387ABA6000D8787;
+					};
+					2AF6554A2387ABA8000D8787 = {
+						CreatedOnToolsVersion = 11.0;
+						TestTargetID = 2AF655292387ABA6000D8787;
+					};
+				};
+			};
+			buildConfigurationList = 2AF655252387ABA6000D8787 /* Build configuration list for PBXProject "TWAzureAuthenticator" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2AF655212387ABA6000D8787;
+			productRefGroup = 2AF6552B2387ABA6000D8787 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2AF655292387ABA6000D8787 /* TWAzureAuthenticator */,
+				2AF6553F2387ABA8000D8787 /* TWAzureAuthenticatorTests */,
+				2AF6554A2387ABA8000D8787 /* TWAzureAuthenticatorUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2AF655282387ABA6000D8787 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */,
+				2AF655372387ABA8000D8787 /* Assets.xcassets in Resources */,
+				2AF655352387ABA6000D8787 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AF6553E2387ABA8000D8787 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AF655492387ABA8000D8787 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2AF655262387ABA6000D8787 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AF655322387ABA6000D8787 /* ViewController.swift in Sources */,
+				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,
+				2AF655302387ABA6000D8787 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AF6553C2387ABA8000D8787 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AF655452387ABA8000D8787 /* TWAzureAuthenticatorTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2AF655472387ABA8000D8787 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2AF655502387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2AF655422387ABA8000D8787 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2AF655292387ABA6000D8787 /* TWAzureAuthenticator */;
+			targetProxy = 2AF655412387ABA8000D8787 /* PBXContainerItemProxy */;
+		};
+		2AF6554D2387ABA8000D8787 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2AF655292387ABA6000D8787 /* TWAzureAuthenticator */;
+			targetProxy = 2AF6554C2387ABA8000D8787 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		2AF655332387ABA6000D8787 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2AF655342387ABA6000D8787 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				2AF655392387ABA8000D8787 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		2AF655522387ABA8000D8787 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		2AF655532387ABA8000D8787 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		2AF655552387ABA8000D8787 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K889LGV7VJ;
+				INFOPLIST_FILE = TWAzureAuthenticator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2AF655562387ABA8000D8787 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K889LGV7VJ;
+				INFOPLIST_FILE = TWAzureAuthenticator/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticator;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		2AF655582387ABA8000D8787 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K889LGV7VJ;
+				INFOPLIST_FILE = TWAzureAuthenticatorTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticatorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TWAzureAuthenticator.app/TWAzureAuthenticator";
+			};
+			name = Debug;
+		};
+		2AF655592387ABA8000D8787 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K889LGV7VJ;
+				INFOPLIST_FILE = TWAzureAuthenticatorTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticatorTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TWAzureAuthenticator.app/TWAzureAuthenticator";
+			};
+			name = Release;
+		};
+		2AF6555B2387ABA8000D8787 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K889LGV7VJ;
+				INFOPLIST_FILE = TWAzureAuthenticatorUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticatorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TWAzureAuthenticator;
+			};
+			name = Debug;
+		};
+		2AF6555C2387ABA8000D8787 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = K889LGV7VJ;
+				INFOPLIST_FILE = TWAzureAuthenticatorUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticatorUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = TWAzureAuthenticator;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2AF655252387ABA6000D8787 /* Build configuration list for PBXProject "TWAzureAuthenticator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AF655522387ABA8000D8787 /* Debug */,
+				2AF655532387ABA8000D8787 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AF655552387ABA8000D8787 /* Debug */,
+				2AF655562387ABA8000D8787 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AF655582387ABA8000D8787 /* Debug */,
+				2AF655592387ABA8000D8787 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2AF6555B2387ABA8000D8787 /* Debug */,
+				2AF6555C2387ABA8000D8787 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2AF655222387ABA6000D8787 /* Project object */;
+}
