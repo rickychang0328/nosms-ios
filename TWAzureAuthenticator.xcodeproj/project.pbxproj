@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1367BCAF2EFC90760126C665 /* Pods_TWAzureAuthenticator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */; };
 		2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552D2387ABA6000D8787 /* AppDelegate.swift */; };
 		2AF655302387ABA6000D8787 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */; };
 		2AF655322387ABA6000D8787 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655312387ABA6000D8787 /* ViewController.swift */; };
@@ -15,6 +16,8 @@
 		2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */; };
 		2AF655452387ABA8000D8787 /* TWAzureAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */; };
 		2AF655502387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */; };
+		2C186B6A1735404A39A54116 /* Pods_TWAzureAuthenticatorUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E20704D5DA2BE26BB389BC43 /* Pods_TWAzureAuthenticatorUITests.framework */; };
+		55230B07C27CD503698C0155 /* Pods_TWAzureAuthenticatorTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D96BA72FCD6F7538F204AD /* Pods_TWAzureAuthenticatorTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +52,15 @@
 		2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWAzureAuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TWAzureAuthenticatorUITests.swift; sourceTree = "<group>"; };
 		2AF655512387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3970F258F6361C4260991E5A /* Pods-TWAzureAuthenticator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.release.xcconfig"; sourceTree = "<group>"; };
+		7C52A96AE617E9F8681F329F /* Pods-TWAzureAuthenticatorTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorTests.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorTests/Pods-TWAzureAuthenticatorTests.release.xcconfig"; sourceTree = "<group>"; };
+		94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWAzureAuthenticator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		9B2075010F5908FB50A06A7B /* Pods-TWAzureAuthenticatorTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorTests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorTests/Pods-TWAzureAuthenticatorTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		B2D96BA72FCD6F7538F204AD /* Pods_TWAzureAuthenticatorTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWAzureAuthenticatorTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.debug.xcconfig"; sourceTree = "<group>"; };
+		D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.release.xcconfig"; sourceTree = "<group>"; };
+		E20704D5DA2BE26BB389BC43 /* Pods_TWAzureAuthenticatorUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWAzureAuthenticatorUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1367BCAF2EFC90760126C665 /* Pods_TWAzureAuthenticator.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,6 +76,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55230B07C27CD503698C0155 /* Pods_TWAzureAuthenticatorTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,6 +84,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C186B6A1735404A39A54116 /* Pods_TWAzureAuthenticatorUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +98,8 @@
 				2AF655432387ABA8000D8787 /* TWAzureAuthenticatorTests */,
 				2AF6554E2387ABA8000D8787 /* TWAzureAuthenticatorUITests */,
 				2AF6552B2387ABA6000D8787 /* Products */,
+				7513125A76B066A2C96BDC55 /* Pods */,
+				A82008539CEB88538873CCF8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -128,6 +145,30 @@
 			path = TWAzureAuthenticatorUITests;
 			sourceTree = "<group>";
 		};
+		7513125A76B066A2C96BDC55 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */,
+				3970F258F6361C4260991E5A /* Pods-TWAzureAuthenticator.release.xcconfig */,
+				9B2075010F5908FB50A06A7B /* Pods-TWAzureAuthenticatorTests.debug.xcconfig */,
+				7C52A96AE617E9F8681F329F /* Pods-TWAzureAuthenticatorTests.release.xcconfig */,
+				A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */,
+				D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		A82008539CEB88538873CCF8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */,
+				B2D96BA72FCD6F7538F204AD /* Pods_TWAzureAuthenticatorTests.framework */,
+				E20704D5DA2BE26BB389BC43 /* Pods_TWAzureAuthenticatorUITests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -135,9 +176,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticator" */;
 			buildPhases = (
+				5E8BA7612D37E8A14D9D1E47 /* [CP] Check Pods Manifest.lock */,
 				2AF655262387ABA6000D8787 /* Sources */,
 				2AF655272387ABA6000D8787 /* Frameworks */,
 				2AF655282387ABA6000D8787 /* Resources */,
+				8C084FB3DF21DD0F799672FF /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -152,6 +195,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorTests" */;
 			buildPhases = (
+				B1E83BC1E8105B88A9829724 /* [CP] Check Pods Manifest.lock */,
 				2AF6553C2387ABA8000D8787 /* Sources */,
 				2AF6553D2387ABA8000D8787 /* Frameworks */,
 				2AF6553E2387ABA8000D8787 /* Resources */,
@@ -170,6 +214,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorUITests" */;
 			buildPhases = (
+				1D42DA81C18B7793BF240F07 /* [CP] Check Pods Manifest.lock */,
 				2AF655472387ABA8000D8787 /* Sources */,
 				2AF655482387ABA8000D8787 /* Frameworks */,
 				2AF655492387ABA8000D8787 /* Resources */,
@@ -252,6 +297,92 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1D42DA81C18B7793BF240F07 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TWAzureAuthenticatorUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		5E8BA7612D37E8A14D9D1E47 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TWAzureAuthenticator-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8C084FB3DF21DD0F799672FF /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		B1E83BC1E8105B88A9829724 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-TWAzureAuthenticatorTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2AF655262387ABA6000D8787 /* Sources */ = {
@@ -431,6 +562,7 @@
 		};
 		2AF655552387ABA8000D8787 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -450,6 +582,7 @@
 		};
 		2AF655562387ABA8000D8787 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3970F258F6361C4260991E5A /* Pods-TWAzureAuthenticator.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -469,6 +602,7 @@
 		};
 		2AF655582387ABA8000D8787 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9B2075010F5908FB50A06A7B /* Pods-TWAzureAuthenticatorTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -491,6 +625,7 @@
 		};
 		2AF655592387ABA8000D8787 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7C52A96AE617E9F8681F329F /* Pods-TWAzureAuthenticatorTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -513,6 +648,7 @@
 		};
 		2AF6555B2387ABA8000D8787 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
@@ -533,6 +669,7 @@
 		};
 		2AF6555C2387ABA8000D8787 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
