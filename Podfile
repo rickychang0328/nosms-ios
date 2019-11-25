@@ -8,6 +8,8 @@ target 'TWAzureAuthenticator' do
   pod 'OneTimePassword', '~> 3.2'
   pod 'RxSwift', '~> 5'
   pod 'RxCocoa', '~> 5'
+  pod 'SnapKit', '4.2.0'
+
 
   # Pods for TWAzureAuthenticator
 
