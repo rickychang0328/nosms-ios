@@ -3,15 +3,25 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		1367BCAF2EFC90760126C665 /* Pods_TWAzureAuthenticator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */; };
+		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
+		2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */; };
+		2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */; };
+		2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */; };
+		2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E651238B80FF00E8CAB9 /* BaseViewController.swift */; };
+		2A75E654238B814300E8CAB9 /* BaseTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E653238B814300E8CAB9 /* BaseTableViewController.swift */; };
+		2A75E656238B824A00E8CAB9 /* BaseNavigaitonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E655238B824A00E8CAB9 /* BaseNavigaitonItem.swift */; };
+		2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */; };
+		2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65B238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift */; };
+		2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65D238BB9C900E8CAB9 /* UIView+Extension.swift */; };
+		2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */; };
+		2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */; };
+		2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */; };
 		2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552D2387ABA6000D8787 /* AppDelegate.swift */; };
-		2AF655302387ABA6000D8787 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */; };
-		2AF655322387ABA6000D8787 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655312387ABA6000D8787 /* ViewController.swift */; };
-		2AF655352387ABA6000D8787 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655332387ABA6000D8787 /* Main.storyboard */; };
 		2AF655372387ABA8000D8787 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655362387ABA8000D8787 /* Assets.xcassets */; };
 		2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */; };
 		2AF655452387ABA8000D8787 /* TWAzureAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */; };
@@ -38,11 +48,21 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckViewController.swift; sourceTree = "<group>"; };
+		2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
+		2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListViewController.swift; sourceTree = "<group>"; };
+		2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SnapKit+Extension.swift"; sourceTree = "<group>"; };
+		2A75E651238B80FF00E8CAB9 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
+		2A75E653238B814300E8CAB9 /* BaseTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseTableViewController.swift; sourceTree = "<group>"; };
+		2A75E655238B824A00E8CAB9 /* BaseNavigaitonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseNavigaitonItem.swift; sourceTree = "<group>"; };
+		2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListTableViewCell.swift; sourceTree = "<group>"; };
+		2A75E65B238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+SetValueReturnSelf+Extension.swift"; sourceTree = "<group>"; };
+		2A75E65D238BB9C900E8CAB9 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
+		2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
+		2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreProtocol.swift; sourceTree = "<group>"; };
+		2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScannerViewController.swift; sourceTree = "<group>"; };
 		2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TWAzureAuthenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF6552D2387ABA6000D8787 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		2AF655312387ABA6000D8787 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		2AF655342387ABA6000D8787 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2AF655362387ABA8000D8787 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2AF655392387ABA8000D8787 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2AF6553B2387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -91,6 +111,77 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A2AF088238F99AC00BCC143 /* PhotoCheck */ = {
+			isa = PBXGroup;
+			children = (
+				2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */,
+			);
+			path = PhotoCheck;
+			sourceTree = "<group>";
+		};
+		2A75E64A238B7D5A00E8CAB9 /* TokenList */ = {
+			isa = PBXGroup;
+			children = (
+				2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */,
+				2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */,
+			);
+			path = TokenList;
+			sourceTree = "<group>";
+		};
+		2A75E64D238B7D8700E8CAB9 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				2A75E651238B80FF00E8CAB9 /* BaseViewController.swift */,
+				2A75E653238B814300E8CAB9 /* BaseTableViewController.swift */,
+				2A75E655238B824A00E8CAB9 /* BaseNavigaitonItem.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		2A75E64E238B7DF300E8CAB9 /* ThirdParty+Extension */ = {
+			isa = PBXGroup;
+			children = (
+				2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */,
+			);
+			path = "ThirdParty+Extension";
+			sourceTree = "<group>";
+		};
+		2A75E659238BB82E00E8CAB9 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				2AE3DC4B238CC773009AC8EE /* TokenStore */,
+				2A75E65A238BB8A100E8CAB9 /* Extension */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		2A75E65A238BB8A100E8CAB9 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				2A75E65B238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift */,
+				2A75E65D238BB9C900E8CAB9 /* UIView+Extension.swift */,
+				2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */,
+				2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		2AE3DC4B238CC773009AC8EE /* TokenStore */ = {
+			isa = PBXGroup;
+			children = (
+				2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */,
+			);
+			path = TokenStore;
+			sourceTree = "<group>";
+		};
+		2AE3DC4E238D31E3009AC8EE /* Scanner */ = {
+			isa = PBXGroup;
+			children = (
+				2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */,
+			);
+			path = Scanner;
+			sourceTree = "<group>";
+		};
 		2AF655212387ABA6000D8787 = {
 			isa = PBXGroup;
 			children = (
@@ -116,10 +207,13 @@
 		2AF6552C2387ABA6000D8787 /* TWAzureAuthenticator */ = {
 			isa = PBXGroup;
 			children = (
+				2A2AF088238F99AC00BCC143 /* PhotoCheck */,
+				2AE3DC4E238D31E3009AC8EE /* Scanner */,
+				2A75E659238BB82E00E8CAB9 /* Common */,
+				2A75E64E238B7DF300E8CAB9 /* ThirdParty+Extension */,
+				2A75E64D238B7D8700E8CAB9 /* Base */,
+				2A75E64A238B7D5A00E8CAB9 /* TokenList */,
 				2AF6552D2387ABA6000D8787 /* AppDelegate.swift */,
-				2AF6552F2387ABA6000D8787 /* SceneDelegate.swift */,
-				2AF655312387ABA6000D8787 /* ViewController.swift */,
-				2AF655332387ABA6000D8787 /* Main.storyboard */,
 				2AF655362387ABA8000D8787 /* Assets.xcassets */,
 				2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */,
 				2AF6553B2387ABA8000D8787 /* Info.plist */,
@@ -155,7 +249,6 @@
 				A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */,
 				D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -278,7 +371,6 @@
 			files = (
 				2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */,
 				2AF655372387ABA8000D8787 /* Assets.xcassets in Resources */,
-				2AF655352387ABA6000D8787 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -389,9 +481,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2AF655322387ABA6000D8787 /* ViewController.swift in Sources */,
+				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
+				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
+				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
+				2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */,
+				2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */,
+				2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */,
+				2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */,
+				2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */,
+				2A75E654238B814300E8CAB9 /* BaseTableViewController.swift in Sources */,
+				2A75E656238B824A00E8CAB9 /* BaseNavigaitonItem.swift in Sources */,
+				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,
+				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
+				2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */,
 				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,
-				2AF655302387ABA6000D8787 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -427,14 +530,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		2AF655332387ABA6000D8787 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				2AF655342387ABA6000D8787 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -576,7 +671,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -596,7 +691,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
