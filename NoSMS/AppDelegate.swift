@@ -8,7 +8,7 @@
 import UIKit
 
 @UIApplicationMain
-class AuthenticatorAppDelegate: UIResponder, UIApplicationDelegate {
+class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow? = UIWindow(frame: UIScreen.main.bounds)
 
