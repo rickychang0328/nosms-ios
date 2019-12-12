@@ -5,7 +5,6 @@ archive_project:
     variables:
     - $PACKAGE_IOS == "1"
   script:
-  - sh infoplist.sh
   - sed -i.bak -e "s/CODE_SIGN_IDENTITY = [^;]*/CODE_SIGN_IDENTITY = \"$CODE_SIGN_IDENTITY\"/g" -e "s/CODE_SIGN_STYLE = [^;]*/CODE_SIGN_STYLE = $CODE_SIGN_STYLE/g" -e "s/DEVELOPMENT_TEAM = [^;]*/DEVELOPMENT_TEAM = $DEVELOPMENT_TEAM/g" -e "s/PROVISIONING_PROFILE_SPECIFIER = [^;]*;//g" -e "s/PRODUCT_BUNDLE_IDENTIFIER = [^;]*/PRODUCT_BUNDLE_IDENTIFIER = \"$PRODUCT_BUNDLE_IDENTIFIER\"; PROVISIONING_PROFILE_SPECIFIER = \"$PROVISIONING_PROFILE_SPECIFIER\"/g" -e "s/PROVISIONING_PROFILE = [^;]*/PROVISIONING_PROFILE = \"$PROVISIONING_PROFILE\"/g" ${IOS_PROJECT}/project.pbxproj
   - xcodebuild build -workspace $IOS_WORKSPACE -scheme $IOS_BUILD_SCHEME -configuration
     "Release" -DEBUG_INFORMATION_FORMAT='dwarf-with-dsym' -derivedDataPath build |
