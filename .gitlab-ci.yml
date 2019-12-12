@@ -29,28 +29,9 @@ before_script:
 - rm -rf Payload
 - mkdir Payload
 stages:
-- test
 - archive
-test_project:
-  artifacts:
-    paths:
-    - build/Logs/Test/
-  only:
-    refs:
-    - pushes
-  script:
-  - sed -i.bak -e "s/SWIFT_SUPPRESS_WARNINGS = NO/SWIFT_SUPPRESS_WARNINGS = YES/g"
-    -e "s/GCC_WARN_INHIBIT_ALL_WARNINGS = NO/GCC_WARN_INHIBIT_ALL_WARNINGS = YES/g"
-    ${IOS_PROJECT}/project.pbxproj
-  - xcodebuild -workspace $IOS_WORKSPACE -scheme $IOS_TEST_SCHEME -sdk iphonesimulator
-    -destination 'platform=iOS Simulator,name=iPhone 8,OS=latest' test -derivedDataPath
-    build | xcpretty
-  - mv ${IOS_PROJECT}/project.pbxproj.bak ${IOS_PROJECT}/project.pbxproj
-  stage: test
-  tags:
-  - ios
 variables:
-  CI_VERSION: 0.4.5
+  CI_VERSION: 1.0.0
   CODE_SIGN_IDENTITY: 'iPhone Distribution'
   CODE_SIGN_STYLE: 'Manual'
   DEVELOPMENT_TEAM: 'K889LGV7VJ'
@@ -59,7 +40,6 @@ variables:
   IOS_DEPLOY_NAME: 'nosms'
   IOS_PROJECT: TWAzureAuthenticator.xcodeproj
   IOS_TARGET_NAME: TWAzureAuthenticator
-  IOS_TEST_SCHEME: TWAzureAuthenticatorTestsScheme
   IOS_VERSION_FILE: TWAzureAuthenticator/Info.plist
   IOS_WORKSPACE: TWAzureAuthenticator.xcworkspace
   LC_CTYPE: en_US.UTF-8
