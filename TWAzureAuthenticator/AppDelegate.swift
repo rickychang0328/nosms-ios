@@ -21,4 +21,9 @@ class AuthenticatorAppDelegate: UIResponder, UIApplicationDelegate {
         
         return true
     }
+    
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        
+        PastedAction.shared.applicationDidBecomeActive()
+    }
 }
