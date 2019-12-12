@@ -1,14 +1,8 @@
-//
-//  TWAzureAuthenticatorTests.swift
-//  TWAzureAuthenticatorTests
-//
-//  Created by 誠帷數位科技 on 2019/11/22.
-//
 
 import XCTest
-@testable import TWAzureAuthenticator
+@testable import NoSMS
 
-class TWAzureAuthenticatorTests: XCTestCase {
+class NoSMSTests: XCTestCase {
 
     override func setUp() {
         // Put setup code here. This method is called before the invocation of each test method in the class.

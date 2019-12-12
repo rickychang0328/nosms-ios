@@ -8,7 +8,7 @@
 import UIKit
 
 @UIApplicationMain
-class AuthenticatorAppDelegate: UIResponder, UIApplicationDelegate {
+class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow? = UIWindow(frame: UIScreen.main.bounds)
 
@@ -20,5 +20,10 @@ class AuthenticatorAppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.makeKeyAndVisible()
         
         return true
+    }
+    
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        
+        PastedAction.shared.applicationDidBecomeActive()
     }
 }

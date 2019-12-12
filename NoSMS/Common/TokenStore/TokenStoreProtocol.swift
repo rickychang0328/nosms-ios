@@ -69,6 +69,11 @@ class AdapterToken: AdapterTokenProtocol {
         case .counter(_):
             
             self.refreshTimes = 0
+            
+            lastTime = 0
+            
+            return
+            
         case .timer(let period):
           
             self.refreshTimes = period

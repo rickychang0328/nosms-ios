@@ -1,7 +1,7 @@
 # Uncomment the next line to define a global platform for your project
 # platform :ios, '9.0'
 
-target 'TWAzureAuthenticator' do
+target 'NoSMS' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
@@ -11,14 +11,14 @@ target 'TWAzureAuthenticator' do
   pod 'SnapKit', '4.2.0'
 
 
-  # Pods for TWAzureAuthenticator
+  # Pods for NoSMS
 
-  target 'TWAzureAuthenticatorTests' do
+  target 'NoSMSTests' do
     inherit! :search_paths
     # Pods for testing
   end
 
-  target 'TWAzureAuthenticatorUITests' do
+  target 'NoSMSUITests' do
     inherit! :search_paths
     # Pods for testing
   end

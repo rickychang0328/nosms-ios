@@ -53,6 +53,13 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return label
     }()
     
+    private let nameTextField: UITextField = {
+        
+        let textField = UITextField()
+        
+        return textField
+    }()
+    
     private let passwordLabel: UILabel = {
           
         let label = UILabel()
@@ -92,16 +99,22 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     private func layoutView() {
         
-        contentView.addSubview(nameLabel)
-        contentView.addSubview(passwordLabel)
-        contentView.addSubview(issuerLabel)
-        contentView.addSubview(underLineView)
-        contentView.addSubview(lastTimeLabel)
+        addSubview(nameLabel)
+        addSubview(nameTextField)
+        addSubview(passwordLabel)
+        addSubview(issuerLabel)
+        addSubview(underLineView)
+        addSubview(lastTimeLabel)
         
         nameLabel.snp.makeConstraints {
             
             $0.top.left.equalTo(8)
             $0.right.equalTo(-8)
+        }
+        
+        nameTextField.snp.makeConstraints {
+            
+            $0.edges.equalTo(nameLabel)
         }
         
         passwordLabel.snp.makeConstraints {
@@ -128,15 +141,35 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.centerY.equalTo(passwordLabel)
             $0.right.equalTo(-8)
         }
+        
+
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        changeLayout()
+    }
+    
+    private func changeLayout() {
+   
+        nameLabel.isHidden = isEditing
+        nameTextField.isHidden = !isEditing
+ 
     }
     
     override func bindData(viewModel: ViewModel) {
         super.bindData(viewModel: viewModel)
         
-        viewModel.name
-            .asDriver(onErrorJustReturn: "")
-            .drive(nameLabel.rx.text)
+        let name = viewModel.name
+                    .asDriver(onErrorJustReturn: "")
+            
+            
+        name.drive(nameLabel.rx.text)
             .disposed(by: disposedBag)
+        name.drive(nameTextField.rx.text)
+            .disposed(by: disposedBag)
+
         
         viewModel.issuer
             .bind(to: issuerLabel.rx.text)
@@ -149,6 +182,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         viewModel.lastTime
             .bind(to: lastTimeLabel.rx.text)
             .disposed(by: disposedBag)
+        
+        
     }
 }
-

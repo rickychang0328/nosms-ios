@@ -1,9 +1,3 @@
-//
-//  TokenListViewController.swift
-//  TWAzureAuthenticator
-//
-//  Created by 誠帷數位科技 on 2019/11/25.
-//
 
 import UIKit
 import RxSwift
@@ -19,8 +13,10 @@ enum TokenListViewModelEvent {
 protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
     var eventResult: BehaviorSubject<TokenListViewModelEvent> { get }
+    
     func deleteToken(index: Int)
     func selectItem(index: Int) -> Observable<String>
+    func swapToken(beforeIndex: Int, afterIndex: Int)
 }
 
 protocol TokenListSectionItemProtocol: BaseTableViewSectionItemsProtocol {
@@ -98,11 +94,20 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
         }
     }
     
+    func swapToken(beforeIndex: Int, afterIndex: Int) {
+        
+        do {
+            try tokenStore.moveTokenFromIndex(beforeIndex, toIndex: afterIndex)
+        } catch {
+            
+            eventResult.onNext(.error(error))
+        }
+    }
+    
     func selectItem(index: Int) -> Observable<String> {
 
         let observer: Observable<String> = .create { anyObserver -> Disposable in
-
-
+            
             let a = self.tokenStore.persistentTokensBehavior
                 .map({$0[index]})
                 .flatMapLatest({$0.password})
@@ -116,20 +121,16 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     
                     anyObserver.onError(error)
                 })
-//                let token = try self.tokenStore.persistentTokensBehavior.value()[index]
-//                let password = try token.password.value()
-         
-            return Disposables.create {
-                a.dispose() }
+            return Disposables.create { a.dispose() }
         }
         
-        
-//        let result = self.tokenStore.persistentTokensBehavior.map({$0[index]}).flatMapLatest({$0.password}).asObservable()
         return observer
     }
 }
 
 class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel> {
+    
+    private var lifeCycleDisposeBag: DisposeBag = .init()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -143,23 +144,31 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
         }.disposed(by: disposedBag)
         
-//        let editTableViewBarItem = UIBarButtonItem(barButtonSystemItem: .edit, target: nil, action: nil)
+        let editTableViewBarItem = UIBarButtonItem(barButtonSystemItem: .edit, target: nil, action: nil)
         
-//        editTableViewBarItem.rx.tap
+        editTableViewBarItem.rx.tap.subscribe { [weak self] _ in
+            guard let self = self else { return }
+            
+            self.tableView.setEditing(!self.tableView.isEditing, animated: true)
+        }.disposed(by: disposedBag)
         
-        navigationItem.rightBarButtonItem = barButton
+        navigationItem.rightBarButtonItems = [barButton, editTableViewBarItem]
         
         viewModel.eventResult.subscribe { [weak self] _ in
             
             self?.tableView.reloadData()
         }.disposed(by: disposedBag)
         
+        tableView.rx.itemMoved
+            .map({($0.sourceIndex.row, $0.destinationIndex.row)})
+            .subscribe(onNext: self.viewModel.swapToken)
+            .disposed(by: disposedBag)
         
         tableView.rx.itemDeleted.subscribe(onNext: { [weak self] indexPath in
 
             self?.showDeleteAlert(index: indexPath.row)
         }).disposed(by: disposedBag)
-                
+
         tableView.rx.itemSelected
             .map({ $0.row })
             .flatMapLatest(self.viewModel.selectItem)
@@ -173,6 +182,45 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     
                 self?.showErrorAlert(title: "Disposed")
             }).disposed(by: disposedBag)
+        
+        tableView.backgroundColor = .gray
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        viewModel.intoAppPastedAction.subscribe(onNext: { [weak self] pastedString in
+                   
+            self?.showPastedStringAlert(pastedString: pastedString)
+        }).disposed(by: lifeCycleDisposeBag)
+        
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        lifeCycleDisposeBag = .init()
+    }
+   
+    private func showPastedStringAlert(pastedString: String) {
+        
+        let alertVC = UIAlertController(title: "是否貼上此URL", message: pastedString, preferredStyle: .alert)
+        
+        let goPastedAlertAction = UIAlertAction(title: "去貼上", style: .default) { [weak self] _ in
+            
+            guard let self = self else { return }
+            self.showKeyinTokenVC(string: pastedString)
+        }
+      
+        let cancelAlertAction = UIAlertAction(title: "取消", style: .cancel) { [weak alertVC] _ in
+            
+            alertVC?.dismiss(animated: true, completion: nil)
+        }
+        
+        alertVC.addAction(goPastedAlertAction)
+        alertVC.addAction(cancelAlertAction)
+        
+        present(alertVC, animated: true, completion: nil)
     }
     
     private func showAddTokenAlert() {
@@ -190,6 +238,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self.showTokenScannerVC()
         }
         
+        let goKeyinAddTokenAlertAction = UIAlertAction(title: "手動加入", style: .default) { [weak self] _ in
+            
+            guard let self = self else { return }
+            self.showKeyinTokenVC()
+        }
+        
         let cancelAlertAction = UIAlertAction(title: "取消", style: .cancel) { [weak alertVC] _ in
             
             alertVC?.dismiss(animated: true, completion: nil)
@@ -197,9 +251,17 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         alertVC.addAction(goPhotoeAlertAction)
         alertVC.addAction(goTokenScannerAlertAction)
+        alertVC.addAction(goKeyinAddTokenAlertAction)
         alertVC.addAction(cancelAlertAction)
         
         present(alertVC, animated: true, completion: nil)
+    }
+    
+    private func showKeyinTokenVC(string: String? = nil) {
+        
+        let nextVC = JoinManuallyTOTPTypeViewController(viewModel: JoinManuallyVCViewModel(pastedString: string))
+        
+        navigationController?.pushViewController(nextVC, animated: true)
     }
     
     private func showTokenScannerVC() {
@@ -248,13 +310,11 @@ extension Reactive where Base: UIAlertController {
 
 extension Reactive where Base: UITableView {
     
-    var isEdit: Binder<Bool> {
+    var isEditing: Binder<Bool> {
         
         return Binder<Bool>(self.base) { view, isEdit in
             
             view.isEditing = isEdit
         }
     }
-    
-//    func isEditBinding() ->
 }

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1367BCAF2EFC90760126C665 /* Pods_TWAzureAuthenticator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */; };
 		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
 		2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */; };
 		2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */; };
@@ -21,13 +20,19 @@
 		2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */; };
 		2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */; };
 		2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */; };
+		2AE53BEF23A2499600AB1319 /* TOTPURLParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */; };
+		2AE53BF023A2499600AB1319 /* UserDefaultExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEC23A2499600AB1319 /* UserDefaultExtension.swift */; };
+		2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEE23A2499600AB1319 /* PastedAction.swift */; };
+		2AE53BF523A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BF323A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift */; };
+		2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BF423A249B000AB1319 /* JoinManuallyTOTPViewController.swift */; };
 		2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552D2387ABA6000D8787 /* AppDelegate.swift */; };
 		2AF655372387ABA8000D8787 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655362387ABA8000D8787 /* Assets.xcassets */; };
 		2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */; };
-		2AF655452387ABA8000D8787 /* TWAzureAuthenticatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */; };
-		2AF655502387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */; };
-		2C186B6A1735404A39A54116 /* Pods_TWAzureAuthenticatorUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E20704D5DA2BE26BB389BC43 /* Pods_TWAzureAuthenticatorUITests.framework */; };
-		55230B07C27CD503698C0155 /* Pods_TWAzureAuthenticatorTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B2D96BA72FCD6F7538F204AD /* Pods_TWAzureAuthenticatorTests.framework */; };
+		2AF655452387ABA8000D8787 /* NoSMSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655442387ABA8000D8787 /* NoSMSTests.swift */; };
+		2AF655502387ABA8000D8787 /* NoSMSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* NoSMSUITests.swift */; };
+		7F871825ADA176CFB4C66265 /* Pods_NoSMS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */; };
+		A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */; };
+		E5575E7C04B29979F3929C37 /* Pods_NoSMSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,26 +66,37 @@
 		2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
 		2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreProtocol.swift; sourceTree = "<group>"; };
 		2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScannerViewController.swift; sourceTree = "<group>"; };
-		2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TWAzureAuthenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TOTPURLParsing.swift; sourceTree = "<group>"; };
+		2AE53BEC23A2499600AB1319 /* UserDefaultExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultExtension.swift; sourceTree = "<group>"; };
+		2AE53BEE23A2499600AB1319 /* PastedAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PastedAction.swift; sourceTree = "<group>"; };
+		2AE53BF323A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoinManuallyTOTPTableViewCell.swift; sourceTree = "<group>"; };
+		2AE53BF423A249B000AB1319 /* JoinManuallyTOTPViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoinManuallyTOTPViewController.swift; sourceTree = "<group>"; };
+		2AF6552A2387ABA6000D8787 /* NoSMS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoSMS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF6552D2387ABA6000D8787 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2AF655362387ABA8000D8787 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2AF655392387ABA8000D8787 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2AF6553B2387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2AF655402387ABA8000D8787 /* TWAzureAuthenticatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWAzureAuthenticatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TWAzureAuthenticatorTests.swift; sourceTree = "<group>"; };
+		2AF655402387ABA8000D8787 /* NoSMSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoSMSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AF655442387ABA8000D8787 /* NoSMSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoSMSTests.swift; sourceTree = "<group>"; };
 		2AF655462387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TWAzureAuthenticatorUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TWAzureAuthenticatorUITests.swift; sourceTree = "<group>"; };
+		2AF6554B2387ABA8000D8787 /* NoSMSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NoSMSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		2AF6554F2387ABA8000D8787 /* NoSMSUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoSMSUITests.swift; sourceTree = "<group>"; };
 		2AF655512387ABA8000D8787 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3970F258F6361C4260991E5A /* Pods-TWAzureAuthenticator.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.release.xcconfig"; sourceTree = "<group>"; };
+		3BBA7C2D82B0CAA85542F237 /* Pods-NoSMS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.release.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.release.xcconfig"; sourceTree = "<group>"; };
+		5D887F7919F4F7A653B8E561 /* Pods-NoSMSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSTests.debug.xcconfig"; path = "Target Support Files/Pods-NoSMSTests/Pods-NoSMSTests.debug.xcconfig"; sourceTree = "<group>"; };
+		6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMSTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMSUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C52A96AE617E9F8681F329F /* Pods-TWAzureAuthenticatorTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorTests.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorTests/Pods-TWAzureAuthenticatorTests.release.xcconfig"; sourceTree = "<group>"; };
-		94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWAzureAuthenticator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		882C5645A49849890634181A /* Pods-NoSMSUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSUITests.release.xcconfig"; path = "Target Support Files/Pods-NoSMSUITests/Pods-NoSMSUITests.release.xcconfig"; sourceTree = "<group>"; };
 		9B2075010F5908FB50A06A7B /* Pods-TWAzureAuthenticatorTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorTests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorTests/Pods-TWAzureAuthenticatorTests.debug.xcconfig"; sourceTree = "<group>"; };
+		A196883168F4BEF0144199A0 /* Pods-NoSMSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSTests.release.xcconfig"; path = "Target Support Files/Pods-NoSMSTests/Pods-NoSMSTests.release.xcconfig"; sourceTree = "<group>"; };
+		A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.debug.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.debug.xcconfig"; sourceTree = "<group>"; };
 		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
-		B2D96BA72FCD6F7538F204AD /* Pods_TWAzureAuthenticatorTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWAzureAuthenticatorTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.debug.xcconfig"; sourceTree = "<group>"; };
+		CBD28FD7B7CA61CFE1125CDC /* Pods-NoSMSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSUITests.debug.xcconfig"; path = "Target Support Files/Pods-NoSMSUITests/Pods-NoSMSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.release.xcconfig"; sourceTree = "<group>"; };
-		E20704D5DA2BE26BB389BC43 /* Pods_TWAzureAuthenticatorUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TWAzureAuthenticatorUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,7 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1367BCAF2EFC90760126C665 /* Pods_TWAzureAuthenticator.framework in Frameworks */,
+				7F871825ADA176CFB4C66265 /* Pods_NoSMS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -96,7 +112,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				55230B07C27CD503698C0155 /* Pods_TWAzureAuthenticatorTests.framework in Frameworks */,
+				A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,7 +120,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C186B6A1735404A39A54116 /* Pods_TWAzureAuthenticatorUITests.framework in Frameworks */,
+				E5575E7C04B29979F3929C37 /* Pods_NoSMSUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -149,6 +165,9 @@
 		2A75E659238BB82E00E8CAB9 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				2AE53BED23A2499600AB1319 /* PastedAction */,
+				2AE53BE923A2499600AB1319 /* TOTPURL */,
+				2AE53BEB23A2499600AB1319 /* UserDefault */,
 				2AE3DC4B238CC773009AC8EE /* TokenStore */,
 				2A75E65A238BB8A100E8CAB9 /* Extension */,
 			);
@@ -182,12 +201,45 @@
 			path = Scanner;
 			sourceTree = "<group>";
 		};
+		2AE53BE923A2499600AB1319 /* TOTPURL */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */,
+			);
+			path = TOTPURL;
+			sourceTree = "<group>";
+		};
+		2AE53BEB23A2499600AB1319 /* UserDefault */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BEC23A2499600AB1319 /* UserDefaultExtension.swift */,
+			);
+			path = UserDefault;
+			sourceTree = "<group>";
+		};
+		2AE53BED23A2499600AB1319 /* PastedAction */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BEE23A2499600AB1319 /* PastedAction.swift */,
+			);
+			path = PastedAction;
+			sourceTree = "<group>";
+		};
+		2AE53BF223A249B000AB1319 /* JoinManuallyTOTP */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BF323A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift */,
+				2AE53BF423A249B000AB1319 /* JoinManuallyTOTPViewController.swift */,
+			);
+			path = JoinManuallyTOTP;
+			sourceTree = "<group>";
+		};
 		2AF655212387ABA6000D8787 = {
 			isa = PBXGroup;
 			children = (
-				2AF6552C2387ABA6000D8787 /* TWAzureAuthenticator */,
-				2AF655432387ABA8000D8787 /* TWAzureAuthenticatorTests */,
-				2AF6554E2387ABA8000D8787 /* TWAzureAuthenticatorUITests */,
+				2AF6552C2387ABA6000D8787 /* NoSMS */,
+				2AF655432387ABA8000D8787 /* NoSMSTests */,
+				2AF6554E2387ABA8000D8787 /* NoSMSUITests */,
 				2AF6552B2387ABA6000D8787 /* Products */,
 				7513125A76B066A2C96BDC55 /* Pods */,
 				A82008539CEB88538873CCF8 /* Frameworks */,
@@ -197,16 +249,17 @@
 		2AF6552B2387ABA6000D8787 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */,
-				2AF655402387ABA8000D8787 /* TWAzureAuthenticatorTests.xctest */,
-				2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */,
+				2AF6552A2387ABA6000D8787 /* NoSMS.app */,
+				2AF655402387ABA8000D8787 /* NoSMSTests.xctest */,
+				2AF6554B2387ABA8000D8787 /* NoSMSUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2AF6552C2387ABA6000D8787 /* TWAzureAuthenticator */ = {
+		2AF6552C2387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXGroup;
 			children = (
+				2AE53BF223A249B000AB1319 /* JoinManuallyTOTP */,
 				2A2AF088238F99AC00BCC143 /* PhotoCheck */,
 				2AE3DC4E238D31E3009AC8EE /* Scanner */,
 				2A75E659238BB82E00E8CAB9 /* Common */,
@@ -218,25 +271,25 @@
 				2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */,
 				2AF6553B2387ABA8000D8787 /* Info.plist */,
 			);
-			path = TWAzureAuthenticator;
+			path = NoSMS;
 			sourceTree = "<group>";
 		};
-		2AF655432387ABA8000D8787 /* TWAzureAuthenticatorTests */ = {
+		2AF655432387ABA8000D8787 /* NoSMSTests */ = {
 			isa = PBXGroup;
 			children = (
-				2AF655442387ABA8000D8787 /* TWAzureAuthenticatorTests.swift */,
+				2AF655442387ABA8000D8787 /* NoSMSTests.swift */,
 				2AF655462387ABA8000D8787 /* Info.plist */,
 			);
-			path = TWAzureAuthenticatorTests;
+			path = NoSMSTests;
 			sourceTree = "<group>";
 		};
-		2AF6554E2387ABA8000D8787 /* TWAzureAuthenticatorUITests */ = {
+		2AF6554E2387ABA8000D8787 /* NoSMSUITests */ = {
 			isa = PBXGroup;
 			children = (
-				2AF6554F2387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift */,
+				2AF6554F2387ABA8000D8787 /* NoSMSUITests.swift */,
 				2AF655512387ABA8000D8787 /* Info.plist */,
 			);
-			path = TWAzureAuthenticatorUITests;
+			path = NoSMSUITests;
 			sourceTree = "<group>";
 		};
 		7513125A76B066A2C96BDC55 /* Pods */ = {
@@ -248,6 +301,12 @@
 				7C52A96AE617E9F8681F329F /* Pods-TWAzureAuthenticatorTests.release.xcconfig */,
 				A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */,
 				D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */,
+				A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */,
+				3BBA7C2D82B0CAA85542F237 /* Pods-NoSMS.release.xcconfig */,
+				5D887F7919F4F7A653B8E561 /* Pods-NoSMSTests.debug.xcconfig */,
+				A196883168F4BEF0144199A0 /* Pods-NoSMSTests.release.xcconfig */,
+				CBD28FD7B7CA61CFE1125CDC /* Pods-NoSMSUITests.debug.xcconfig */,
+				882C5645A49849890634181A /* Pods-NoSMSUITests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -255,9 +314,9 @@
 		A82008539CEB88538873CCF8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				94426FD48950C329A29DFE8A /* Pods_TWAzureAuthenticator.framework */,
-				B2D96BA72FCD6F7538F204AD /* Pods_TWAzureAuthenticatorTests.framework */,
-				E20704D5DA2BE26BB389BC43 /* Pods_TWAzureAuthenticatorUITests.framework */,
+				AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */,
+				6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */,
+				725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -265,9 +324,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2AF655292387ABA6000D8787 /* TWAzureAuthenticator */ = {
+		2AF655292387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticator" */;
+			buildConfigurationList = 2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "NoSMS" */;
 			buildPhases = (
 				5E8BA7612D37E8A14D9D1E47 /* [CP] Check Pods Manifest.lock */,
 				2AF655262387ABA6000D8787 /* Sources */,
@@ -279,14 +338,14 @@
 			);
 			dependencies = (
 			);
-			name = TWAzureAuthenticator;
+			name = NoSMS;
 			productName = TWAzureAuthenticator;
-			productReference = 2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */;
+			productReference = 2AF6552A2387ABA6000D8787 /* NoSMS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		2AF6553F2387ABA8000D8787 /* TWAzureAuthenticatorTests */ = {
+		2AF6553F2387ABA8000D8787 /* NoSMSTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorTests" */;
+			buildConfigurationList = 2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "NoSMSTests" */;
 			buildPhases = (
 				B1E83BC1E8105B88A9829724 /* [CP] Check Pods Manifest.lock */,
 				2AF6553C2387ABA8000D8787 /* Sources */,
@@ -298,14 +357,14 @@
 			dependencies = (
 				2AF655422387ABA8000D8787 /* PBXTargetDependency */,
 			);
-			name = TWAzureAuthenticatorTests;
+			name = NoSMSTests;
 			productName = TWAzureAuthenticatorTests;
-			productReference = 2AF655402387ABA8000D8787 /* TWAzureAuthenticatorTests.xctest */;
+			productReference = 2AF655402387ABA8000D8787 /* NoSMSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		2AF6554A2387ABA8000D8787 /* TWAzureAuthenticatorUITests */ = {
+		2AF6554A2387ABA8000D8787 /* NoSMSUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorUITests" */;
+			buildConfigurationList = 2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "NoSMSUITests" */;
 			buildPhases = (
 				1D42DA81C18B7793BF240F07 /* [CP] Check Pods Manifest.lock */,
 				2AF655472387ABA8000D8787 /* Sources */,
@@ -317,9 +376,9 @@
 			dependencies = (
 				2AF6554D2387ABA8000D8787 /* PBXTargetDependency */,
 			);
-			name = TWAzureAuthenticatorUITests;
+			name = NoSMSUITests;
 			productName = TWAzureAuthenticatorUITests;
-			productReference = 2AF6554B2387ABA8000D8787 /* TWAzureAuthenticatorUITests.xctest */;
+			productReference = 2AF6554B2387ABA8000D8787 /* NoSMSUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -344,7 +403,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2AF655252387ABA6000D8787 /* Build configuration list for PBXProject "TWAzureAuthenticator" */;
+			buildConfigurationList = 2AF655252387ABA6000D8787 /* Build configuration list for PBXProject "NoSMS" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -357,9 +416,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2AF655292387ABA6000D8787 /* TWAzureAuthenticator */,
-				2AF6553F2387ABA8000D8787 /* TWAzureAuthenticatorTests */,
-				2AF6554A2387ABA8000D8787 /* TWAzureAuthenticatorUITests */,
+				2AF655292387ABA6000D8787 /* NoSMS */,
+				2AF6553F2387ABA8000D8787 /* NoSMSTests */,
+				2AF6554A2387ABA8000D8787 /* NoSMSUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -406,7 +465,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TWAzureAuthenticatorUITests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-NoSMSUITests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -428,7 +487,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TWAzureAuthenticator-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-NoSMS-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -441,15 +500,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		B1E83BC1E8105B88A9829724 /* [CP] Check Pods Manifest.lock */ = {
@@ -467,7 +526,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-TWAzureAuthenticatorTests-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-NoSMSTests-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -481,11 +540,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */,
+				2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */,
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
 				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
 				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
 				2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */,
+				2AE53BF523A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift in Sources */,
 				2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */,
+				2AE53BEF23A2499600AB1319 /* TOTPURLParsing.swift in Sources */,
+				2AE53BF023A2499600AB1319 /* UserDefaultExtension.swift in Sources */,
 				2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */,
 				2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */,
 				2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */,
@@ -502,7 +566,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2AF655452387ABA8000D8787 /* TWAzureAuthenticatorTests.swift in Sources */,
+				2AF655452387ABA8000D8787 /* NoSMSTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -510,7 +574,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2AF655502387ABA8000D8787 /* TWAzureAuthenticatorUITests.swift in Sources */,
+				2AF655502387ABA8000D8787 /* NoSMSUITests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -519,12 +583,12 @@
 /* Begin PBXTargetDependency section */
 		2AF655422387ABA8000D8787 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2AF655292387ABA6000D8787 /* TWAzureAuthenticator */;
+			target = 2AF655292387ABA6000D8787 /* NoSMS */;
 			targetProxy = 2AF655412387ABA8000D8787 /* PBXContainerItemProxy */;
 		};
 		2AF6554D2387ABA8000D8787 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2AF655292387ABA6000D8787 /* TWAzureAuthenticator */;
+			target = 2AF655292387ABA6000D8787 /* NoSMS */;
 			targetProxy = 2AF6554C2387ABA8000D8787 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -591,7 +655,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -645,7 +709,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -657,18 +721,18 @@
 		};
 		2AF655552387ABA8000D8787 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */;
+			baseConfigurationReference = A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
-				INFOPLIST_FILE = TWAzureAuthenticator/Info.plist;
+				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticator;
+				PRODUCT_BUNDLE_IDENTIFIER = Azure.NoSMS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -677,18 +741,18 @@
 		};
 		2AF655562387ABA8000D8787 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3970F258F6361C4260991E5A /* Pods-TWAzureAuthenticator.release.xcconfig */;
+			baseConfigurationReference = 3BBA7C2D82B0CAA85542F237 /* Pods-NoSMS.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
-				INFOPLIST_FILE = TWAzureAuthenticator/Info.plist;
+				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = AzureTW.TWAzureAuthenticator;
+				PRODUCT_BUNDLE_IDENTIFIER = Azure.NoSMS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -697,13 +761,13 @@
 		};
 		2AF655582387ABA8000D8787 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9B2075010F5908FB50A06A7B /* Pods-TWAzureAuthenticatorTests.debug.xcconfig */;
+			baseConfigurationReference = 5D887F7919F4F7A653B8E561 /* Pods-NoSMSTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
-				INFOPLIST_FILE = TWAzureAuthenticatorTests/Info.plist;
+				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -714,19 +778,19 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TWAzureAuthenticator.app/TWAzureAuthenticator";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NoSMS.app/NoSMS";
 			};
 			name = Debug;
 		};
 		2AF655592387ABA8000D8787 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7C52A96AE617E9F8681F329F /* Pods-TWAzureAuthenticatorTests.release.xcconfig */;
+			baseConfigurationReference = A196883168F4BEF0144199A0 /* Pods-NoSMSTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
-				INFOPLIST_FILE = TWAzureAuthenticatorTests/Info.plist;
+				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -737,18 +801,18 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TWAzureAuthenticator.app/TWAzureAuthenticator";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/NoSMS.app/NoSMS";
 			};
 			name = Release;
 		};
 		2AF6555B2387ABA8000D8787 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */;
+			baseConfigurationReference = CBD28FD7B7CA61CFE1125CDC /* Pods-NoSMSUITests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
-				INFOPLIST_FILE = TWAzureAuthenticatorUITests/Info.plist;
+				INFOPLIST_FILE = NoSMS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -764,12 +828,12 @@
 		};
 		2AF6555C2387ABA8000D8787 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */;
+			baseConfigurationReference = 882C5645A49849890634181A /* Pods-NoSMSUITests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
-				INFOPLIST_FILE = TWAzureAuthenticatorUITests/Info.plist;
+				INFOPLIST_FILE = NoSMS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -786,7 +850,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2AF655252387ABA6000D8787 /* Build configuration list for PBXProject "TWAzureAuthenticator" */ = {
+		2AF655252387ABA6000D8787 /* Build configuration list for PBXProject "NoSMS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2AF655522387ABA8000D8787 /* Debug */,
@@ -795,7 +859,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticator" */ = {
+		2AF655542387ABA8000D8787 /* Build configuration list for PBXNativeTarget "NoSMS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2AF655552387ABA8000D8787 /* Debug */,
@@ -804,7 +868,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorTests" */ = {
+		2AF655572387ABA8000D8787 /* Build configuration list for PBXNativeTarget "NoSMSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2AF655582387ABA8000D8787 /* Debug */,
@@ -813,7 +877,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "TWAzureAuthenticatorUITests" */ = {
+		2AF6555A2387ABA8000D8787 /* Build configuration list for PBXNativeTarget "NoSMSUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2AF6555B2387ABA8000D8787 /* Debug */,

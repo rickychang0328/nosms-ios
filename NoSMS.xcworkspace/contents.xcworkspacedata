@@ -2,7 +2,7 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:TWAzureAuthenticator.xcodeproj">
+      location = "group:/Users/chengweishuweikeji/Desktop/TWAzureAuthenticator/NoSMS.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">

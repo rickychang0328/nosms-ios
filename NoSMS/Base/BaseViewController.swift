@@ -13,6 +13,15 @@ protocol BaseVCViewModelProtocol {
     
     var navigationItemViewModel: BaseNavigaitonItemProtocol { get }
     var vcBackgroundColor: BehaviorSubject<UIColor> { get }
+    var intoAppPastedAction: PublishSubject<String> { get }
+}
+
+extension BaseVCViewModelProtocol {
+    
+    var intoAppPastedAction: PublishSubject<String> {
+        
+        return PastedAction.shared.intoAppPastedAction
+    }
 }
 
 class BaseVCViewModel: BaseVCViewModelProtocol {

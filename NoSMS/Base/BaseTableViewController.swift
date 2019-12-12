@@ -29,7 +29,7 @@ struct TableViewCellViewModelFactory {
             switch self {
             case .tokenList:
                 
-                return .clear
+                return .white
             }
         }
         
@@ -78,6 +78,8 @@ struct TableViewCellViewModelFactory {
 enum TableViewCellFactoryType {
     
     case tokenList(viewModel: TokenListTableViewCellViewModel)
+    case joinManuallyTextIn(viewModel: JoinManuallyCellTextInItems)
+    case joinManuallySwither(viewModel: JoinManuallyCellSwitchItems)
 }
 
 enum TableViewHeaderFooterFactoryType {
@@ -279,6 +281,35 @@ private extension TableViewCellFactoryType {
             } else {
                 
                 cell = TokenListTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
+            
+            cell.bindData(viewModel: viewModel)
+            return cell
+            
+        case .joinManuallyTextIn(let viewModel):
+            
+            let cell: JoinManuallyTOTPTextInTableViewCell<JoinManuallyCellTextInItems>
+            
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? JoinManuallyTOTPTextInTableViewCell<JoinManuallyCellTextInItems> {
+                
+                cell = reuseCell
+            } else {
+                
+                cell = JoinManuallyTOTPTextInTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
+            
+            cell.bindData(viewModel: viewModel)
+            return cell
+        case .joinManuallySwither(let viewModel):
+            
+            let cell: JoinManuallyTOTPSwitchTableViewCell<JoinManuallyCellSwitchItems>
+            
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? JoinManuallyTOTPSwitchTableViewCell<JoinManuallyCellSwitchItems> {
+                
+                cell = reuseCell
+            } else {
+                
+                cell = JoinManuallyTOTPSwitchTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
             }
             
             cell.bindData(viewModel: viewModel)
