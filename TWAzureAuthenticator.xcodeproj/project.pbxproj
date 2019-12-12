@@ -21,6 +21,11 @@
 		2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */; };
 		2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */; };
 		2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */; };
+		2AE53BEF23A2499600AB1319 /* TOTPURLParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */; };
+		2AE53BF023A2499600AB1319 /* UserDefaultExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEC23A2499600AB1319 /* UserDefaultExtension.swift */; };
+		2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEE23A2499600AB1319 /* PastedAction.swift */; };
+		2AE53BF523A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BF323A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift */; };
+		2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BF423A249B000AB1319 /* JoinManuallyTOTPViewController.swift */; };
 		2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6552D2387ABA6000D8787 /* AppDelegate.swift */; };
 		2AF655372387ABA8000D8787 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655362387ABA8000D8787 /* Assets.xcassets */; };
 		2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2AF655382387ABA8000D8787 /* LaunchScreen.storyboard */; };
@@ -61,6 +66,11 @@
 		2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
 		2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreProtocol.swift; sourceTree = "<group>"; };
 		2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScannerViewController.swift; sourceTree = "<group>"; };
+		2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TOTPURLParsing.swift; sourceTree = "<group>"; };
+		2AE53BEC23A2499600AB1319 /* UserDefaultExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultExtension.swift; sourceTree = "<group>"; };
+		2AE53BEE23A2499600AB1319 /* PastedAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PastedAction.swift; sourceTree = "<group>"; };
+		2AE53BF323A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoinManuallyTOTPTableViewCell.swift; sourceTree = "<group>"; };
+		2AE53BF423A249B000AB1319 /* JoinManuallyTOTPViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoinManuallyTOTPViewController.swift; sourceTree = "<group>"; };
 		2AF6552A2387ABA6000D8787 /* TWAzureAuthenticator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TWAzureAuthenticator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AF6552D2387ABA6000D8787 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2AF655362387ABA8000D8787 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -149,6 +159,9 @@
 		2A75E659238BB82E00E8CAB9 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				2AE53BED23A2499600AB1319 /* PastedAction */,
+				2AE53BE923A2499600AB1319 /* TOTPURL */,
+				2AE53BEB23A2499600AB1319 /* UserDefault */,
 				2AE3DC4B238CC773009AC8EE /* TokenStore */,
 				2A75E65A238BB8A100E8CAB9 /* Extension */,
 			);
@@ -182,6 +195,39 @@
 			path = Scanner;
 			sourceTree = "<group>";
 		};
+		2AE53BE923A2499600AB1319 /* TOTPURL */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */,
+			);
+			path = TOTPURL;
+			sourceTree = "<group>";
+		};
+		2AE53BEB23A2499600AB1319 /* UserDefault */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BEC23A2499600AB1319 /* UserDefaultExtension.swift */,
+			);
+			path = UserDefault;
+			sourceTree = "<group>";
+		};
+		2AE53BED23A2499600AB1319 /* PastedAction */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BEE23A2499600AB1319 /* PastedAction.swift */,
+			);
+			path = PastedAction;
+			sourceTree = "<group>";
+		};
+		2AE53BF223A249B000AB1319 /* JoinManuallyTOTP */ = {
+			isa = PBXGroup;
+			children = (
+				2AE53BF323A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift */,
+				2AE53BF423A249B000AB1319 /* JoinManuallyTOTPViewController.swift */,
+			);
+			path = JoinManuallyTOTP;
+			sourceTree = "<group>";
+		};
 		2AF655212387ABA6000D8787 = {
 			isa = PBXGroup;
 			children = (
@@ -207,6 +253,7 @@
 		2AF6552C2387ABA6000D8787 /* TWAzureAuthenticator */ = {
 			isa = PBXGroup;
 			children = (
+				2AE53BF223A249B000AB1319 /* JoinManuallyTOTP */,
 				2A2AF088238F99AC00BCC143 /* PhotoCheck */,
 				2AE3DC4E238D31E3009AC8EE /* Scanner */,
 				2A75E659238BB82E00E8CAB9 /* Common */,
@@ -481,11 +528,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */,
+				2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */,
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
 				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
 				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
 				2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */,
+				2AE53BF523A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift in Sources */,
 				2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */,
+				2AE53BEF23A2499600AB1319 /* TOTPURLParsing.swift in Sources */,
+				2AE53BF023A2499600AB1319 /* UserDefaultExtension.swift in Sources */,
 				2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */,
 				2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */,
 				2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */,
