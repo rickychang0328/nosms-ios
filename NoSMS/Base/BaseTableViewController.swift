@@ -29,7 +29,7 @@ struct TableViewCellViewModelFactory {
             switch self {
             case .tokenList:
                 
-                return .white
+                return .clear
             }
         }
         
@@ -70,14 +70,15 @@ struct TableViewCellViewModelFactory {
                                                    name: token.name,
                                                    password: token.password,
                                                    issuer: token.issuer,
-                                                   lastTime: token.lastTimeObserver)
+                                                   lastTime: token.lastTimeObserver,
+                                                   haveSelectToDelete: token.wantDeleted)
         }
     }
 }
 
 enum TableViewCellFactoryType {
     
-    case tokenList(viewModel: TokenListTableViewCellViewModel)
+    case tokenListWithTime(viewModel: TokenListTableViewCellViewModel)
     case joinManuallyTextIn(viewModel: JoinManuallyCellTextInItems)
     case joinManuallySwither(viewModel: JoinManuallyCellSwitchItems)
 }
@@ -184,12 +185,10 @@ extension Reactive where Base: UITableViewCell {
 
 class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: BaseViewController<ViewModel>, UITableViewDelegate, UITableViewDataSource {
     
-    private(set) lazy var tableView: UITableView = {
+    lazy var tableView: UITableView = {
       
         let tableView = UITableView(frame: .zero, style: self.viewModel.tableViewStyle)
         tableView.separatorStyle = .none
-        tableView.delegate = self
-        tableView.dataSource = self
         return tableView
     }()
     
@@ -201,6 +200,9 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
             
             $0.edges.equalToSuperview()
         }
+        
+        tableView.delegate = self
+        tableView.dataSource = self
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -253,6 +255,12 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
         
         return viewModel.cellViewModels[section].sectionHeaderViewModel?.sectionViewHeight ?? 0
     }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+    
+    
 }
 
 private extension TableViewCellFactoryType {
@@ -271,7 +279,7 @@ private extension TableViewCellFactoryType {
 
         switch self {
             
-        case .tokenList(let viewModel):
+        case .tokenListWithTime(let viewModel):
             
             let cell: TokenListTableViewCell<TokenListTableViewCellViewModel>
             

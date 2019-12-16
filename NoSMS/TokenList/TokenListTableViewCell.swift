@@ -1,9 +1,3 @@
-//
-//  TokenListTableViewCell.swift
-//  TWAzureAuthenticator
-//
-//  Created by 誠帷數位科技 on 2019/11/25.
-//
 
 import UIKit
 import RxCocoa
@@ -11,17 +5,20 @@ import RxSwift
 
 protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProtocol {
     
-    var name: Observable<String> { get }
+    var name: BehaviorSubject<String> { get }
     var password: Observable<String> { get }
     var issuer: Observable<String> { get }
     var lastTime: BehaviorSubject<String> { get }
+    var haveSelectToDelete: BehaviorSubject<Bool> { get }
 }
 
 class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     
+    let haveSelectToDelete: BehaviorSubject<Bool>
+
     let baseCellItem: BaseTableViewCellViewModelItemProtocol
 
-    let name: Observable<String>
+    let name: BehaviorSubject<String>
     
     let password: Observable<String>
     
@@ -29,19 +26,21 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     
     let lastTime: BehaviorSubject<String>
     
-    var cellFactoryType: TableViewCellFactoryType { .tokenList(viewModel: self) }
+    var cellFactoryType: TableViewCellFactoryType { .tokenListWithTime(viewModel: self) }
     
     internal init(baseViewModelItem: BaseTableViewCellViewModelItemProtocol,
-                  name: Observable<String>,
+                  name: BehaviorSubject<String>,
                   password: Observable<String>,
                   issuer: Observable<String>,
-                  lastTime: BehaviorSubject<String>) {
+                  lastTime: BehaviorSubject<String>,
+                  haveSelectToDelete: BehaviorSubject<Bool>) {
         
         self.baseCellItem = baseViewModelItem
-        self.name = name.map { "Name:" + $0 }
-        self.password = password.map { "PassWord:" + $0 }
-        self.issuer = issuer.map { "Issuer:" + $0 }
+        self.name = name
+        self.password = password
+        self.issuer = issuer
         self.lastTime = lastTime
+        self.haveSelectToDelete = haveSelectToDelete
     }
 }
  
@@ -50,43 +49,58 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let nameLabel: UILabel = {
        
         let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setTextColor(.nameColor)
         return label
     }()
     
     private let nameTextField: UITextField = {
         
         let textField = UITextField()
-        
+        textField.font = .pingFangMediumFont(size: 15)
+        textField.textColor = .nameColor
         return textField
     }()
     
     private let passwordLabel: UILabel = {
           
         let label = UILabel()
-        label.setFont(.avenirHeavyFont(size: 32))
+        label.setFont(.arialMTFont(size: 45))
+            .setTextColor(.sercetNormalColor)
         return label
     }()
     
     private let issuerLabel: UILabel = {
           
         let label = UILabel()
+        label.setTextColor(.issuerColor)
+            .setFont(.pingFangMediumFont(size: 15))
         return label
     }()
     
-    private let lastTimeLabel: UILabel = {
+    private let countTimeLabel: UILabel = {
         
         let label = UILabel()
-        label.setFont(.avenirHeavyFont(size: 18))
+        label.setFont(.avenirHeavyFont(size: 11))
+            .setTextColor(.countColor)
         return label
     }()
     
-    private let underLineView: UIView = {
+    private let backCardView: UIView = {
        
         let view = UIView()
-        view.setBackgroundColor(.gray)
+        view.setBackgroundColor(.white)
         return view
     }()
     
+    private let deletedButton: UIButton = {
+       
+        let button = UIButton()
+        return button
+    }()
+    
+    private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
+        
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -99,63 +113,104 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     private func layoutView() {
         
-        addSubview(nameLabel)
-        addSubview(nameTextField)
-        addSubview(passwordLabel)
-        addSubview(issuerLabel)
-        addSubview(underLineView)
-        addSubview(lastTimeLabel)
-        
-        nameLabel.snp.makeConstraints {
-            
-            $0.top.left.equalTo(8)
-            $0.right.equalTo(-8)
-        }
-        
-        nameTextField.snp.makeConstraints {
-            
-            $0.edges.equalTo(nameLabel)
-        }
-        
-        passwordLabel.snp.makeConstraints {
-            
-            $0.left.right.equalTo(nameLabel)
-            $0.top.equalTo(nameLabel.snp.bottom).offset(6)
-        }
+        addSubview(backCardView)
+        sendSubviewToBack(backCardView)
+        contentView.addSubview(nameLabel)
+        contentView.addSubview(nameTextField)
+        contentView.addSubview(passwordLabel)
+        contentView.addSubview(issuerLabel)
+        contentView.addSubview(countTimeLabel)
+        addSubview(deleteImageView)
+        contentView.addSubview(deletedButton)
         
         issuerLabel.snp.makeConstraints {
             
-            $0.left.right.equalTo(nameLabel)
-            $0.top.equalTo(passwordLabel.snp.bottom).offset(6)
-            $0.bottom.equalToSuperview().offset(-6)
-        }
-        
-        underLineView.snp.makeConstraints {
-            
-            $0.bottom.left.right.equalToSuperview()
-            $0.height.equalTo(1)
+            $0.top.left.equalTo(ScaleWidth(at: 16))
+            $0.right.equalTo(ScaleWidth(at: -16))
         }
     
-        lastTimeLabel.snp.makeConstraints {
+        deleteImageView.snp.makeConstraints {
             
             $0.centerY.equalTo(passwordLabel)
-            $0.right.equalTo(-8)
+            $0.right.equalTo(contentView.snp.left)
+            $0.height.equalTo(ScaleWidth(at: 18))
+            $0.width.equalTo(ScaleWidth(at: 18))
         }
         
+        deletedButton.snp.makeConstraints {
+            
+            $0.top.left.bottom.equalToSuperview()
+            $0.right.equalTo(contentView.snp.left).offset(20)
+        }
 
-    }
-    
-    override func layoutSubviews() {
-        super.layoutSubviews()
+        passwordLabel.snp.makeConstraints {
+            
+            $0.left.right.equalTo(issuerLabel)
+            $0.top.equalTo(issuerLabel.snp.bottom).offset(ScaleWidth(at: 10))
+        }
         
-        changeLayout()
+        nameLabel.snp.makeConstraints {
+            
+            $0.left.right.equalTo(issuerLabel)
+            $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10))
+            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
+        }
+        
+        nameTextField.snp.makeConstraints {
+                  
+            $0.left.right.centerY.equalTo(nameLabel).offset(1)
+        }
+        
+        let textFieldUnderLine = UIView()
+        textFieldUnderLine.setBackgroundColor(.gray)
+        nameTextField.addSubview(textFieldUnderLine)
+        textFieldUnderLine.snp.makeConstraints {
+            
+            $0.left.right.bottom.equalToSuperview()
+            $0.height.equalTo(1)
+        }
+        
+        backCardView.snp.makeConstraints {
+            
+            $0.top.left.right.equalToSuperview()
+            $0.bottom.equalTo(ScaleWidth(at: -4))
+        }
+    
+        countTimeLabel.snp.makeConstraints {
+            
+            $0.centerY.equalTo(nameLabel)
+            $0.right.equalTo(issuerLabel)
+        }
     }
     
     private func changeLayout() {
-   
-        nameLabel.isHidden = isEditing
-        nameTextField.isHidden = !isEditing
- 
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            
+            self.nameLabel.isHidden = self.isEditing
+            self.countTimeLabel.isHidden = self.isEditing
+            self.passwordLabel.isHidden = self.isEditing
+            self.nameTextField.isHidden = !self.isEditing
+            self.deletedButton.isEnabled = self.isEditing
+        }, completion: nil)
+        
+        if isEditing {
+            
+            for view in self.subviews {
+                
+                if view.description.contains("UITableViewCellReorderControl") {
+
+                    let imageOfReorder = view.subviews[0] as? UIImageView
+                    imageOfReorder?.image = .noSmsMoveCell
+                }
+            }
+        }
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: true)
+        
+        changeLayout()
     }
     
     override func bindData(viewModel: ViewModel) {
@@ -164,13 +219,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let name = viewModel.name
                     .asDriver(onErrorJustReturn: "")
             
-            
         name.drive(nameLabel.rx.text)
             .disposed(by: disposedBag)
         name.drive(nameTextField.rx.text)
             .disposed(by: disposedBag)
 
-        
         viewModel.issuer
             .bind(to: issuerLabel.rx.text)
             .disposed(by: disposedBag)
@@ -180,9 +233,40 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .disposed(by: disposedBag)
         
         viewModel.lastTime
-            .bind(to: lastTimeLabel.rx.text)
+            .bind(to: countTimeLabel.rx.text)
             .disposed(by: disposedBag)
         
+        let warningTime = viewModel.lastTime.compactMap({Int($0)}).map({$0 < 6})
         
+        warningTime.map({ $0 ? UIColor.sercetWarninglColor : UIColor.sercetNormalColor })
+            .bind(to: passwordLabel.rx.textColor)
+            .disposed(by: disposedBag)
+        
+        warningTime.map({ $0 ? UIColor.countWarningColor : UIColor.countColor })
+            .bind(to: countTimeLabel.rx.textColor)
+            .disposed(by: disposedBag)
+        
+        viewModel.haveSelectToDelete
+            .bind(to: deletedButton.rx.isSelected)
+            .disposed(by: disposedBag)
+        
+        viewModel.haveSelectToDelete
+            .map({ $0 ? UIImage.noSmsSelectedDelete : UIImage.noSmsNoSelected})
+            .bind(to: deleteImageView.rx.image)
+            .disposed(by: disposedBag)
+
+        let haveSeletToDelete = viewModel.haveSelectToDelete
+
+        deletedButton.rx.tap.subscribe { [weak self, weak haveSeletToDelete] _ in
+
+            guard let self = self else { return }
+            self.deletedButton.isSelected = !self.deletedButton.isSelected
+            haveSeletToDelete?.onNext(self.deletedButton.isSelected)
+        }.disposed(by: disposedBag)
+        
+        nameTextField.rx.controlEvent(.editingDidEnd)
+            .flatMapLatest({[unowned self] in return self.nameTextField.rx.text.orEmpty })
+            .bind(to: viewModel.name)
+            .disposed(by: disposedBag)
     }
 }

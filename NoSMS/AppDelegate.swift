@@ -19,6 +19,9 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.rootViewController = firstVC
         self.window?.makeKeyAndVisible()
         
+        if #available(iOS 13, *) {
+            self.window?.overrideUserInterfaceStyle = .light
+        }
         return true
     }
     

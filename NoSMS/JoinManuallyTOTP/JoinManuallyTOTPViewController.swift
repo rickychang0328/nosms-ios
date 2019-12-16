@@ -110,15 +110,15 @@ class JoinManuallySectionItems: JoinManuallySectionItemsProtocol {
     
     let baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol
     
-    init(urlCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "驗證碼",
+    init(urlCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "验证码",
                                                                                              textfieldPlaceHolder: "otpauth://"),
-         accountCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "帳號",
-                                                                                                 textfieldPlaceHolder: "xxx@example"),
+         accountCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "账号",
+                                                                                                 textfieldPlaceHolder: "hello@example.com"),
          issuerCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "issuer",
                                                                                                     textfieldPlaceHolder: "smaill-chat-text"),
-         keyTokenCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "密鑰",
-                                                                                                  textfieldPlaceHolder: "fkjnfieof"),
-         baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol = JoinManuallyCellSwitchItems(title: "基於時間")) {
+         keyTokenCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "密钥",
+                                                                                                  textfieldPlaceHolder: "fwjf btrf"),
+         baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol = JoinManuallyCellSwitchItems(title: "基于时间")) {
          
         self.urlCellViewModel = urlCellViewModel
         self.accountCellViewModel = accountCellViewModel
@@ -139,7 +139,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
     
     let buttonEnable: Observable<Bool>
     
-    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "手動輸入驗證碼")),
+    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "手动输入验证码")),
          joinManuallySectionItems: JoinManuallySectionItemsProtocol = JoinManuallySectionItems(),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
          pastedString: String? = nil) {
@@ -301,21 +301,22 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
         
         tableView.bounces = false
         
-        let navigationBarButton = UIBarButtonItem(barButtonSystemItem: .done, target: nil, action: nil)
+        let navigationBarButton = UIBarButtonItem(image: .noSmsDone, style: .plain, target: nil, action: nil)
+
         navigationItem.rightBarButtonItem = navigationBarButton
         
         viewModel.buttonEnable
             .bind(to: navigationBarButton.rx.isEnabled)
             .disposed(by: disposedBag)
         
-        navigationBarButton.rx.tap.flatMapFirst(viewModel.addTOTP)
-            .asCompletable()
-            .subscribe(onCompleted: {
+        
+        navigationBarButton.rx.tap.subscribe { [weak self] _ in
             
-                print("completed")
-            }) { error in
+            guard let self = self else { return }
             
-                print(error)
-            }.disposed(by: disposedBag)
+            self.viewModel.addTOTP().subscribe(onCompleted: { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }).disposed(by: self.disposedBag)
+        }.disposed(by: disposedBag)
     }
 }

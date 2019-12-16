@@ -46,6 +46,11 @@ class BaseViewController<ViewModel: BaseVCViewModelProtocol>: UIViewController {
     
     var disposedBag: DisposeBag = .init()
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        
+        return .lightContent
+    }
+    
     init(viewModel: ViewModel) {
         
         self.viewModel = viewModel
@@ -56,13 +61,26 @@ class BaseViewController<ViewModel: BaseVCViewModelProtocol>: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.tintColor = .white
+        navigationController?.navigationBar.barTintColor = .countColor
+        navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        navigationController?.navigationBar.barStyle = .black
         viewModel.navigationItemViewModel.title
             .bind(to: navigationItem.rx.title)
             .disposed(by: disposedBag)
         
         viewModel.vcBackgroundColor
             .bind(to: view.rx.backgroundColor)
-            .disposed(by: disposedBag)
+        .disposed(by: disposedBag)
+        
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+
+        leftbarItem.rx.tap.subscribe { [weak self] _ in
+            
+            self?.navigationController?.popViewController(animated: true)
+        }.disposed(by: disposedBag)
+        
+        navigationItem.leftBarButtonItem = leftbarItem
     }
     
     required init?(coder: NSCoder) {

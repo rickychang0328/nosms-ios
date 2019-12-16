@@ -8,7 +8,7 @@ protocol QRCodeScannerProtocol {
     
     var qrCodeCaptureSession: AVCaptureSession { get }
     
-    var eventResult: BehaviorSubject<QRCodeScanner.QRCodeScannerEvnet> { get }
+    var eventResult: BehaviorSubject<QRCodeScanner.Event> { get }
     
 }
 
@@ -16,9 +16,9 @@ class QRCodeScanner: NSObject, QRCodeScannerProtocol, AVCaptureMetadataOutputObj
     
     let qrCodeCaptureSession: AVCaptureSession
     
-    let eventResult: BehaviorSubject<QRCodeScannerEvnet>
+    let eventResult: BehaviorSubject<Event>
     
-    enum QRCodeScannerEvnet {
+    enum Event {
         
         case start
         case error(Error)
@@ -34,8 +34,6 @@ class QRCodeScanner: NSObject, QRCodeScannerProtocol, AVCaptureMetadataOutputObj
         do {
             let captureInput = try AVCaptureSessionFactory.creatAVCaptureInput(inputMediaType: .video)
             qrCodeCaptureSession.addInput(captureInput)
-            
-            
             
             AVCaptureSessionFactory.creatAVCaptureMetaDataOutput(session: qrCodeCaptureSession, delegate: self, types: [.qr], dispatchQueue: .main)
             
@@ -60,7 +58,6 @@ class QRCodeScanner: NSObject, QRCodeScannerProtocol, AVCaptureMetadataOutputObj
         }
     }
 }
-
 
 struct AVCaptureSessionFactory {
     
@@ -120,7 +117,7 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
     
     private let tokenStore: TokenStoreProtocol
     
-    init(navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "")),
+    init(navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "扫描二微码")),
         backgroundColor: UIColor = .clear,
         tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
         qrCodeScanner: QRCodeScannerProtocol = QRCodeScanner()) {
@@ -147,7 +144,6 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                 } catch {
                     
                     self.eventResult.onNext(.error(error))
-                    self.startScan()
                 }
             }
         }).disposed(by: disposedBag)
@@ -184,11 +180,20 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
                 break
             case .error(let error):
                 print(error)
+                self?.errorAlertHandler()
             case .endScanTask:
                 self?.navigationController?.popViewController(animated: true)
             }
         }).disposed(by: disposedBag)
         
+    }
+    
+    private func errorAlertHandler() {
+        
+        showErrorAlert(title: "错误的QR码", message: nil) {
+            
+            self.viewModel.startScan()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {

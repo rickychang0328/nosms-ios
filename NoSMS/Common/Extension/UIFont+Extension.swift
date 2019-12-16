@@ -11,14 +11,22 @@ enum TFontName:String {
     DINProMedium            =   "DINPro-Medium",
     DINProBold              =   "DINPro-Bold",
     AvenirHeavy             =   "Avenir-Heavy",
-    AvenirBlack             =   "Avenir-Black"
+    AvenirBlack             =   "Avenir-Black",
+    ArialMT                 =   "ArialMT"
 }
 
 private var ScreenWidth: CGFloat { UIScreen.main.bounds.size.width }
+private var ScreenHeight: CGFloat { UIScreen.main.bounds.size.height }
+
 
 public func ScaleWidth(at width: CGFloat) -> CGFloat {
     
     return ScreenWidth/375.0 * width
+}
+
+public func ScaleHeight(at height: CGFloat) -> CGFloat {
+    
+    return ScreenWidth/812.0 * height
 }
 
 extension UIFont {
@@ -45,6 +53,11 @@ extension UIFont {
     
     class func helveticaNeueRegularFont(size:CGFloat) -> UIFont {
         return tFont(fontStyle: .HelveticaNeueRegular, size: size)
+    }
+    
+    class func arialMTFont(size:CGFloat) -> UIFont {
+        
+        return tFont(fontStyle: .ArialMT, size: size)
     }
     
     class func helveticaNeueMediumFont(size:CGFloat) -> UIFont {

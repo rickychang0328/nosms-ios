@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621023A340D1006DD184 /* UIColor+Extension.swift */; };
+		2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */; };
 		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
 		2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */; };
+		2A55BA9B23A727A300142382 /* UIImage+AppImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */; };
 		2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */; };
 		2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */; };
 		2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E651238B80FF00E8CAB9 /* BaseViewController.swift */; };
@@ -53,8 +56,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2A23621023A340D1006DD184 /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
+		2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extension+Rx.swift"; sourceTree = "<group>"; };
 		2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckViewController.swift; sourceTree = "<group>"; };
 		2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
+		2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+AppImageExtension.swift"; sourceTree = "<group>"; };
 		2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListViewController.swift; sourceTree = "<group>"; };
 		2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SnapKit+Extension.swift"; sourceTree = "<group>"; };
 		2A75E651238B80FF00E8CAB9 /* BaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseViewController.swift; sourceTree = "<group>"; };
@@ -181,6 +187,9 @@
 				2A75E65D238BB9C900E8CAB9 /* UIView+Extension.swift */,
 				2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */,
 				2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */,
+				2A23621023A340D1006DD184 /* UIColor+Extension.swift */,
+				2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */,
+				2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -540,8 +549,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */,
 				2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */,
 				2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */,
+				2A55BA9B23A727A300142382 /* UIImage+AppImageExtension.swift in Sources */,
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
 				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
 				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
@@ -559,6 +570,7 @@
 				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
 				2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */,
 				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,
+				2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

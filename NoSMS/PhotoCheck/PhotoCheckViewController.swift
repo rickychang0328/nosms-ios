@@ -2,6 +2,7 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import PhotosUI
 
 protocol PhotoCheckVCViewModelProtocol: BaseVCViewModelProtocol {
     
@@ -39,16 +40,19 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
 
 class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseViewController<ViewModel>, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
+    let photoController = UIImagePickerController()
+    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-                
-        let photoController = UIImagePickerController()
+        
+//         photoController = UIImagePickerController()
         photoController.delegate = self
         photoController.sourceType = .photoLibrary
         addChild(photoController)
         view.addSubview(photoController.view)
     }
-    
+  
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         
         guard let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage,

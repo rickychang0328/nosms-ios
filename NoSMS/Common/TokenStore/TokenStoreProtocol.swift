@@ -6,13 +6,16 @@ import RxSwift
 protocol TokenStoreProtocol {
     
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
-
+    var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
+ 
     func addToken(_ token: Token) throws
     func saveToken(_ token: Token, toPersistentToken persistentToken: PersistentToken) throws
     func updatePersistentToken(_ persistentToken: PersistentToken) throws
     func moveTokenFromIndex(_ origin: Int, toIndex destination: Int) throws
     func deleteToken(index: Int) throws
     func addTokenWith(urlString: String) throws
+    func resetTokenSelected()
+    func deleteSelectedToken() throws
 }
 
 protocol AdapterTokenProtocol {
@@ -24,6 +27,8 @@ protocol AdapterTokenProtocol {
     var issuer: BehaviorSubject<String>  { get }
     var refreshTimes: TimeInterval { get }
     var lastTimeObserver: BehaviorSubject<String> { get }
+    var persistentToken: PersistentToken { get }
+    var wantDeleted: BehaviorSubject<Bool> { get }
 }
 
 class AdapterToken: AdapterTokenProtocol {
@@ -49,6 +54,8 @@ class AdapterToken: AdapterTokenProtocol {
     let issuer: BehaviorSubject<String> = .init(value: "")
     
     let refreshTimes: TimeInterval
+    
+    let wantDeleted: BehaviorSubject<Bool> = .init(value: false)
     
     private var lastTime: TimeInterval {
         
@@ -110,6 +117,8 @@ class AdapterToken: AdapterTokenProtocol {
 
 class KeychainTokenStore {
     
+    let haveSelectTokenToDelete: BehaviorSubject<Bool> = .init(value: false)
+    
     static let shared: KeychainTokenStore = KeychainTokenStore()
     private let keychain: Keychain
     private let userDefaults: UserDefaults
@@ -122,6 +131,27 @@ class KeychainTokenStore {
         }
     }
     
+    private func checkDelete() {
+        
+        guard let array = try? persistentTokensBehavior.value().compactMap({ try? $0.wantDeleted.value()}) else { return }
+        
+        let result = array.contains(true)
+        
+        haveSelectTokenToDelete.onNext(result)
+    }
+    
+    func resetTokenSelected() {
+        
+        guard let array = try? persistentTokensBehavior.value().map({$0.wantDeleted}) else { return }
+               
+        array.forEach {
+            
+            $0.onNext(false)
+        }
+    }
+    
+    private var disposeBag: DisposeBag = .init()
+    
     private init(keychain: Keychain = Keychain.sharedInstance,
                  userDefaults: UserDefaults = UserDefaults.standard) {
         
@@ -129,6 +159,37 @@ class KeychainTokenStore {
         self.userDefaults = userDefaults
         
         reloadTokens()
+        
+        _ = persistentTokensBehavior
+            .subscribe(onNext: { tokenArray in
+                self.disposeBag = .init()
+                
+                let wantToDeleteArray = tokenArray.map({$0.wantDeleted})
+                wantToDeleteArray.forEach {
+                    
+                    $0.subscribe(onNext: { _ in
+                        
+                        self.checkDelete()
+                    }).disposed(by: self.disposeBag)
+                }
+                
+                let nameArray = tokenArray.map({$0.name})
+            
+                for index in nameArray.indices {
+                               
+                    nameArray[index].subscribe(onNext: { newName in
+                                   
+                        if self.persistentTokens[index].token.name != newName {
+                            
+                            let generator = tokenArray[index].persistentToken.token.generator
+                            
+                            let issuer = tokenArray[index].persistentToken.token.issuer
+                            try? self.saveToken(Token(name: newName, issuer: issuer, generator: generator), toPersistentToken: tokenArray[index].persistentToken)
+                        }
+                    }).disposed(by: self.disposeBag)
+                }
+                
+            })
     }
     
     private func reloadTokens() {
@@ -171,6 +232,27 @@ extension KeychainTokenStore: TokenStoreProtocol {
         try deletePersistentToken(persistentTokens[index])
     }
     
+    func deleteSelectedToken() throws {
+        
+        guard let array = try? persistentTokensBehavior.value().compactMap({ try? $0.wantDeleted.value()}) else { return }
+        
+        var indexArray: [Int] = []
+        
+        for index in array.indices {
+            
+            if array[index] {
+                
+                indexArray.append(index)
+            }
+        }
+        
+        indexArray.reverse()
+        
+        try indexArray.forEach {
+            
+            try deleteToken(index: $0)
+        }
+    }
     
     func addTokenWith(urlString: String) throws {
         
@@ -195,15 +277,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
     }
 
     func saveToken(_ token: Token, toPersistentToken persistentToken: PersistentToken) throws {
-        let updatedPersistentToken = try keychain.update(persistentToken, with: token)
-        // Update the in-memory token, which is still the origin of the table view's data
-        
-        persistentTokens = persistentTokens.map {
-            if $0.identifier == updatedPersistentToken.identifier {
-                return updatedPersistentToken
-            }
-            return $0
-        }
+        _ = try keychain.update(persistentToken, with: token)
     }
 
     func updatePersistentToken(_ persistentToken: PersistentToken) throws {

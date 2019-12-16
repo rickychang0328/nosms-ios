@@ -19,6 +19,14 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         return textField
     }()
     
+    private let textFieldUnderLine: UIView = {
+        
+        let view = UIView()
+
+        view.setBackgroundColor(.textFieldUnderLineColor)
+        return view
+    }()
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -33,18 +41,27 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         
         addSubview(titleLabel)
         addSubview(textField)
+        addSubview(textFieldUnderLine)
         
         titleLabel.snp.makeConstraints {
             
-            $0.top.left.equalTo(8)
-            $0.right.equalTo(-8)
+            $0.top.equalTo(ScaleWidth(at: 30))
+            $0.left.equalTo(ScaleWidth(at: 35))
+            $0.right.equalTo(ScaleWidth(at: -35))
         }
-        
+    
         textField.snp.makeConstraints {
             
-            $0.top.equalTo(titleLabel.snp.bottom)
+            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 14))
             $0.left.right.equalTo(titleLabel)
-            $0.bottom.equalTo(-20)
+            $0.bottom.equalTo(ScaleWidth(at: -16))
+        }
+        
+        textFieldUnderLine.snp.makeConstraints {
+            
+            $0.left.right.equalTo(titleLabel)
+            $0.top.equalTo(textField.snp.bottom).offset(ScaleWidth(at: 11))
+            $0.height.equalTo(0.5)
         }
     }
     
@@ -101,15 +118,15 @@ class JoinManuallyTOTPSwitchTableViewCell<ViewModel: JoinManuallyCellSwitchItems
         
         titleLabel.snp.makeConstraints {
             
-            $0.top.left.equalTo(8)
-            $0.right.equalTo(-8)
-            $0.bottom.equalTo(-20)
+            $0.top.equalTo(ScaleWidth(at: 30))
+            $0.left.equalTo(ScaleWidth(at: 35))
+            $0.right.equalTo(ScaleWidth(at: -35))
         }
         
         switchView.snp.makeConstraints {
             
             $0.centerY.equalTo(titleLabel)
-            $0.right.equalTo(-8)
+            $0.right.equalTo(ScaleWidth(at: -35))
         }
     }
     

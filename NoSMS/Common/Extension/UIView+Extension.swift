@@ -97,6 +97,28 @@ extension UIView {
         self.backgroundColor = color
         return self
     }
+    
+    @discardableResult
+    func addCornerRadius(at radius: CGFloat) -> Self {
+        
+        self.layer.masksToBounds = true
+        self.layer.cornerRadius = radius
+        return self
+    }
+    
+    @discardableResult
+    func addCornerAndBorder(backgroundColor: UIColor = UIColor.white,
+                            cornerRadius: CGFloat = ScaleWidth(at: 10),
+                            masksToBounds: Bool = true,
+                            borderColor: UIColor,
+                            borderWidth:CGFloat ) {
+        
+        self.backgroundColor = backgroundColor
+        self.layer.cornerRadius = cornerRadius
+        self.layer.masksToBounds = masksToBounds
+        self.layer.borderColor = borderColor.cgColor
+        self.layer.borderWidth = borderWidth
+    }
 }
 
 private class BorderView: UIView {}
