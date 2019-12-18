@@ -29,10 +29,41 @@ protocol AdapterTokenProtocol {
     var lastTimeObserver: BehaviorSubject<String> { get }
     var persistentToken: PersistentToken { get }
     var wantDeleted: BehaviorSubject<Bool> { get }
+    var digits: Int { get }
+    var isOnTime: Bool { get }
+    var getOnTapPassword: () -> Void { get }
 }
 
 class AdapterToken: AdapterTokenProtocol {
     
+    lazy var getOnTapPassword: () -> Void = { [weak self] in
+        guard let self = self else { return }
+        
+        self.token = self.token.updatedToken()
+        try? KeychainTokenStore.shared.saveToken(self.token, toPersistentToken: self.persistentToken)
+        self.password.onNext(self.token.currentPassword ?? "")
+    }
+    
+    private var token: Token
+    
+    var isOnTime: Bool {
+        
+        switch tokenType {
+            
+        case .counter:
+            
+            return false
+        case .timer:
+            
+            return true
+        }
+    }
+
+    var digits: Int {
+        
+        return persistentToken.token.generator.digits
+    }
+
     let lastTimeObserver: BehaviorSubject<String> = .init(value: "")
 
     let persistentToken: PersistentToken
@@ -67,11 +98,16 @@ class AdapterToken: AdapterTokenProtocol {
     
     private var disposeBag: DisposeBag = .init()
     
-    init(token: PersistentToken) {
+    init(persistentToken: PersistentToken) {
         
-        self.persistentToken = token
+        self.persistentToken = persistentToken
+        self.token = persistentToken.token
         
-        switch token.token.generator.factor {
+        password.onNext(persistentToken.token.currentPassword ?? "")
+        name.onNext(persistentToken.token.name)
+        issuer.onNext(persistentToken.token.issuer)
+        
+        switch persistentToken.token.generator.factor {
             
         case .counter(_):
             
@@ -109,9 +145,6 @@ class AdapterToken: AdapterTokenProtocol {
         }).disposed(by: disposeBag)
         
         lastTimeObserver.onNext("\(Int(lastTime))")
-        password.onNext(persistentToken.token.currentPassword ?? "")
-        name.onNext(persistentToken.token.name)
-        issuer.onNext(persistentToken.token.issuer)
     }
 }
 
@@ -127,7 +160,7 @@ class KeychainTokenStore {
         
         didSet {
             
-            persistentTokensBehavior.onNext(persistentTokens.map{ AdapterToken(token: $0) })
+            persistentTokensBehavior.onNext(persistentTokens.map{ AdapterToken(persistentToken: $0) })
         }
     }
     

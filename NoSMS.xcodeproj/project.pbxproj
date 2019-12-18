@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A21B08323A9C18A00922FBB /* AuthorizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A21B08223A9C18A00922FBB /* AuthorizationManager.swift */; };
+		2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A21B08423A9FBD800922FBB /* ChoseHowToAddToken.swift */; };
 		2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621023A340D1006DD184 /* UIColor+Extension.swift */; };
 		2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */; };
 		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
@@ -60,6 +61,7 @@
 
 /* Begin PBXFileReference section */
 		2A21B08223A9C18A00922FBB /* AuthorizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationManager.swift; sourceTree = "<group>"; };
+		2A21B08423A9FBD800922FBB /* ChoseHowToAddToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChoseHowToAddToken.swift; sourceTree = "<group>"; };
 		2A23621023A340D1006DD184 /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
 		2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extension+Rx.swift"; sourceTree = "<group>"; };
 		2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckViewController.swift; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 			children = (
 				2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */,
 				2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */,
+				2A21B08423A9FBD800922FBB /* ChoseHowToAddToken.swift */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
@@ -588,6 +591,7 @@
 				2A75E656238B824A00E8CAB9 /* BaseNavigaitonItem.swift in Sources */,
 				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,
 				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
+				2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */,
 				2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */,
 				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,
 				2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */,

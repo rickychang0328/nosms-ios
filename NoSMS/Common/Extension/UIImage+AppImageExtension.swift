@@ -6,6 +6,22 @@ extension UIImage {
         
         return UIImage(named: "NoSMS_back") ?? UIImage()
     }
+    
+    static var noSmsKeyin: UIImage {
+        
+        return UIImage(named: "NoSMS_keyIn") ?? UIImage()
+    }
+    
+    static var noSmsPhoto: UIImage {
+        
+        return UIImage(named: "NoSMS_photograph") ?? UIImage()
+    }
+    
+    static var noSmsCamera: UIImage {
+        
+        return UIImage(named: "NoSMS_camera") ?? UIImage()
+    }
+    
     static var noSmsDoneBlue: UIImage {
           
         return UIImage(named: "NoSMS_doneBlue") ?? UIImage()

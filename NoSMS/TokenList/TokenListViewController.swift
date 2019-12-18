@@ -218,7 +218,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.rx.tap.subscribe { [weak self] _ in
                    
             guard let self = self else { return }
-            self.showAddTokenAlert()
+            self.choseHowToAddTokenView.showView()
                    
         }.disposed(by: disposedBag)
         
@@ -264,16 +264,39 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private let homePageView: HomePageView = .init(frame: .zero)
     
+    private let choseHowToAddTokenView: ChoseHowToAddTokenView = .init(frame: .zero)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.addSubview(homePageView)
+        view.addSubview(choseHowToAddTokenView)
         
         homePageView.snp.makeConstraints {
             
             $0.top.equalTo(view.snp.topMargin)
             $0.left.right.bottomMargin.equalToSuperview()
         }
+        
+        choseHowToAddTokenView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+        
+        choseHowToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
+            
+            guard let self = self else { return }
+            
+            switch event {
+                
+            case .photo:
+                self.showPhoto()
+            case .camera:
+                self.showTokenScannerVC()
+            case .keyIn:
+                self.showKeyinTokenVC()
+            }
+            }).disposed(by: disposedBag)
         
         homePageView.tapButtonEvent.subscribe { [weak self] _ in
             

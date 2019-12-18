@@ -71,7 +71,10 @@ struct TableViewCellViewModelFactory {
                                                    password: token.password,
                                                    issuer: token.issuer,
                                                    lastTime: token.lastTimeObserver,
-                                                   haveSelectToDelete: token.wantDeleted)
+                                                   haveSelectToDelete: token.wantDeleted,
+                                                   passwordCount: token.digits,
+                                                   isOnTime: token.isOnTime,
+                                                   getTapPassword: token.getOnTapPassword)
         }
     }
 }
