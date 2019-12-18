@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2A21B08323A9C18A00922FBB /* AuthorizationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A21B08223A9C18A00922FBB /* AuthorizationManager.swift */; };
 		2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621023A340D1006DD184 /* UIColor+Extension.swift */; };
 		2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */; };
 		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
@@ -21,6 +22,8 @@
 		2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65B238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift */; };
 		2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65D238BB9C900E8CAB9 /* UIView+Extension.swift */; };
 		2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */; };
+		2AD796B023A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD796AF23A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift */; };
+		2AD796B223A8DDF600BEF6E8 /* PhotoChoseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD796B123A8DDF600BEF6E8 /* PhotoChoseViewController.swift */; };
 		2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */; };
 		2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */; };
 		2AE53BEF23A2499600AB1319 /* TOTPURLParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */; };
@@ -56,6 +59,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2A21B08223A9C18A00922FBB /* AuthorizationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthorizationManager.swift; sourceTree = "<group>"; };
 		2A23621023A340D1006DD184 /* UIColor+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extension.swift"; sourceTree = "<group>"; };
 		2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extension+Rx.swift"; sourceTree = "<group>"; };
 		2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckViewController.swift; sourceTree = "<group>"; };
@@ -70,6 +74,8 @@
 		2A75E65B238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+SetValueReturnSelf+Extension.swift"; sourceTree = "<group>"; };
 		2A75E65D238BB9C900E8CAB9 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
 		2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Extension.swift"; sourceTree = "<group>"; };
+		2AD796AF23A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckCollectionViewCell.swift; sourceTree = "<group>"; };
+		2AD796B123A8DDF600BEF6E8 /* PhotoChoseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoChoseViewController.swift; sourceTree = "<group>"; };
 		2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreProtocol.swift; sourceTree = "<group>"; };
 		2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScannerViewController.swift; sourceTree = "<group>"; };
 		2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TOTPURLParsing.swift; sourceTree = "<group>"; };
@@ -133,10 +139,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2A21B08123A9C14A00922FBB /* AuthorizationManager */ = {
+			isa = PBXGroup;
+			children = (
+				2A21B08223A9C18A00922FBB /* AuthorizationManager.swift */,
+			);
+			path = AuthorizationManager;
+			sourceTree = "<group>";
+		};
 		2A2AF088238F99AC00BCC143 /* PhotoCheck */ = {
 			isa = PBXGroup;
 			children = (
 				2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */,
+				2AD796AF23A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift */,
+				2AD796B123A8DDF600BEF6E8 /* PhotoChoseViewController.swift */,
 			);
 			path = PhotoCheck;
 			sourceTree = "<group>";
@@ -171,6 +187,7 @@
 		2A75E659238BB82E00E8CAB9 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				2A21B08123A9C14A00922FBB /* AuthorizationManager */,
 				2AE53BED23A2499600AB1319 /* PastedAction */,
 				2AE53BE923A2499600AB1319 /* TOTPURL */,
 				2AE53BEB23A2499600AB1319 /* UserDefault */,
@@ -553,8 +570,10 @@
 				2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */,
 				2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */,
 				2A55BA9B23A727A300142382 /* UIImage+AppImageExtension.swift in Sources */,
+				2AD796B223A8DDF600BEF6E8 /* PhotoChoseViewController.swift in Sources */,
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
 				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
+				2A21B08323A9C18A00922FBB /* AuthorizationManager.swift in Sources */,
 				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
 				2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */,
 				2AE53BF523A249B000AB1319 /* JoinManuallyTOTPTableViewCell.swift in Sources */,
@@ -564,6 +583,7 @@
 				2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */,
 				2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */,
 				2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */,
+				2AD796B023A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift in Sources */,
 				2A75E654238B814300E8CAB9 /* BaseTableViewController.swift in Sources */,
 				2A75E656238B824A00E8CAB9 /* BaseNavigaitonItem.swift in Sources */,
 				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,

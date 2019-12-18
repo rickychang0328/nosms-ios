@@ -4,77 +4,328 @@ import RxCocoa
 import RxSwift
 import PhotosUI
 
-protocol PhotoCheckVCViewModelProtocol: BaseVCViewModelProtocol {
+protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
-    func saveToken(urlString: String) -> Completable
+    var reloadAlbum: PublishSubject<Any> { get }
+    var photosCount: Int { get }
+    var photoImageData: [PhotoCheckCollectionViewCellViewModelProtocol] { get }
+    var newBarViewTitle: BehaviorSubject<String?> { get }
+    
+    func selectAlbum(index: Int)
+}
+
+struct PhotoListObject {
+    
+    let photoAlbum: PHCollection
+    
+    let photosAsset: [PHAsset]
+    
+    let photosImageData: [BehaviorSubject<UIImage?>]
+
+}
+
+class PhotoManager {
+    
+    static let shared: PhotoManager = .init()
+        
+    private(set) var photos: [PhotoListObject] = []
+    
+    private let phImageManager: PHImageManager = .default()
+    
+    private let phPhoteLibrary: PHPhotoLibrary = .shared()
+            
+    private init() {
+        
+        reloadAlbum()
+    }
+    
+    func reloadAlbum() {
+        
+        let smartOptions = PHFetchOptions()
+        let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: smartOptions)
+                
+        for index in 0 ..< smartAlbums.count {
+                        
+            smartOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+            smartOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
+            
+            let imageList = smartAlbums[index]
+            let assetFetchResult = PHAsset.fetchAssets(in: imageList, options: smartOptions)
+            
+            var photos: [PHAsset] = []
+            
+            var photoImage: [BehaviorSubject<UIImage?>] = []
+            if assetFetchResult.count > 0 {
+                
+                for index in 0 ..< assetFetchResult.count {
+
+                    let behaviorSubject: BehaviorSubject<UIImage?> = .init(value: nil)
+                    photoImage.append(behaviorSubject)
+                    photos.append(assetFetchResult[index])
+                    
+                    DispatchQueue.global().async {
+                        
+                        self.phImageManager.requestImage(for: assetFetchResult[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
+                            behaviorSubject.onNext(image)
+                        })
+                    }
+                }
+                
+                self.photos.append(PhotoListObject(photoAlbum: smartAlbums[index], photosAsset: photos, photosImageData: photoImage))
+            }
+        }
+    }
+}
+
+class PhotoCheckVCTableViewSectionItems: BaseTableViewSectionItemsProtocol {
+    
+    let sectionHeaderViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol? = nil
+    
+    let sectionFooterViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol? = nil
+    
+    var numberOfRow: Int {
+        
+        return rowItems.count
+    }
+    
+    subscript(index: Int) -> BaseTableViewCellViewModelProtocol {
+        
+        rowItems[index]
+    }
+    
+    var rowItems: [PhotoCheckTableViewCellViewModel] = []
 }
 
 class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
-
-    private let tokenStore: TokenStoreProtocol
     
-    init(tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
-         backgroundColor: UIColor = .clear,
-         navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: ""))) {
+    let newBarViewTitle: BehaviorSubject<String?> = .init(value: "")
+
+    var cellViewModels: [BaseTableViewSectionItemsProtocol] {
         
-        self.tokenStore = tokenStore
-        super.init(navigationItem: navigationItem, backgroundColor: backgroundColor)
+        return [tableViewSectionItem]
     }
     
-    func saveToken(urlString: String) -> Completable {
+    private let tableViewSectionItem = PhotoCheckVCTableViewSectionItems()
+    
+    var tableViewStyle: UITableView.Style { return .grouped }
+    
+    private let photoManager: PhotoManager = .shared
+    
+    var photosCount: Int {
         
-        return Completable.create { completable in
+        return photoImageData.count
+    }
+    
+    private var selectAlbum: Int = 0
+    
+    var photoImageData: [PhotoCheckCollectionViewCellViewModelProtocol] = []
+    let reloadAlbum: PublishSubject<Any> = .init()
+    
+    init(backgroundColor: UIColor = .clear,
+         navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: ""))) {
+        
+        super.init(navigationItem: navigationItem, backgroundColor: backgroundColor)
+        selectAlbum = photoManager.photos.count - 1
+
+        for index in photoManager.photos.indices {
             
-            do {
-                try self.tokenStore.addTokenWith(urlString: urlString)
-                completable(.completed)
-            } catch {
-                
-                completable(.error(error))
-            }
+            let photoObject = photoManager.photos[index]
             
-            return Disposables.create {}
+            let title = photoObject.photoAlbum.localizedTitle
+            let photoImage = photoObject.photosImageData[0]
+            let photoCount = "(\(photoObject.photosAsset.count))"
+            let isSelected: Bool = false
+            
+            tableViewSectionItem.rowItems
+                .append(PhotoCheckTableViewCellViewModel(image: photoImage,
+                                                         title: .init(value: title),
+                                                         photoCount: .init(value: photoCount),
+                                                         isSelected: .init(value: isSelected)))
         }
+        selectAlbum = photoManager.photos.count - 1
+        selectAlbum(index: selectAlbum)
+    }
+    
+    private func reloadPhoto() {
+        
+        if selectAlbum < photoManager.photos.count {
+            
+            photoImageData = photoManager.photos[selectAlbum].photosImageData
+                .map({PhotoCheckCollectionViewCellViewModel(imageData: $0)})
+        }
+        reloadAlbum.onNext("")
+    }
+    
+    func selectAlbum(index: Int) {
+        
+        if index < 0 {
+            
+            selectAlbum = 0
+            return
+        }
+        selectAlbum = index
+        
+        for isSeleted in tableViewSectionItem.rowItems {
+            
+            isSeleted.isSelected.onNext(false)
+        }
+        
+        tableViewSectionItem.rowItems[index].isSelected.onNext(true)
+        newBarViewTitle.onNext(photoManager.photos[index].photoAlbum.localizedTitle)
+        
+        reloadPhoto()
     }
 }
 
-class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseViewController<ViewModel>, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTableViewController<ViewModel>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    let photoController = UIImagePickerController()
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        return viewModel.photosCount
+    }
     
-
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCheckCollectionViewCell.self", for: indexPath) as? PhotoCheckCollectionViewCell else {
+            
+            return UICollectionViewCell()
+        }
+        
+        cell.setupCell(viewModel: viewModel.photoImageData[indexPath.row])
+        return cell
+    }
+    
+    
+    private let collectionView: UICollectionView = {
+       
+        let edgeLayout: CGFloat = 3
+        let collectionViewFlowLayout = UICollectionViewFlowLayout()
+        collectionViewFlowLayout.sectionInset = .init(top: edgeLayout, left: edgeLayout, bottom: edgeLayout, right: edgeLayout)
+        collectionViewFlowLayout.minimumLineSpacing = edgeLayout
+        collectionViewFlowLayout.minimumInteritemSpacing = edgeLayout
+        collectionViewFlowLayout.scrollDirection = .vertical
+        collectionViewFlowLayout.itemSize = CGSize(width: ScaleWidth(at: 90), height: ScaleWidth(at: 90))
+        let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
+        return collectionView
+    }()
+    
+    private let navigationBarView: UIView = {
+       
+        let view = UIView()
+        view.setBackgroundColor(.countColor)
+        return view
+    }()
+    
+    private let navigationNewTitle: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 16))
+            .setTextColor(.white)
+        return label
+    }()
+    
+    private let tableViewButtonInNavigationBar: UIButton =  {
+       
+        let button = UIButton()
+        button.setImage(.noSmsdown, for: .normal)
+        button.setImage(.noSmsUp, for: .selected)
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//         photoController = UIImagePickerController()
-        photoController.delegate = self
-        photoController.sourceType = .photoLibrary
-        addChild(photoController)
-        view.addSubview(photoController.view)
-    }
-  
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-        
-        guard let pickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage,
-            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy:CIDetectorAccuracyHigh]),
-            let ciImage = CIImage(image: pickedImage),
-            let features = detector.features(in: ciImage) as? [CIQRCodeFeature] else {return}
-        
-        guard !features.isEmpty else {
-            showErrorAlert(title: "照片不符", message: "掃不到QR碼")
-            return
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(PhotoCheckCollectionViewCell.self, forCellWithReuseIdentifier: "PhotoCheckCollectionViewCell.self")
+        collectionView.backgroundColor = .backgroudColor
+        view.addSubview(collectionView)
+        view.sendSubviewToBack(collectionView)
+        collectionView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
         }
+        collectionView.rx.itemSelected.map{$0.row}
+            .subscribe(onNext: { [weak self] index in
+                guard let self = self else { return }
+                let image = self.viewModel.photoImageData[index].imageData
+                self.goPhotoChoseImageVC(image: image)
+            })
+            .disposed(by: disposedBag)
         
-        let qrCodeLink = features.reduce(""){ $0 + ($1.messageString ?? "")}
-        
-        viewModel.saveToken(urlString: qrCodeLink)
-            .subscribe(onCompleted: { [weak picker] in
-                
-                picker?.dismiss(animated: true, completion: nil)
-                
-            }, onError: { error in
-                
-                print(error)
+        tableView.isHidden = true
+        tableView.bounces = false
+        tableView.backgroundColor = .backCoverColor
+        tableView.rx.itemSelected.map({$0.row}).subscribe(onNext: { [weak self] index in
+            
+            self?.viewModel.selectAlbum(index: index)
             }).disposed(by: disposedBag)
+        
+        
+        viewModel.reloadAlbum.subscribe(onNext: { [weak self] _ in
+            
+            self?.collectionView.reloadData()
+            }).disposed(by: disposedBag)
+        viewModel.newBarViewTitle.bind(to: navigationNewTitle.rx.text).disposed(by: disposedBag)
+
+        let leftBarButton = UIBarButtonItem(title: "取消", style: .plain, target: nil, action: nil)
+        leftBarButton.rx.tap.subscribe { [weak self] _ in
+            
+            self?.dismiss(animated: true, completion: nil)
+        }.disposed(by: disposedBag)
+        navigationItem.leftBarButtonItem = leftBarButton
+        
+        navigationBarView.addSubview(navigationNewTitle)
+        navigationBarView.addSubview(tableViewButtonInNavigationBar)
+        navigationNewTitle.snp.makeConstraints {
+            
+            $0.left.centerY.equalToSuperview()
+        }
+        if let navigationBar = self.navigationController?.navigationBar {
+                          
+           navigationBar.addSubview(navigationBarView)
+           navigationBarView.addSubview(tableViewButtonInNavigationBar)
+           navigationBarView.snp.makeConstraints {
+               
+               $0.centerX.equalToSuperview()
+               $0.top.bottom.equalToSuperview()
+               $0.left.equalTo(ScaleWidth(at: 40)).priorityLow()
+               $0.right.equalTo(ScaleWidth(at: -40)).priorityLow()
+           }
+       }
+        tableViewButtonInNavigationBar.snp.makeConstraints {
+            
+            $0.right.centerY.equalToSuperview()
+            $0.width.height.equalTo(navigationNewTitle.snp.height)
+            $0.left.equalTo(navigationNewTitle.snp.right).offset(5)
+        }
+
+        tableViewButtonInNavigationBar.rx.tap.subscribe { [weak self] _ in
+            
+            guard let self = self else { return }
+            
+            self.tableViewButtonInNavigationBar.isSelected = !self.tableViewButtonInNavigationBar.isSelected
+            self.tableView.isHidden = !self.tableViewButtonInNavigationBar.isSelected
+    
+        }.disposed(by: disposedBag)
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationBarView.isHidden = false
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationBarView.isHidden = true
+    }
+    
+    private func goPhotoChoseImageVC(image: Observable<UIImage?>) {
+        
+        let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image))
+        navigationController?.pushViewController(nextVC, animated: true)
     }
 }

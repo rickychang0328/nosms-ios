@@ -6,6 +6,20 @@ extension UIImage {
         
         return UIImage(named: "NoSMS_back") ?? UIImage()
     }
+    static var noSmsDoneBlue: UIImage {
+          
+        return UIImage(named: "NoSMS_doneBlue") ?? UIImage()
+    }
+    
+    static var noSmsUp: UIImage {
+        
+        return UIImage(named: "NoSMS_up") ?? UIImage()
+    }
+    
+    static var noSmsdown: UIImage {
+           
+        return UIImage(named: "NoSMS_down") ?? UIImage()
+    }
     
     static var noSmsMore: UIImage {
          

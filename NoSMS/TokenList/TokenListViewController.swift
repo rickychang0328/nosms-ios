@@ -2,7 +2,6 @@
 import UIKit
 import RxSwift
 import RxCocoa
-import AVFoundation
 
 enum TokenListViewModelEvent {
     
@@ -485,28 +484,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private func showTokenScannerVC() {
         
-        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        let status = AuthorizationManager.cameraStatus()
         
         if status == .restricted || status == .denied {
             
-            let alertController = UIAlertController (title: "相机启用失败", message: "相机服务未启用", preferredStyle: .alert)
-            let settingsAction = UIAlertAction(title: "设定", style: .default) { _ in
-
-                guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                    return
-                }
-
-                if UIApplication.shared.canOpenURL(settingsUrl) {
-                    
-                    UIApplication.shared.open(settingsUrl, completionHandler: nil)
-                }
-            }
-            alertController.addAction(settingsAction)
-            let cancelAction = UIAlertAction(title: "确认", style: .default, handler: nil)
-            alertController.addAction(cancelAction)
-
-            self.present(alertController, animated: true, completion: nil)
-            
+            self.showAlertToOpenSettingURL(title: "相机启用失败", message: "相机权限未开启")
         } else {
             
             let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
@@ -517,8 +499,41 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private func showPhoto() {
         
-        let photoVC = PhotoCheckViewController(viewModel: PhotoCheckVCViewModel())
-        present(photoVC, animated: true, completion: nil)
+        let photoVC = UINavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
+        photoVC.modalPresentationStyle = .overFullScreen
+        
+        AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in
+            
+            if status == .authorized || status == .notDetermined {
+                
+                self.present(photoVC, animated: true, completion: nil)
+
+            } else {
+                
+                self.showAlertToOpenSettingURL(title: "相簿读取失败", message: "相簿权限未开启")
+            }
+            }).disposed(by: disposedBag)
+    }
+    
+    private func showAlertToOpenSettingURL(title: String?, message: String?) {
+        
+        let alertController = UIAlertController (title: title, message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "确认", style: .default, handler: nil)
+        alertController.addAction(cancelAction)
+        let settingsAction = UIAlertAction(title: "设定", style: .default) { _ in
+
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                return
+            }
+
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                
+                UIApplication.shared.open(settingsUrl, completionHandler: nil)
+            }
+        }
+        alertController.addAction(settingsAction)
+
+        self.present(alertController, animated: true, completion: nil)
     }
     
     private func showDeleteAlert() {

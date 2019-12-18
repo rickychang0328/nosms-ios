@@ -1,0 +1,170 @@
+
+import UIKit
+import RxCocoa
+import RxSwift
+
+protocol PhotoCheckCollectionViewCellViewModelProtocol {
+    
+    var imageData: Observable<UIImage?> { get }
+}
+
+struct PhotoCheckCollectionViewCellViewModel: PhotoCheckCollectionViewCellViewModelProtocol {
+    
+    let imageData: Observable<UIImage?>
+}
+
+
+class PhotoCheckTableViewCellViewModel: BaseTableViewCellViewModelProtocol {
+    
+    let baseCellItem: BaseTableViewCellViewModelItemProtocol = BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none), cellHeight: UITableView.automaticDimension, cellBackgroundColor: .init(value: .clear), cellContentViewBGColor: .init(value: .photoTableViewCellBGColor))
+    
+    var cellFactoryType: TableViewCellFactoryType { return .photoCheckTableViewCell(viewModel: self)}
+    
+    let image: BehaviorSubject<UIImage?>
+    
+    let title: BehaviorSubject<String?>
+    
+    let photoCount: BehaviorSubject<String>
+    
+    let isSelected: BehaviorSubject<Bool>
+    
+    internal init(image: BehaviorSubject<UIImage?>,
+                  title: BehaviorSubject<String?>,
+                  photoCount: BehaviorSubject<String>,
+                  isSelected: BehaviorSubject<Bool>) {
+        self.image = image
+        self.title = title
+        self.photoCount = photoCount
+        self.isSelected = isSelected
+    }
+}
+
+class PhotoCheckTableViewCell: BaseTableViewCell<PhotoCheckTableViewCellViewModel> {
+    
+    private let titleImageView: UIImageView = {
+       
+        let imageView: UIImageView = .init()
+        imageView.layer.masksToBounds = true
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
+    
+    private let titleLabel: UILabel = {
+        let label: UILabel = .init()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setTextColor(.white)
+        return label
+    }()
+    
+    private let countLabel: UILabel = {
+        let label: UILabel = .init()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setTextColor(.homePageBorderColor)
+        return label
+    }()
+    
+    private let selectedImageView: UIImageView = {
+       
+        let imageView: UIImageView = .init()
+        imageView.image = .noSmsDoneBlue
+        return imageView
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        
+        addSubview(titleImageView)
+        addSubview(titleLabel)
+        addSubview(countLabel)
+        addSubview(selectedImageView)
+        
+        titleImageView.snp.makeConstraints {
+            $0.left.equalTo(ScaleWidth(at: 3))
+            $0.top.equalTo(ScaleWidth(at: 3))
+            $0.size.equalTo(ScaleWidth(at: 60))
+        }
+        
+        titleLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 22.5))
+            $0.bottom.equalTo(ScaleWidth(at: -22.5))
+            $0.left.equalTo(titleImageView.snp.right).offset(ScaleWidth(at: 15))
+        }
+        
+        countLabel.snp.makeConstraints {
+            
+            $0.left.equalTo(titleLabel.snp.right).offset(ScaleWidth(at: 15))
+            $0.centerY.equalTo(titleLabel)
+        }
+        
+        selectedImageView.snp.makeConstraints {
+            
+            $0.right.equalTo(ScaleWidth(at: -20))
+            $0.size.equalTo(ScaleWidth(at: 25))
+            $0.centerY.equalTo(titleLabel)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func bindData(viewModel: PhotoCheckTableViewCellViewModel) {
+        super.bindData(viewModel: viewModel)
+        
+        viewModel.title.bind(to: titleLabel.rx.text).disposed(by: disposedBag)
+        
+        viewModel.image.bind(to: titleImageView.rx.image).disposed(by: disposedBag)
+        
+        viewModel.photoCount.bind(to: countLabel.rx.text).disposed(by: disposedBag)
+        
+        viewModel.isSelected.map({!$0}).bind(to: selectedImageView.rx.isHidden).disposed(by: disposedBag)
+        
+    }
+}
+
+class PhotoCheckCollectionViewCell: UICollectionViewCell {
+    
+    private let imageView: UIImageView = .init()
+    
+    var disposeBag: DisposeBag = .init()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        contentView.addSubview(imageView)
+        
+        imageView.contentMode = .scaleAspectFill
+        imageView.layer.masksToBounds = true
+        imageView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        disposeBag = .init()
+    }
+    
+    func setupCell(viewModel: PhotoCheckCollectionViewCellViewModelProtocol) {
+        
+        
+        viewModel.imageData
+            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInitiated))
+            .observeOn(MainScheduler.instance)
+            .bind(to: imageView.rx.image)
+            .disposed(by: disposeBag)
+//        viewModel.imageData.subscribe(onNext: { [weak self] image in
+//            
+//            guard let self = self else { return }
+//            self.imageView.image =
+//            }).disposed(by: disposeBag)
+    }
+}

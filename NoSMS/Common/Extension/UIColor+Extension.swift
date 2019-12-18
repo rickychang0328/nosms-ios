@@ -19,6 +19,20 @@ extension UIColor {
     
     private static let _homePageBorderColor: UIColor = .init(red: 255/255, green: 255/255, blue: 255/255, alpha: 0.5)
 
+    private static let _photoTableViewCellBGColor: UIColor = .init(red: 20/255, green: 18/255, blue: 44/255, alpha: 1)
+
+    private static let _backCoverColor: UIColor = .init(red: 0/255, green: 0/255, blue: 0/255, alpha: 0.6)
+    
+    static var backCoverColor: UIColor {
+        
+        return _backCoverColor
+    }
+    
+    static var photoTableViewCellBGColor: UIColor {
+        
+        return _photoTableViewCellBGColor
+    }
+
     static var homePageBorderColor: UIColor {
         
         return _homePageBorderColor

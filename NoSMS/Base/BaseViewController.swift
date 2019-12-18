@@ -65,6 +65,8 @@ class BaseViewController<ViewModel: BaseVCViewModelProtocol>: UIViewController {
         navigationController?.navigationBar.barTintColor = .countColor
         navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         navigationController?.navigationBar.barStyle = .black
+        navigationController?.navigationBar.isTranslucent = false
+
         viewModel.navigationItemViewModel.title
             .bind(to: navigationItem.rx.title)
             .disposed(by: disposedBag)

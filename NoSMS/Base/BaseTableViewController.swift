@@ -81,6 +81,7 @@ enum TableViewCellFactoryType {
     case tokenListWithTime(viewModel: TokenListTableViewCellViewModel)
     case joinManuallyTextIn(viewModel: JoinManuallyCellTextInItems)
     case joinManuallySwither(viewModel: JoinManuallyCellSwitchItems)
+    case photoCheckTableViewCell(viewModel: PhotoCheckTableViewCellViewModel)
 }
 
 enum TableViewHeaderFooterFactoryType {
@@ -267,7 +268,20 @@ private extension TableViewCellFactoryType {
     
     var reuseID: String {
         
-        return String(describing: TokenListTableViewCell<TokenListTableViewCellViewModel>.self)
+        switch self {
+        
+        case .tokenListWithTime:
+            return String(describing: TokenListTableViewCell<TokenListTableViewCellViewModel>.self)
+            
+        case .joinManuallyTextIn:
+            return String(describing: JoinManuallyTOTPTextInTableViewCell<JoinManuallyCellTextInItems>.self)
+            
+        case .joinManuallySwither:
+            return String(describing: JoinManuallyTOTPSwitchTableViewCell<JoinManuallyCellSwitchItems>.self)
+
+        case .photoCheckTableViewCell:
+            return String(describing: PhotoCheckTableViewCell.self)
+        }
     }
     
     var cellStyle: UITableViewCell.CellStyle {
@@ -320,6 +334,19 @@ private extension TableViewCellFactoryType {
                 cell = JoinManuallyTOTPSwitchTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
             }
             
+            cell.bindData(viewModel: viewModel)
+            return cell
+        case .photoCheckTableViewCell(let viewModel):
+            let cell: PhotoCheckTableViewCell
+            
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? PhotoCheckTableViewCell {
+                           
+                cell = reuseCell
+            } else {
+                           
+                cell = PhotoCheckTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
+                
             cell.bindData(viewModel: viewModel)
             return cell
         }
