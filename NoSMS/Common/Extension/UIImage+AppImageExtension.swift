@@ -16,6 +16,11 @@ extension UIImage {
         return UIImage(named: "NoSMS_up") ?? UIImage()
     }
     
+    static var noSmsScreen: UIImage {
+           
+        return UIImage(named: "NoSMS_screen") ?? UIImage()
+    }
+    
     static var noSmsdown: UIImage {
            
         return UIImage(named: "NoSMS_down") ?? UIImage()

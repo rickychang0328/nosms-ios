@@ -163,7 +163,22 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
 class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: BaseViewController<ViewModel> {
     
     private let videoLayer = AVCaptureVideoPreviewLayer()
-
+    
+    private let maskLayer = CAShapeLayer()
+    
+    private let coverView: UIView = {
+       
+        let view = UIView()
+        view.setBackgroundColor(.backCoverColor)
+        return view
+    }()
+    
+    private let screenImageView: UIImageView = {
+        
+        let imageView = UIImageView(image: .noSmsScreen)
+        imageView.contentMode = .scaleToFill
+        return imageView
+    }()
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -171,6 +186,25 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
         videoLayer.frame = view.layer.bounds
         view.layer.addSublayer(videoLayer)
         videoLayer.session = viewModel.captureSession
+        
+        let imageCGRect = CGRect(x: ScaleWidth(at: 35), y: ScaleHeight(at: 166), width: ScaleWidth(at: 305), height: ScaleWidth(at: 305))
+        let maskLayerCGRect = CGRect(x: ScaleWidth(at: 41), y: ScaleHeight(at: 172), width: ScaleWidth(at: 293), height: ScaleWidth(at: 293))
+        let path = UIBezierPath(rect: UIScreen.main.bounds)
+        let tempPath = UIBezierPath(roundedRect: maskLayerCGRect, cornerRadius: ScaleWidth(at: 15))
+        path.append(tempPath)
+        path.usesEvenOddFillRule = true
+        maskLayer.path = path.cgPath
+        maskLayer.fillColor = UIColor.backCoverColor.cgColor
+        maskLayer.fillRule = .evenOdd
+        let view = UIView(frame: UIScreen.main.bounds)
+        view.setBackgroundColor(.black)
+            .alpha = 0.6
+        view.layer.mask = maskLayer
+        self.view.addSubview(view)
+        
+        screenImageView.frame = imageCGRect
+        
+        self.view.addSubview(screenImageView)
         
         viewModel.eventResult.subscribe(onNext: { [weak self] result in
             

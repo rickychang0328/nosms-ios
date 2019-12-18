@@ -21,12 +21,12 @@ private var ScreenHeight: CGFloat { UIScreen.main.bounds.size.height }
 
 public func ScaleWidth(at width: CGFloat) -> CGFloat {
     
-    return ScreenWidth/375.0 * width
+    return ScreenWidth / 375.0 * width
 }
 
 public func ScaleHeight(at height: CGFloat) -> CGFloat {
     
-    return ScreenWidth/812.0 * height
+    return ScreenHeight / 812.0 * height
 }
 
 extension UIFont {
