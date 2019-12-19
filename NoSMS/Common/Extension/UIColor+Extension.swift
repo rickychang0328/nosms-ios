@@ -23,6 +23,25 @@ extension UIColor {
 
     private static let _backCoverColor: UIColor = .init(red: 0/255, green: 0/255, blue: 0/255, alpha: 0.6)
     
+    private static let _alertBackgroundColor: UIColor = .init(red: 41/255, green: 44/255, blue: 68/255, alpha: 1)
+    
+    private static let _alertCancelButtonColor: UIColor = .init(red: 153/255, green: 153/255, blue: 153/255, alpha: 0.15)
+    
+    static var alertBackgroundColor: UIColor {
+        
+        return _alertBackgroundColor
+    }
+    
+    static var alertCancelButtonColor: UIColor {
+        
+        return _alertCancelButtonColor
+    }
+    
+    static var alertConfirmButtonColor: UIColor {
+        
+        return _countColor
+    }
+    
     static var backCoverColor: UIColor {
         
         return _backCoverColor

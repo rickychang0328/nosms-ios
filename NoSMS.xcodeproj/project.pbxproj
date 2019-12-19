@@ -13,6 +13,7 @@
 		2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */; };
 		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
 		2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */; };
+		2A3A846823AB133C002D4482 /* NoSMSHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3A846723AB133C002D4482 /* NoSMSHUD.swift */; };
 		2A55BA9B23A727A300142382 /* UIImage+AppImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */; };
 		2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */; };
 		2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */; };
@@ -66,6 +67,7 @@
 		2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UILabel+Extension+Rx.swift"; sourceTree = "<group>"; };
 		2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckViewController.swift; sourceTree = "<group>"; };
 		2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
+		2A3A846723AB133C002D4482 /* NoSMSHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoSMSHUD.swift; sourceTree = "<group>"; };
 		2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+AppImageExtension.swift"; sourceTree = "<group>"; };
 		2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListViewController.swift; sourceTree = "<group>"; };
 		2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SnapKit+Extension.swift"; sourceTree = "<group>"; };
@@ -159,6 +161,14 @@
 			path = PhotoCheck;
 			sourceTree = "<group>";
 		};
+		2A3A846623AB1323002D4482 /* NoSMSHUD */ = {
+			isa = PBXGroup;
+			children = (
+				2A3A846723AB133C002D4482 /* NoSMSHUD.swift */,
+			);
+			path = NoSMSHUD;
+			sourceTree = "<group>";
+		};
 		2A75E64A238B7D5A00E8CAB9 /* TokenList */ = {
 			isa = PBXGroup;
 			children = (
@@ -190,6 +200,7 @@
 		2A75E659238BB82E00E8CAB9 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				2A3A846623AB1323002D4482 /* NoSMSHUD */,
 				2A21B08123A9C14A00922FBB /* AuthorizationManager */,
 				2AE53BED23A2499600AB1319 /* PastedAction */,
 				2AE53BE923A2499600AB1319 /* TOTPURL */,
@@ -585,6 +596,7 @@
 				2AE53BF023A2499600AB1319 /* UserDefaultExtension.swift in Sources */,
 				2A75E65E238BB9C900E8CAB9 /* UIView+Extension.swift in Sources */,
 				2A75E652238B80FF00E8CAB9 /* BaseViewController.swift in Sources */,
+				2A3A846823AB133C002D4482 /* NoSMSHUD.swift in Sources */,
 				2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */,
 				2AD796B023A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift in Sources */,
 				2A75E654238B814300E8CAB9 /* BaseTableViewController.swift in Sources */,

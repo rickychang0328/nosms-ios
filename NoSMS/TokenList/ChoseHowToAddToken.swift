@@ -101,10 +101,10 @@ class ChoseHowToAddTokenView: UIView {
         
         let gesture = UITapGestureRecognizer()
         dissMissView.addGestureRecognizer(gesture)
-        gesture.rx.event.subscribe { [weak self] eve in
+        gesture.rx.event.subscribe(onNext: { [weak self] eve in
             
             self?.dismissView()
-        }.disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
         
         tableView.rx.itemSelected.subscribe(onNext: { [weak self] indexPath in
             

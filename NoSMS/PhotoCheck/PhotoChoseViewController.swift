@@ -100,6 +100,9 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
         view.addSubview(coverView)
         view.addSubview(waitLabel)
         
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+        navigationItem.leftBarButtonItem = leftbarItem
+        
         choseImageView.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
@@ -120,17 +123,24 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             
             self.viewModel.saveToken()
                 .subscribe(onCompleted: {
                     
                     self.waitLabel.isHidden = true
-                    self.dismiss(animated: true, completion: nil)
+                    
+                    NoSMSHUD.showToast(title: "识别成功！") {
+                        
+                        self.dismiss(animated: true, completion: nil)
+                    }
                 }, onError: { _ in
                     
                     self.waitLabel.isHidden = true
-                    self.navigationController?.popViewController(animated: true)
+                    NoSMSHUD.showToast(title: "未识别出有效图片，请重新选取") {
+                        
+                        self.navigationController?.popViewController(animated: true)
+                    }
                 }).disposed(by: self.disposedBag)
         }
     }

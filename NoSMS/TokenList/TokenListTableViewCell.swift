@@ -13,9 +13,12 @@ protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProt
     var passwordCount: Int { get }
     var isOnTime: Bool { get }
     var getTapPassword: () -> Void { get }
+    var reFreshTime: Int { get }
 }
 
 class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
+    
+    let reFreshTime: Int
     
     let getTapPassword: () -> Void
     
@@ -45,10 +48,12 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
                   haveSelectToDelete: BehaviorSubject<Bool>,
                   passwordCount: Int,
                   isOnTime: Bool,
-                  getTapPassword: @escaping () -> Void) {
+                  getTapPassword: @escaping () -> Void,
+                  refreshTime: Int) {
         self.getTapPassword = getTapPassword
         self.baseCellItem = baseViewModelItem
         self.name = name
+        self.reFreshTime = refreshTime
         self.password = password.map({
             
             var string = $0
@@ -114,6 +119,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let label = UILabel()
         label.setFont(.avenirHeavyFont(size: 11))
             .setTextColor(.countColor)
+            .setTextAlignment(.center)
         return label
     }()
     
@@ -144,6 +150,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let digitsView: DigitsView = .init(frame: .zero)
     
     private var isOnTime: Bool = false
+    
+    private let circleView: NoSMSCircleLoadView = NoSMSCircleLoadView()
         
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -163,7 +171,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         contentView.addSubview(nameTextField)
         contentView.addSubview(passwordLabel)
         contentView.addSubview(issuerLabel)
-        contentView.addSubview(countTimeLabel)
+        contentView.addSubview(circleView)
+        circleView.addSubview(countTimeLabel)
         contentView.addSubview(tapGetPasswordButton)
         addSubview(deleteImageView)
         contentView.addSubview(deletedButton)
@@ -197,7 +206,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         nameLabel.snp.makeConstraints {
             
-            $0.left.right.equalTo(issuerLabel)
+            $0.left.equalTo(issuerLabel)
+            $0.right.equalTo(ScaleWidth(at: -50))
             $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10))
             $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
         }
@@ -224,8 +234,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
         countTimeLabel.snp.makeConstraints {
             
+            $0.center.equalTo(circleView)
+        }
+        
+        circleView.snp.makeConstraints {
+            
+            $0.size.equalTo(ScaleWidth(at: 27))
             $0.centerY.equalTo(nameLabel)
-            $0.right.equalTo(issuerLabel)
+            $0.right.equalTo(ScaleWidth(at: -16))
         }
         
         tapGetPasswordButton.snp.makeConstraints {
@@ -247,7 +263,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         UIView.animate(withDuration: 0.3, animations: {
             
             self.nameLabel.isHidden = self.isEditing
-            self.countTimeLabel.isHidden = self.isEditing
+            self.circleView.isHidden = self.isEditing
             self.passwordLabel.isHidden = self.isEditing
             self.nameTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
@@ -315,7 +331,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         tapGetPasswordButton.isHidden = viewModel.isOnTime
         
         tapGetPasswordButton.rx.tap
-            .subscribe({ [weak self] _ in
+            .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
                 self.tapGetPasswordButton.isEnabled = false
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
@@ -331,19 +347,16 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         let isOnTime = viewModel.isOnTime
         passwordLabel.setTextColor(.sercetNormalColor)
+        
         warningTime.map({ if isOnTime {
             
-                return $0 ? UIColor.sercetWarninglColor : UIColor.sercetNormalColor
+                    return $0 ? UIColor.sercetWarninglColor : UIColor.sercetNormalColor
 
-            } else {
-                
-                return UIColor.sercetNormalColor
-            }
-        }).bind(to: passwordLabel.rx.textColor)
-            .disposed(by: disposedBag)
-        
-        warningTime.map({ $0 ? UIColor.countWarningColor : UIColor.countColor })
-            .bind(to: countTimeLabel.rx.textColor)
+                } else {
+                    
+                    return UIColor.sercetNormalColor
+                }
+            }).bind(to: passwordLabel.rx.textColor)
             .disposed(by: disposedBag)
         
         viewModel.haveSelectToDelete
@@ -357,16 +370,43 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
 
         let haveSeletToDelete = viewModel.haveSelectToDelete
 
-        deletedButton.rx.tap.subscribe { [weak self, weak haveSeletToDelete] _ in
+        deletedButton.rx.tap.subscribe(onNext: { [weak self, weak haveSeletToDelete] _ in
 
             guard let self = self else { return }
             self.deletedButton.isSelected = !self.deletedButton.isSelected
             haveSeletToDelete?.onNext(self.deletedButton.isSelected)
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         nameTextField.rx.controlEvent(.editingDidEnd)
             .flatMapLatest({[unowned self] in return self.nameTextField.rx.text.orEmpty })
             .bind(to: viewModel.name)
+            .disposed(by: disposedBag)
+        
+        if isOnTime {
+            
+            guard let lastTimeString = try? viewModel.lastTime.value() else { return }
+            guard let lastTime = Int(lastTimeString) else { return }
+            circleView.start(lastTime: Double(lastTime), refreshTime: Double(viewModel.reFreshTime))
+            
+            let reFreshTime = viewModel.reFreshTime
+            viewModel.lastTime.subscribe(onNext: { [weak self] lastTimeString in
+
+                guard let self = self else { return }
+                guard let lastTime = Int(lastTimeString) else { return }
+                
+                if lastTime == reFreshTime - 1 {
+                    
+                    self.circleView.start(lastTime: Double(lastTime), refreshTime: Double(reFreshTime - 1))
+                }
+
+                }).disposed(by: disposedBag)
+        } else {
+            
+            circleView.remove()
+        }
+        
+        warningTime.map({ $0 ? UIColor.countWarningColor : UIColor.countColor })
+            .bind(to: countTimeLabel.rx.textColor, circleView.loadingColorBinder)
             .disposed(by: disposedBag)
     }
 }
@@ -433,5 +473,140 @@ class DigitsView: UIView {
                 $0.centerY.equalToSuperview()
             }
         }
+    }
+}
+
+class CircleView: UIView {
+    
+    var lineWidth: CGFloat = 3
+    
+    var shapeLayer: CAShapeLayer = .init()
+    
+    var subLayer: CAShapeLayer = .init()
+    
+    var animation: CABasicAnimation = .init()
+    
+    func getCircle(circleLast: Double = 1) {
+        
+        layoutIfNeeded()
+        superview?.layoutIfNeeded()
+        shapeLayer.removeFromSuperlayer()
+        
+        let shapeLayer = CAShapeLayer()
+        self.shapeLayer = shapeLayer
+        shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = lineWidth
+        shapeLayer.strokeColor = UIColor.countColor.cgColor
+        let arcCenter:CGPoint = shapeLayer.position // 設定圓心
+        let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
+        // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針
+        let path = UIBezierPath(arcCenter: arcCenter,
+                                radius: radius,
+                                startAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleLast))),
+                                endAngle: CGFloat(2 * Float.pi / 4 * 3) + CGFloat(2 * Float.pi), clockwise: true)
+        
+        shapeLayer.path = path.cgPath
+        shapeLayer.position = center
+        layer.addSublayer(shapeLayer)
+    }
+    
+    func getCircleLayer(circleLast: Double = 0) {
+        
+        layoutIfNeeded()
+        superview?.layoutIfNeeded()
+        subLayer.removeFromSuperlayer()
+        
+        let shapeLayer = CAShapeLayer()
+        self.subLayer = shapeLayer
+        shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = lineWidth
+        shapeLayer.strokeColor = UIColor.clear.cgColor
+        let arcCenter:CGPoint = shapeLayer.position // 設定圓心
+        let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
+        // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針
+        let path = UIBezierPath(arcCenter: arcCenter,
+                                radius: radius,
+                                startAngle: CGFloat(2 * Float.pi / 4 * 3),
+                                endAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleLast))), clockwise: true)
+        
+        shapeLayer.path = path.cgPath
+        shapeLayer.position = center
+        layer.addSublayer(shapeLayer)
+    }
+    
+    func start(lastTime: Double, refreshTime: Double) {
+        
+        let last = lastTime / refreshTime
+        getCircleLayer(circleLast: last)
+        getCircle(circleLast: last)
+        
+        let animation = CABasicAnimation(keyPath: "strokeEnd")
+        animation.fromValue = 0
+        animation.toValue = 1
+        animation.duration = lastTime
+        self.animation = animation
+        shapeLayer.add(animation, forKey: nil)
+    }
+}
+
+class NoSMSCircleLoadView: UIView {
+    
+    private let loadingCricleView: CircleView = {
+        
+        let view = CircleView()
+        return view
+    }()
+    
+    private let baseCricleView: CircleView = {
+        
+        let view = CircleView()
+        return view
+    }()
+
+    var loadingColorBinder: Binder<UIColor> {
+        
+        return Binder<UIColor>.init(self) { (view, color) in
+            
+            view.baseCricleView.shapeLayer.strokeColor = color.cgColor
+        }
+    }
+    
+    private var disposeBag: DisposeBag = .init()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        addSubview(baseCricleView)
+        addSubview(loadingCricleView)
+        
+        baseCricleView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+        loadingCricleView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func start(lastTime: Double, refreshTime: Double) {
+
+        baseCricleView.getCircle()
+        loadingCricleView.start(lastTime: lastTime, refreshTime: refreshTime)
+        loadingCricleView.shapeLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
+        loadingCricleView.subLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
+    }
+    
+    func remove() {
+        
+        baseCricleView.shapeLayer.removeFromSuperlayer()
+        loadingCricleView.shapeLayer.removeFromSuperlayer()
+        loadingCricleView.subLayer.removeFromSuperlayer()
     }
 }

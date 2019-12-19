@@ -77,10 +77,10 @@ class BaseViewController<ViewModel: BaseVCViewModelProtocol>: UIViewController {
         
         let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
 
-        leftbarItem.rx.tap.subscribe { [weak self] _ in
+        leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
             
             self?.navigationController?.popViewController(animated: true)
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         navigationItem.leftBarButtonItem = leftbarItem
     }

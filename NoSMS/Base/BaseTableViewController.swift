@@ -74,7 +74,8 @@ struct TableViewCellViewModelFactory {
                                                    haveSelectToDelete: token.wantDeleted,
                                                    passwordCount: token.digits,
                                                    isOnTime: token.isOnTime,
-                                                   getTapPassword: token.getOnTapPassword)
+                                                   getTapPassword: token.getOnTapPassword,
+                                                   refreshTime: Int(token.refreshTimes))
         }
     }
 }

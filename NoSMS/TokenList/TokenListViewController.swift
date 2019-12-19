@@ -170,7 +170,6 @@ class HomePageView: UIView {
         super.init(frame: frame)
         
         backgroundColor = .countColor
-        
         addSubview(logoImageView)
         addSubview(descriptionLabel)
         addSubview(button)
@@ -215,12 +214,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setImage(.noSmsAdd, for: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 40, height: 25)
-        button.rx.tap.subscribe { [weak self] _ in
+        button.rx.tap.subscribe(onNext: { [weak self] _ in
                    
             guard let self = self else { return }
             self.choseHowToAddTokenView.showView()
                    
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
         return barBtn
@@ -232,11 +231,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.setImage(.noSmsEdit, for: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 25, height: 25)
         button.rx.tap
-            .subscribe { [weak self] _ in
+            .subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             self.tableView.setEditing(true, animated: true)
             self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
         return barBtn
@@ -255,7 +254,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
        
         let button = UIButton()
         
-        button.setTitle("刪除", for: .normal)
+        button.setTitle("删除", for: .normal)
         button.backgroundColor = .warninglColor
         button.setTitleColor(.white, for: .normal)
         button.addCornerRadius(at: ScaleWidth(at: 6))
@@ -298,11 +297,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             }
             }).disposed(by: disposedBag)
         
-        homePageView.tapButtonEvent.subscribe { [weak self] _ in
+        homePageView.tapButtonEvent.subscribe(onNext: { [weak self] _ in
             
             guard let self = self else { return }
-            self.showAddTokenAlert()
-        }.disposed(by: disposedBag)
+            self.choseHowToAddTokenView.showView()
+        }).disposed(by: disposedBag)
         
         view.addSubview(bottomView)
         bottomView.addSubview(deleteTokenButton)
@@ -313,22 +312,22 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         navigationItem.leftBarButtonItem = leftbarItem
         
         inEditTableViewBarButton.rx.tap
-            .subscribe { [weak self] _ in
+            .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
             
                 self.tableView.setEditing(false, animated: true)
                 self.tableView.endEditing(true)
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
     
         navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
         
-        viewModel.eventResult.subscribe { [weak self] _ in
+        viewModel.eventResult.subscribe(onNext: { [weak self] _ in
             
             self?.tableView.reloadData()
             self?.wantToShowHomePageOrNot()
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         tableView.rx.itemMoved
             .map({($0.sourceIndex.row, $0.destinationIndex.row)})
@@ -340,13 +339,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .flatMapLatest(self.viewModel.selectItem)
             .subscribe(onNext: { [weak self] _ in
             
-                self?.showErrorAlert(title: "成功複製")
-            }, onError: { [weak self] error in
-            
-                self?.showErrorAlert(title: "複製失敗")
-            }, onDisposed: { [weak self] in
-                    
-                self?.showErrorAlert(title: "Disposed")
+                NoSMSHUD.showToast(title: "复制成功")
             }).disposed(by: disposedBag)
 
         tableView.backgroundColor = .backgroudColor
@@ -437,7 +430,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             }
         }).disposed(by: disposedBag)
         
-        deleteTokenButton.rx.tap.subscribe({ [weak self] _ in
+        deleteTokenButton.rx.tap.subscribe(onNext: { [weak self] _ in
             
             self?.showDeleteAlert()
         }).disposed(by: disposedBag)
@@ -445,57 +438,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
    
     private func showPastedStringAlert(pastedString: String) {
         
-        let alertVC = UIAlertController(title: "是否要通过此验证码进行添加", message: pastedString, preferredStyle: .alert)
-        
-        let goPastedAlertAction = UIAlertAction(title: "前往添加", style: .default) { [weak self] _ in
-            
+        showAlert(title: "是否要通过此验证码进行添加",
+                  message: pastedString,
+                  confirmTitle: "前往添加", confirmAction: { [weak self] in
             guard let self = self else { return }
             self.showKeyinTokenVC(string: pastedString)
-        }
-      
-        let cancelAlertAction = UIAlertAction(title: "取消", style: .cancel) { [weak alertVC] _ in
-            
-            alertVC?.dismiss(animated: true, completion: nil)
-        }
-        
-        alertVC.addAction(goPastedAlertAction)
-        alertVC.addAction(cancelAlertAction)
-        
-        present(alertVC, animated: true, completion: nil)
-    }
-    
-    private func showAddTokenAlert() {
-        
-        let alertVC = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let goPhotoeAlertAction = UIAlertAction(title: "相册选取扫描", style: .default) { [weak self] _ in
-            
-            guard let self = self else { return }
-            self.showPhoto()
-        }
-        
-        let goTokenScannerAlertAction = UIAlertAction(title: "扫描二维码", style: .default) { [weak self] _ in
-            
-            guard let self = self else { return }
-            self.showTokenScannerVC()
-        }
-        
-        let goKeyinAddTokenAlertAction = UIAlertAction(title: "手动输入验证码", style: .default) { [weak self] _ in
-            
-            guard let self = self else { return }
-            self.showKeyinTokenVC()
-        }
-        
-        let cancelAlertAction = UIAlertAction(title: "取消", style: .cancel) { [weak alertVC] _ in
-            
-            alertVC?.dismiss(animated: true, completion: nil)
-        }
-        
-        alertVC.addAction(goPhotoeAlertAction)
-        alertVC.addAction(goTokenScannerAlertAction)
-        alertVC.addAction(goKeyinAddTokenAlertAction)
-        alertVC.addAction(cancelAlertAction)
-        
-        present(alertVC, animated: true, completion: nil)
+        })
     }
     
     private func showKeyinTokenVC(string: String? = nil) {
@@ -561,17 +509,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private func showDeleteAlert() {
         
-        let alertVC = UIAlertController(title: nil, message: "删除此账号并不会影响已设置的身份验证功能\n您可能因此无法登录自己的帐号", preferredStyle: .alert)
-        let cancelAlertAction = UIAlertAction(title: "取消", style: .cancel) { [weak alertVC] _ in
-            alertVC?.dismiss(animated: true, completion: nil)
-        }
-        let deleteAlertAction = UIAlertAction(title: "删除帐号", style: .default) { [weak self] _ in
-            
+        showAlert(title: "删除此账号并不会影响已设置的身份验证功能\n您可能因此无法登录自己的帐号",
+                  message: nil, confirmTitle: "删除帐号",
+                  confirmAction: { [weak self] in
+                
             self?.viewModel.deleteToken()
-        }
-        alertVC.addAction(cancelAlertAction)
-        alertVC.addAction(deleteAlertAction)
-        present(alertVC, animated: true, completion: nil)
+        })
     }
 }
 

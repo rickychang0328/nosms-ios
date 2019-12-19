@@ -199,12 +199,13 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
     private let collectionView: UICollectionView = {
        
         let edgeLayout: CGFloat = 3
+        let itemWidth = (UIScreen.main.bounds.width - (edgeLayout * 5)) / 4
         let collectionViewFlowLayout = UICollectionViewFlowLayout()
         collectionViewFlowLayout.sectionInset = .init(top: edgeLayout, left: edgeLayout, bottom: edgeLayout, right: edgeLayout)
         collectionViewFlowLayout.minimumLineSpacing = edgeLayout
         collectionViewFlowLayout.minimumInteritemSpacing = edgeLayout
         collectionViewFlowLayout.scrollDirection = .vertical
-        collectionViewFlowLayout.itemSize = CGSize(width: ScaleWidth(at: 90), height: ScaleWidth(at: 90))
+        collectionViewFlowLayout.itemSize = CGSize(width: itemWidth, height: itemWidth)
         let collectionView: UICollectionView = UICollectionView(frame: .zero, collectionViewLayout: collectionViewFlowLayout)
         return collectionView
     }()
@@ -269,10 +270,10 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         viewModel.newBarViewTitle.bind(to: navigationNewTitle.rx.text).disposed(by: disposedBag)
 
         let leftBarButton = UIBarButtonItem(title: "取消", style: .plain, target: nil, action: nil)
-        leftBarButton.rx.tap.subscribe { [weak self] _ in
+        leftBarButton.rx.tap.subscribe(onNext: { [weak self] _ in
             
             self?.dismiss(animated: true, completion: nil)
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         navigationItem.leftBarButtonItem = leftBarButton
         
         navigationBarView.addSubview(navigationNewTitle)
@@ -300,14 +301,14 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
             $0.left.equalTo(navigationNewTitle.snp.right).offset(5)
         }
 
-        tableViewButtonInNavigationBar.rx.tap.subscribe { [weak self] _ in
+        tableViewButtonInNavigationBar.rx.tap.subscribe(onNext: { [weak self] _ in
             
             guard let self = self else { return }
             
             self.tableViewButtonInNavigationBar.isSelected = !self.tableViewButtonInNavigationBar.isSelected
             self.tableView.isHidden = !self.tableViewButtonInNavigationBar.isSelected
     
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
     }
     
     

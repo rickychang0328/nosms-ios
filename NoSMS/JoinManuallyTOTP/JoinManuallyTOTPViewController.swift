@@ -310,13 +310,13 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
             .disposed(by: disposedBag)
         
         
-        navigationBarButton.rx.tap.subscribe { [weak self] _ in
+        navigationBarButton.rx.tap.subscribe(onNext: { [weak self] _ in
             
             guard let self = self else { return }
             
             self.viewModel.addTOTP().subscribe(onCompleted: { [weak self] in
                 self?.navigationController?.popViewController(animated: true)
             }).disposed(by: self.disposedBag)
-        }.disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
     }
 }
