@@ -216,7 +216,11 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
                 print(error)
                 self?.errorAlertHandler()
             case .endScanTask:
-                self?.navigationController?.popViewController(animated: true)
+                
+                NoSMSHUD.showToast(title: "识别成功！") { [weak self] in
+                    
+                    self?.navigationController?.popViewController(animated: true)
+                }
             }
         }).disposed(by: disposedBag)
         
@@ -224,9 +228,9 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
     
     private func errorAlertHandler() {
         
-        showErrorAlert(title: "错误的QR码", message: nil) {
+        NoSMSHUD.showToast(title: "未识别出有效二维码") { [weak self] in
             
-            self.viewModel.startScan()
+            self?.viewModel.startScan()
         }
     }
     

@@ -234,6 +234,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             self.tableView.setEditing(true, animated: true)
+            self.navigationItem.leftBarButtonItem?.isEnabled = false
             self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
         }).disposed(by: disposedBag)
         
@@ -265,11 +266,23 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private let choseHowToAddTokenView: ChoseHowToAddTokenView = .init(frame: .zero)
     
+    private let menuView: MenuView = .init(frame: .zero)
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
+        navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
+        navigationController?.navigationBar.layer.shadowRadius = 4.0
+        navigationController?.navigationBar.layer.shadowOpacity = 1.0
+        navigationController?.navigationBar.layer.masksToBounds = false
+        navigationController?.navigationBar.setBackgroundImage(_:UIImage(),
+                for: .any,
+                barMetrics: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+        
         view.addSubview(homePageView)
-        view.addSubview(choseHowToAddTokenView)
+        navigationController?.view.addSubview(choseHowToAddTokenView)
+        navigationController?.view.addSubview(menuView)
         
         homePageView.snp.makeConstraints {
             
@@ -278,6 +291,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }
         
         choseHowToAddTokenView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+        
+        menuView.snp.makeConstraints {
             
             $0.edges.equalToSuperview()
         }
@@ -311,11 +329,17 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
         navigationItem.leftBarButtonItem = leftbarItem
         
+        leftbarItem.rx.tap.subscribe(onNext: { [weak self] in
+            
+            self?.menuView.showView()
+            }).disposed(by: disposedBag)
+        
         inEditTableViewBarButton.rx.tap
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
             
                 self.tableView.setEditing(false, animated: true)
+                self.navigationItem.leftBarButtonItem?.isEnabled = true
                 self.tableView.endEditing(true)
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
@@ -339,7 +363,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .flatMapLatest(self.viewModel.selectItem)
             .subscribe(onNext: { [weak self] _ in
             
-                NoSMSHUD.showToast(title: "复制成功")
+                NoSMSHUD.showToast(title: "已复制")
             }).disposed(by: disposedBag)
 
         tableView.backgroundColor = .backgroudColor
@@ -355,6 +379,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             if tableView.isEditing {
                 
                 tableView.setEditing(false, animated: true)
+                navigationItem.leftBarButtonItem?.isEnabled = true
                 self.viewModel.tableViewEndEdit()
                 
                 self.deleteTokenButton.isEnabled = false

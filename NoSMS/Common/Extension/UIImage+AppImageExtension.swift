@@ -2,6 +2,21 @@ import UIKit
 
 extension UIImage {
     
+    static var noSmsLegal: UIImage {
+        
+        return UIImage(named: "NoSMS_legal") ?? UIImage()
+    }
+    
+    static var noSmsPrivacy: UIImage {
+        
+        return UIImage(named: "NoSMS_privacy") ?? UIImage()
+    }
+    
+    static var noSmsService: UIImage {
+        
+        return UIImage(named: "NoSMS_service") ?? UIImage()
+    }
+    
     static var noSmsBack: UIImage {
         
         return UIImage(named: "NoSMS_back") ?? UIImage()

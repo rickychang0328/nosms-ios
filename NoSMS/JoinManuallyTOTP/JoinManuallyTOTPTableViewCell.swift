@@ -15,7 +15,9 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
     private let textField: UITextField = {
         
         let textField = UITextField()
-       
+        
+        textField.font = .pingFangMediumFont(size: 15)
+        textField.textColor = .nameColor
         return textField
     }()
     
@@ -55,6 +57,7 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 14))
             $0.left.right.equalTo(titleLabel)
             $0.bottom.equalTo(ScaleWidth(at: -16))
+//            $0.height.equalTo(ScaleWidth(at: 21))
         }
         
         textFieldUnderLine.snp.makeConstraints {
@@ -97,7 +100,7 @@ class JoinManuallyTOTPSwitchTableViewCell<ViewModel: JoinManuallyCellSwitchItems
     private let switchView: UISwitch = {
         
         let switchView = UISwitch()
-       
+        switchView.onTintColor = UIColor(red: 36/255, green: 205/255, blue: 132/255, alpha: 1)
         return switchView
     }()
     
@@ -125,6 +128,8 @@ class JoinManuallyTOTPSwitchTableViewCell<ViewModel: JoinManuallyCellSwitchItems
         
         switchView.snp.makeConstraints {
             
+            $0.width.equalTo(ScaleWidth(at: 50))
+            $0.height.equalTo(ScaleWidth(at: 25))
             $0.centerY.equalTo(titleLabel)
             $0.right.equalTo(ScaleWidth(at: -35))
         }

@@ -218,7 +218,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         
         let textFieldUnderLine = UIView()
-        textFieldUnderLine.setBackgroundColor(.gray)
+        textFieldUnderLine.setBackgroundColor(.textFieldUnderLineColor)
         nameTextField.addSubview(textFieldUnderLine)
         textFieldUnderLine.snp.makeConstraints {
             
@@ -384,9 +384,9 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         if isOnTime {
             
-            guard let lastTimeString = try? viewModel.lastTime.value() else { return }
-            guard let lastTime = Int(lastTimeString) else { return }
-            circleView.start(lastTime: Double(lastTime), refreshTime: Double(viewModel.reFreshTime))
+//            guard let lastTimeString = try? viewModel.lastTime.value() else { return }
+//            guard let lastTime = Int(lastTimeString) else { return }
+//            circleView.start(lastTime: Double(lastTime), refreshTime: Double(viewModel.reFreshTime))
             
             let reFreshTime = viewModel.reFreshTime
             viewModel.lastTime.subscribe(onNext: { [weak self] lastTimeString in
@@ -394,10 +394,10 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 guard let self = self else { return }
                 guard let lastTime = Int(lastTimeString) else { return }
                 
-                if lastTime == reFreshTime - 1 {
+//                if lastTime == reFreshTime - 1 {
                     
                     self.circleView.start(lastTime: Double(lastTime), refreshTime: Double(reFreshTime - 1))
-                }
+//                }
 
                 }).disposed(by: disposedBag)
         } else {

@@ -41,7 +41,7 @@ class JoinManuallyCellTextInItems: JoinManuallyCellTextInItemsProtocol {
                   textfieldPlaceHolder: String,
                   baseCellItem: BaseTableViewCellViewModelItemProtocol =
         BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none),
-                                       cellHeight: 100,
+                                       cellHeight: UITableView.automaticDimension,
                                        cellBackgroundColor: .init(value: .clear),
                                        cellContentViewBGColor: .init(value: .clear))) {
         

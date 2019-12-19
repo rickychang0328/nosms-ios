@@ -3,24 +3,24 @@ import UIKit
 import RxCocoa
 import RxSwift
 
-class ChoseHowToAddTokenView: UIView {
+class MenuView: UIView {
     
     enum ChoseEvnet {
         
-        case photo
-        case camera
-        case keyIn
+        case legal
+        case privacy
+        case service
         
         fileprivate var image: UIImage {
 
             switch self {
             
-            case .photo:
-                return .noSmsPhoto
-            case .camera:
-                return .noSmsCamera
-            case .keyIn:
-                return .noSmsKeyin
+            case .legal:
+                return .noSmsLegal
+            case .privacy:
+                return .noSmsPrivacy
+            case .service:
+                return .noSmsService
             }
         }
         
@@ -28,12 +28,12 @@ class ChoseHowToAddTokenView: UIView {
             
             switch self {
             
-            case .photo:
-                return "相册选取扫描"
-            case .camera:
-                return "扫描二维码"
-            case .keyIn:
-                return "手动输入验证码"
+            case .legal:
+                return "法律声明"
+            case .privacy:
+                return "隐私权政策"
+            case .service:
+                return "服务条款"
             }
         }
     }
@@ -49,13 +49,14 @@ class ChoseHowToAddTokenView: UIView {
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
         tableView.backgroundColor = .white
-        tableView.register(ChoseTableViewCell.self, forCellReuseIdentifier: ChoseTableViewCell.description())
+        tableView.register(MenuViewTableViewCell.self,
+                           forCellReuseIdentifier: MenuViewTableViewCell.description())
         return tableView
     }()
     
-    private let choseEvnets: [ChoseEvnet] = [.photo, .camera, .keyIn]
+    private let choseEvnets: [ChoseEvnet] = [.service, .privacy, .legal]
     
-    private let cellHeight: CGFloat = ScaleWidth(at: 55)
+    private let cellHeight: CGFloat = ScaleWidth(at: 63)
     
     private let disposeBag: DisposeBag = .init()
     
@@ -65,38 +66,25 @@ class ChoseHowToAddTokenView: UIView {
         view.setBackgroundColor(.backCoverColor)
         return view
     }()
-    
-    private let bottomCoverView: UIView = {
-        
-        let view = UIView()
-        view.setBackgroundColor(.white)
-        return view
-    }()
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         addSubview(dissMissView)
         addSubview(tableView)
-        addSubview(bottomCoverView)
         
         dissMissView.snp.makeConstraints {
             
-            $0.left.right.top.equalToSuperview()
-            $0.bottom.equalTo(tableView.snp.top)
+            $0.bottom.right.top.equalToSuperview()
+            $0.left.equalTo(tableView.snp.right)
         }
         
         tableView.snp.makeConstraints {
             
-            $0.left.right.bottomMargin.equalToSuperview()
-            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
+            $0.left.top.bottom.equalToSuperview()
+            $0.width.equalTo(ScaleWidth(at: 290))
         }
-        
-        bottomCoverView.snp.makeConstraints {
-            
-            $0.top.equalTo(tableView.snp.bottom)
-            $0.left.right.bottom.equalToSuperview()
-        }
+      
         dismissView()
         
         let gesture = UITapGestureRecognizer()
@@ -133,7 +121,7 @@ class ChoseHowToAddTokenView: UIView {
     }
 }
 
-extension ChoseHowToAddTokenView: UITableViewDelegate, UITableViewDataSource {
+extension MenuView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
@@ -146,12 +134,12 @@ extension ChoseHowToAddTokenView: UITableViewDelegate, UITableViewDataSource {
     }
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         
-        return nil
+        return UIView()
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         
-        return 0.001
+        return ScaleWidth(at: 50.5)
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -166,7 +154,7 @@ extension ChoseHowToAddTokenView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChoseTableViewCell.description(), for: indexPath) as? ChoseTableViewCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: MenuViewTableViewCell.description(), for: indexPath) as? MenuViewTableViewCell else {
             
             return UITableViewCell()
         }
@@ -187,7 +175,7 @@ extension ChoseHowToAddTokenView: UITableViewDelegate, UITableViewDataSource {
     }
 }
 
-class ChoseTableViewCell: UITableViewCell {
+class MenuViewTableViewCell: UITableViewCell {
     
     private let titleImageView: UIImageView = {
        
@@ -221,20 +209,20 @@ class ChoseTableViewCell: UITableViewCell {
         titleImageView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 20))
-            $0.size.equalTo(ScaleWidth(at: 20))
+            $0.size.equalTo(ScaleWidth(at: 19))
             $0.centerY.equalToSuperview()
         }
         
         titleLabel.snp.makeConstraints {
             
             $0.centerY.equalTo(titleImageView)
-            $0.left.equalTo(titleImageView.snp.right).offset(ScaleWidth(at: 20))
+            $0.left.equalTo(titleImageView.snp.right).offset(ScaleWidth(at: 15))
         }
         
         underLineView.snp.makeConstraints {
             
-            $0.left.equalTo(ScaleWidth(at: 20))
-            $0.right.equalTo(ScaleWidth(at: -20))
+            $0.left.equalTo(ScaleWidth(at: 12))
+            $0.right.equalTo(ScaleWidth(at: -12))
             $0.bottom.equalToSuperview()
             $0.height.equalTo(0.5)
         }
