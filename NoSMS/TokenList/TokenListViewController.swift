@@ -82,8 +82,17 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             })
             .subscribe(onNext: { [weak self] viewModels in
                 guard let self = self else { return }
+                
+                //轉換變動不需要重新load, 不是新增 也不是刪除
+                let count = self.sectionItems.rowItems.count
                 self.sectionItems.rowItems = viewModels
-                self.eventResult.onNext(.reloadData)
+                if count == viewModels.count {
+                    
+                    
+                } else {
+                                        
+                    self.eventResult.onNext(.reloadData)
+                }
             })
             .disposed(by: disposedBag)
     }
@@ -112,22 +121,25 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
 
         let observer: Observable<String> = .create { anyObserver -> Disposable in
             
-            let a = self.tokenStore.persistentTokensBehavior
+            let disposed = self.tokenStore.persistentTokensBehavior
                 .map({$0[index]})
-                .flatMapLatest({$0.password})
-                .subscribe(onNext: { string in
-
-                    UIPasteboard.general.string = string
+                .subscribe(onNext: { adapterToken in
                     
-                    anyObserver.onNext(string)
-                    anyObserver.onCompleted()
-                }, onError: { error in
+                    let showPassword = try? adapterToken.passwordShow.value()
                     
-                    anyObserver.onError(error)
+                    if showPassword ?? true {
+                        
+                        UIPasteboard.general.string = adapterToken.persistentToken.token.currentPassword
+                        anyObserver.onNext(adapterToken.persistentToken.token.currentPassword ?? "")
+                        anyObserver.onCompleted()
+                    } else {
+                        
+                        adapterToken.getOnTapPassword()
+                        anyObserver.onCompleted()
+                    }
                 })
-            return Disposables.create { a.dispose() }
+            return Disposables.create { disposed.dispose() }
         }
-        
         return observer
     }
     

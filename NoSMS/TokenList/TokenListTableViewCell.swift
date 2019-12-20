@@ -14,9 +14,12 @@ protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProt
     var isOnTime: Bool { get }
     var getTapPassword: () -> Void { get }
     var reFreshTime: Int { get }
+    var passwordShow: Observable<Bool> { get }
 }
 
 class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
+    
+    let passwordShow: Observable<Bool>
     
     let reFreshTime: Int
     
@@ -49,7 +52,8 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
                   passwordCount: Int,
                   isOnTime: Bool,
                   getTapPassword: @escaping () -> Void,
-                  refreshTime: Int) {
+                  refreshTime: Int,
+                  passwordShow: Observable<Bool>) {
         self.getTapPassword = getTapPassword
         self.baseCellItem = baseViewModelItem
         self.name = name
@@ -77,6 +81,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
         self.haveSelectToDelete = haveSelectToDelete
         self.passwordCount = passwordCount
         self.isOnTime = isOnTime
+        self.passwordShow = passwordShow
     }
 }
  
@@ -126,9 +131,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let tapGetPasswordButton: UIButton = {
         
         let button = UIButton()
-        button.setImage(UIImage.noSmsAdd.withRenderingMode(.alwaysTemplate), for: .normal)
-        button.setTitle("tap", for: .normal)
-        button.tintColor = .countColor
+        button.setImage(.noSmsRefresh, for: .normal)
         return button
     }()
     
@@ -148,8 +151,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
     
     private let digitsView: DigitsView = .init(frame: .zero)
+
+//    private let digitsInHotpView: DigitsView = .init(frame: .zero)
     
     private var isOnTime: Bool = false
+    
+    private var hotpShowPassword: Bool = false
     
     private let circleView: NoSMSCircleLoadView = NoSMSCircleLoadView()
         
@@ -177,6 +184,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         addSubview(deleteImageView)
         contentView.addSubview(deletedButton)
         contentView.addSubview(digitsView)
+//        contentView.addSubview(digitsInHotpView)
         
         issuerLabel.snp.makeConstraints {
             
@@ -246,9 +254,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         tapGetPasswordButton.snp.makeConstraints {
             
-            $0.centerY.equalTo(passwordLabel)
-            $0.right.equalTo(issuerLabel)
-            $0.size.equalTo(ScaleWidth(at: 32))
+            $0.edges.equalTo(circleView)
         }
         
         digitsView.snp.makeConstraints {
@@ -256,11 +262,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.edges.equalTo(passwordLabel)
         }
         digitsView.isHidden = true
+ 
     }
     
     private func changeLayout() {
         
-        UIView.animate(withDuration: 0.3, animations: {
+        UIView.animate(withDuration: 0.1, animations: {
             
             self.nameLabel.isHidden = self.isEditing
             self.circleView.isHidden = self.isEditing
@@ -268,14 +275,22 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             self.nameTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
             self.digitsView.isHidden = !self.isEditing
-            
+
             if self.isOnTime {
                 
                 self.tapGetPasswordButton.isHidden = true
+                self.digitsView.isHidden = !self.isEditing
             } else {
                 
                 self.tapGetPasswordButton.isHidden = self.isEditing
+                
+                if !self.isEditing && !self.hotpShowPassword {
+                    
+                    self.digitsView.isHidden = false
+                    self.passwordLabel.isHidden = true
+                }
             }
+            
         }, completion: nil)
         
         if isEditing {
@@ -320,6 +335,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         viewModel.password
             .bind(to: passwordLabel.rx.text)
             .disposed(by: disposedBag)
+        
+        //hotp 的密碼是否顯示
+        viewModel.passwordShow
+            .subscribe(onNext: { [weak self] hotpShowPassword in
+                
+                self?.hotpShowPassword = hotpShowPassword
+                self?.changeLayout()
+            }).disposed(by: disposedBag)
         
         viewModel.lastTime
             .bind(to: countTimeLabel.rx.text)

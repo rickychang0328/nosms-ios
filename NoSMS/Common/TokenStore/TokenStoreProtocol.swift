@@ -32,9 +32,24 @@ protocol AdapterTokenProtocol {
     var digits: Int { get }
     var isOnTime: Bool { get }
     var getOnTapPassword: () -> Void { get }
+    var passwordShow: BehaviorSubject<Bool> { get }
+    
+    func wantShowPassword()
 }
 
 class AdapterToken: AdapterTokenProtocol {
+    
+    func wantShowPassword() {
+        
+        switch tokenType {
+        case .counter:
+            passwordShow.onNext(false)
+        default:
+            break
+        }
+    }
+
+    let passwordShow: BehaviorSubject<Bool> = .init(value: true)
     
     lazy var getOnTapPassword: () -> Void = { [weak self] in
         guard let self = self else { return }
@@ -42,6 +57,7 @@ class AdapterToken: AdapterTokenProtocol {
         self.token = self.token.updatedToken()
         try? KeychainTokenStore.shared.saveToken(self.token, toPersistentToken: self.persistentToken)
         self.password.onNext(self.token.currentPassword ?? "")
+        self.passwordShow.onNext(true)
     }
     
     private var token: Token
@@ -103,10 +119,10 @@ class AdapterToken: AdapterTokenProtocol {
         self.persistentToken = persistentToken
         self.token = persistentToken.token
         
-        password.onNext(persistentToken.token.currentPassword ?? "")
         name.onNext(persistentToken.token.name)
         issuer.onNext(persistentToken.token.issuer)
-        
+        password.onNext(persistentToken.token.currentPassword ?? "")
+
         switch persistentToken.token.generator.factor {
             
         case .counter(_):
@@ -114,11 +130,11 @@ class AdapterToken: AdapterTokenProtocol {
             self.refreshTimes = 0
             
             lastTime = 0
-            
+            passwordShow.onNext(false)
             return
             
         case .timer(let period):
-          
+            
             self.refreshTimes = period
         }
         
@@ -156,13 +172,10 @@ class KeychainTokenStore {
     private let keychain: Keychain
     private let userDefaults: UserDefaults
     let persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]> = .init(value: [])
-    private var persistentTokens: [PersistentToken] = [] {
-        
-        didSet {
-            
-            persistentTokensBehavior.onNext(persistentTokens.map{ AdapterToken(persistentToken: $0) })
-        }
-    }
+    
+    private var adapterTokens: [AdapterTokenProtocol] = []
+    
+    private var persistentTokens: [PersistentToken] = []
     
     private func checkDelete() {
         
@@ -193,6 +206,7 @@ class KeychainTokenStore {
         
         reloadTokens()
         
+        // 刪除 token 邏輯
         _ = persistentTokensBehavior
             .subscribe(onNext: { tokenArray in
                 self.disposeBag = .init()
@@ -206,8 +220,10 @@ class KeychainTokenStore {
                     }).disposed(by: self.disposeBag)
                 }
                 
+                
+                //更改名字邏輯
                 let nameArray = tokenArray.map({$0.name})
-            
+                
                 for index in nameArray.indices {
                                
                     nameArray[index].subscribe(onNext: { newName in
@@ -221,7 +237,6 @@ class KeychainTokenStore {
                         }
                     }).disposed(by: self.disposeBag)
                 }
-                
             })
     }
     
@@ -242,6 +257,9 @@ class KeychainTokenStore {
             }
         }) ?? []
         
+        adapterTokens = persistentTokens.map{ AdapterToken(persistentToken: $0) }
+        persistentTokensBehavior.onNext(adapterTokens)
+
         if persistentTokens.count > sortedIdentifiers.count {
             // If lost tokens were found and appended, save the full list of tokens
             saveTokenOrder()
@@ -285,6 +303,8 @@ extension KeychainTokenStore: TokenStoreProtocol {
             
             try deleteToken(index: $0)
         }
+        
+        persistentTokensBehavior.onNext(adapterTokens)
     }
     
     func addTokenWith(urlString: String) throws {
@@ -306,6 +326,9 @@ extension KeychainTokenStore: TokenStoreProtocol {
     func addToken(_ token: Token) throws {
         let newPersistentToken = try keychain.add(token)
         persistentTokens.append(newPersistentToken)
+        adapterTokens.append(AdapterToken(persistentToken: newPersistentToken))
+        persistentTokensBehavior.onNext(adapterTokens)
+
         saveTokenOrder()
     }
 
@@ -323,6 +346,12 @@ extension KeychainTokenStore: TokenStoreProtocol {
         let persistentToken = persistentTokens[origin]
         persistentTokens.remove(at: origin)
         persistentTokens.insert(persistentToken, at: destination)
+        
+        let adapterToken = adapterTokens[origin]
+        adapterTokens.remove(at: origin)
+        adapterTokens.insert(adapterToken, at: destination)
+        
+        persistentTokensBehavior.onNext(adapterTokens)
         saveTokenOrder()
     }
 
@@ -331,7 +360,18 @@ extension KeychainTokenStore: TokenStoreProtocol {
         if let index = persistentTokens.firstIndex(of: persistentToken) {
             persistentTokens.remove(at: index)
         }
+        if let index = adapterTokens.firstIndex(where: {$0.persistentToken == persistentToken}) {
+            
+            adapterTokens.remove(at: index)
+        }
+        
+        persistentTokensBehavior.onNext(adapterTokens)
         saveTokenOrder()
+    }
+    
+    func resetHotpPasswordShow() {
+        
+        adapterTokens.forEach({ $0.wantShowPassword() })
     }
 }
 

@@ -75,7 +75,8 @@ struct TableViewCellViewModelFactory {
                                                    passwordCount: token.digits,
                                                    isOnTime: token.isOnTime,
                                                    getTapPassword: token.getOnTapPassword,
-                                                   refreshTime: Int(token.refreshTimes))
+                                                   refreshTime: Int(token.refreshTimes),
+                                                   passwordShow: token.passwordShow)
         }
     }
 }

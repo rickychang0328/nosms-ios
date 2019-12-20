@@ -28,5 +28,6 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         
         PastedAction.shared.applicationDidBecomeActive()
+        KeychainTokenStore.shared.resetHotpPasswordShow()
     }
 }
