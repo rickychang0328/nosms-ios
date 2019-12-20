@@ -64,7 +64,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     
     private let tokenStore: TokenStoreProtocol
             
-    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "身份验证器")),
+    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
          backgroundColor: UIColor = .clear,
          sectionItems: TokenListSectionItemProtocol = TokenListSectionItem()) {

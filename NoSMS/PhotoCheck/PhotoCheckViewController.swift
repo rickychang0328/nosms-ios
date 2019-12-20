@@ -12,16 +12,23 @@ protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     var newBarViewTitle: BehaviorSubject<String?> { get }
     
     func selectAlbum(index: Int)
+    func getAlbum()
 }
 
-struct PhotoListObject {
+class PhotoListObject {
     
     let photoAlbum: PHCollection
     
-    let photosAsset: [PHAsset]
+    var photosAsset: [PHAsset]
     
-    let photosImageData: [BehaviorSubject<UIImage?>]
-
+    var photosImageData: [BehaviorSubject<UIImage?>]
+    
+    internal init(photoAlbum: PHCollection, photosAsset: [PHAsset], photosImageData: [BehaviorSubject<UIImage?>]) {
+        
+        self.photoAlbum = photoAlbum
+        self.photosAsset = photosAsset
+        self.photosImageData = photosImageData
+    }
 }
 
 class PhotoManager {
@@ -40,7 +47,7 @@ class PhotoManager {
     }
     
     func reloadAlbum() {
-        
+                
         let smartOptions = PHFetchOptions()
         let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: smartOptions)
                 
@@ -48,13 +55,11 @@ class PhotoManager {
                         
             smartOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
             smartOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
-            
             let imageList = smartAlbums[index]
             let assetFetchResult = PHAsset.fetchAssets(in: imageList, options: smartOptions)
-            
             var photos: [PHAsset] = []
-            
             var photoImage: [BehaviorSubject<UIImage?>] = []
+            
             if assetFetchResult.count > 0 {
                 
                 for index in 0 ..< assetFetchResult.count {
@@ -62,16 +67,41 @@ class PhotoManager {
                     let behaviorSubject: BehaviorSubject<UIImage?> = .init(value: nil)
                     photoImage.append(behaviorSubject)
                     photos.append(assetFetchResult[index])
-                    
-                    DispatchQueue.global().async {
-                        
-                        self.phImageManager.requestImage(for: assetFetchResult[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
-                            behaviorSubject.onNext(image)
-                        })
-                    }
                 }
                 
-                self.photos.append(PhotoListObject(photoAlbum: smartAlbums[index], photosAsset: photos, photosImageData: photoImage))
+                // 照片大於零才加入相簿的邏輯 新加照片會讀取的邏輯
+                if let sameAlbum = self.photos.first(where: {$0.photoAlbum.localIdentifier == imageList.localIdentifier}),
+                    let whereIndex = photos.firstIndex(where: {$0.localIdentifier == sameAlbum.photosAsset[0].localIdentifier}) {
+                    
+                    print(photos.count)
+                    print(sameAlbum.photosAsset.count)
+                    
+                    for index in 0 ..< whereIndex {
+                        
+                        sameAlbum.photosAsset.insert(photos[index], at: index)
+                        sameAlbum.photosImageData.insert(photoImage[index], at: index)
+                        
+                        DispatchQueue.global().async {
+                            
+                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
+                                photoImage[index].onNext(image)
+                            })
+                        }
+                    }
+                } else {
+                    
+                    self.photos.append(PhotoListObject(photoAlbum: imageList, photosAsset: photos, photosImageData: photoImage))
+                    
+                    for index in photos.indices {
+                        
+                        DispatchQueue.global().async {
+                            
+                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
+                                photoImage[index].onNext(image)
+                            })
+                        }
+                    }
+                }
             }
         }
     }
@@ -125,25 +155,6 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
          navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: ""))) {
         
         super.init(navigationItem: navigationItem, backgroundColor: backgroundColor)
-        selectAlbum = photoManager.photos.count - 1
-
-        for index in photoManager.photos.indices {
-            
-            let photoObject = photoManager.photos[index]
-            
-            let title = photoObject.photoAlbum.localizedTitle
-            let photoImage = photoObject.photosImageData[0]
-            let photoCount = "(\(photoObject.photosAsset.count))"
-            let isSelected: Bool = false
-            
-            tableViewSectionItem.rowItems
-                .append(PhotoCheckTableViewCellViewModel(image: photoImage,
-                                                         title: .init(value: title),
-                                                         photoCount: .init(value: photoCount),
-                                                         isSelected: .init(value: isSelected)))
-        }
-        selectAlbum = photoManager.photos.count - 1
-        selectAlbum(index: selectAlbum)
     }
     
     private func reloadPhoto() {
@@ -174,6 +185,30 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         newBarViewTitle.onNext(photoManager.photos[index].photoAlbum.localizedTitle)
         
         reloadPhoto()
+    }
+    
+    func getAlbum() {
+        
+        photoManager.reloadAlbum()
+        selectAlbum = photoManager.photos.count - 1
+
+        for index in photoManager.photos.indices {
+            
+            let photoObject = photoManager.photos[index]
+            
+            let title = photoObject.photoAlbum.localizedTitle
+            let photoImage = photoObject.photosImageData[0]
+            let photoCount = "(\(photoObject.photosAsset.count))"
+            let isSelected: Bool = false
+            
+            tableViewSectionItem.rowItems
+                .append(PhotoCheckTableViewCellViewModel(image: photoImage,
+                                                         title: .init(value: title),
+                                                         photoCount: .init(value: photoCount),
+                                                         isSelected: .init(value: isSelected)))
+        }
+        selectAlbum = photoManager.photos.count - 1
+        selectAlbum(index: selectAlbum)
     }
 }
 
@@ -316,6 +351,8 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         super.viewWillAppear(animated)
         
         navigationBarView.isHidden = false
+        viewModel.getAlbum()
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {

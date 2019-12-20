@@ -7,6 +7,11 @@ extension UIImage {
         return UIImage(named: "NoSMS_legal") ?? UIImage()
     }
     
+    static var noSmsRefresh: UIImage {
+          
+        return UIImage(named: "NoSMS_copy") ?? UIImage()
+    }
+    
     static var noSmsPrivacy: UIImage {
         
         return UIImage(named: "NoSMS_privacy") ?? UIImage()
