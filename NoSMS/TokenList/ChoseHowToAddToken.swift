@@ -73,12 +73,48 @@ class ChoseHowToAddTokenView: UIView {
         return view
     }()
     
+    private var nowBottomY: CGFloat = 0  {
+           
+        didSet {
+
+            if nowBottomY < 0 {
+
+                nowBottomY = 0
+                tableView.changeBottom(to: 0)
+            } else {
+                
+                if nowBottomY > tableViewBaseHeight {
+                    
+                    if oldValue < tableViewBaseHeight {
+                        
+                        tableView.changeBottom(to: tableViewBaseHeight)
+                    }
+                    bottomCoverView.changeTop(to: (nowBottomY - tableViewBaseHeight))
+                } else {
+                    tableView.changeBottom(to: nowBottomY)
+                    bottomCoverView.changeTop(to: 0)
+                }
+                
+                if nowBottomY > tableViewBaseHeight + bottomHeight + 10 {
+                    
+                    nowBottomY = tableViewBaseHeight + bottomHeight + 10
+                }
+            }
+        }
+    }
+    
+    private var nowGesY: CGFloat = 0
+    
+    private lazy var tableViewBaseHeight: CGFloat = cellHeight * CGFloat(integerLiteral: choseEvnets.count)
+
+    private var bottomHeight: CGFloat = 0
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         addSubview(dissMissView)
-        addSubview(tableView)
         addSubview(bottomCoverView)
+        addSubview(tableView)
         
         dissMissView.snp.makeConstraints {
             
@@ -88,15 +124,20 @@ class ChoseHowToAddTokenView: UIView {
         
         tableView.snp.makeConstraints {
             
-            $0.left.right.bottomMargin.equalToSuperview()
+            $0.left.right.equalToSuperview()
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
+            $0.bottom.equalTo(bottomCoverView.snp.top)
         }
         
         bottomCoverView.snp.makeConstraints {
             
-            $0.top.equalTo(tableView.snp.bottom)
+            $0.top.equalTo(self.snp.bottomMargin)
             $0.left.right.bottom.equalToSuperview()
         }
+        isHidden = true
+        layoutIfNeeded()
+        superview?.layoutIfNeeded()
+        bottomHeight = bottomCoverView.frame.height
         dismissView()
         
         let gesture = UITapGestureRecognizer()
@@ -116,6 +157,35 @@ class ChoseHowToAddTokenView: UIView {
                 self.chosePhoto.onNext(self.choseEvnets[indexPath.row])
             }
         }).disposed(by: disposeBag)
+        
+        let panGestureRecognizer = UIPanGestureRecognizer()
+        
+        addGestureRecognizer(panGestureRecognizer)
+        panGestureRecognizer.rx.event
+            .subscribe(onNext: { [weak self] panGestureRecognizer in
+                guard let self = self else { return }
+                
+                if panGestureRecognizer.state == .began {
+                    
+                    self.nowGesY = 0
+                } else if panGestureRecognizer.state == .changed {
+                    
+                    let transLationY = panGestureRecognizer.translation(in: self).y
+                    let moveY = self.nowGesY - transLationY
+                    self.nowGesY = transLationY
+                    self.nowBottomY -= moveY
+                    
+                } else if panGestureRecognizer.state == .ended {
+                    
+                    if self.nowBottomY >= self.tableViewBaseHeight / 2 {
+                        
+                        self.dismissView()
+                    } else {
+                        
+                        self.showView()
+                    }
+                }
+            }).disposed(by: disposeBag)
     }
     
     required init?(coder: NSCoder) {
@@ -125,11 +195,33 @@ class ChoseHowToAddTokenView: UIView {
     func showView() {
         
         isHidden = false
+        
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            
+            self.dissMissView.alpha = 1
+            self.nowBottomY = 0
+            self.layoutIfNeeded()
+        }) { _ in
+            
+            self.bottomHeight = self.bottomCoverView.frame.height
+        }
     }
     
     func dismissView() {
-        
-        isHidden = true
+                
+        UIView.animate(withDuration: 0.3, animations: {
+                   
+            self.dissMissView.alpha = 0
+            self.nowBottomY = self.bottomHeight + self.tableViewBaseHeight
+//            self.bottomCoverView.changeTop(to: self.bottomHeight)
+//            self.tableView.changeBottom(to: self.tableViewBaseHeight)
+            self.layoutIfNeeded()
+        }, completion: { _ in
+                   
+            
+            self.isHidden = true
+        })
     }
 }
 

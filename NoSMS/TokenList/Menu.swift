@@ -133,6 +133,7 @@ class MenuView: UIView {
             $0.width.equalTo(self.tableViewBaseWitdh)
         }
         
+        isHidden = true
         dismissView()
         
         let gesture = UITapGestureRecognizer()

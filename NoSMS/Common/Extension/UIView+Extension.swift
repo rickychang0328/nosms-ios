@@ -175,6 +175,27 @@ extension UIView {
                 $0.firstItem as? UIView == self
         }).forEach({$0.constant = value})
     }
+    
+    func changeBottom(to value: CGFloat) {
+          getAllConstraints().filter( {
+              $0.firstAttribute == .bottom &&
+                  $0.firstItem as? UIView == self
+        }).forEach({$0.constant = value})
+    }
+    
+    func changeBottomMargin(to value: CGFloat) {
+          getAllConstraints().filter( {
+            $0.firstAttribute == .bottomMargin &&
+                  $0.firstItem as? UIView == self
+        }).forEach({$0.constant = value})
+    }
+    
+    func changeTop(to value: CGFloat) {
+          getAllConstraints().filter( {
+              $0.firstAttribute == .top &&
+                  $0.firstItem as? UIView == self
+        }).forEach({$0.constant = value})
+    }
 }
 
 private class BorderView: UIView {}
