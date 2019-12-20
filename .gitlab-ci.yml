@@ -38,7 +38,7 @@ variables:
   IOS_BUILD_SCHEME: NoSMS
   IOS_DEPLOY_NAME: 'nosms'
   IOS_PROJECT: NoSMS.xcodeproj
-  IOS_TARGET_NAME: NoSMS
+  IOS_TARGET_NAME: MustAuth
   IOS_VERSION_FILE: NoSMS/Info.plist
   IOS_WORKSPACE: NoSMS.xcworkspace
   LC_CTYPE: en_US.UTF-8
