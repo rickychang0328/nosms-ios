@@ -106,7 +106,6 @@ extension UIView {
         return self
     }
     
-    @discardableResult
     func addCornerAndBorder(backgroundColor: UIColor = UIColor.white,
                             cornerRadius: CGFloat = ScaleWidth(at: 10),
                             masksToBounds: Bool = true,
@@ -118,6 +117,63 @@ extension UIView {
         self.layer.masksToBounds = masksToBounds
         self.layer.borderColor = borderColor.cgColor
         self.layer.borderWidth = borderWidth
+    }
+}
+
+extension UIView {
+    
+    // retrieves all constraints that mention the view
+    func getAllConstraints() -> [NSLayoutConstraint] {
+
+        // array will contain self and all superviews
+        var views = [self]
+
+        // get all superviews
+        var view = self
+        while let superview = view.superview {
+            views.append(superview)
+            view = superview
+        }
+
+        // transform views to constraints and filter only those
+        // constraints that include the view itself
+        return views.flatMap({ $0.constraints }).filter { constraint in
+            return constraint.firstItem as? UIView == self ||
+                constraint.secondItem as? UIView == self
+        }
+    }
+
+    // Example 1: Get all width constraints involving this view
+    // We could have multiple constraints involving width, e.g.:
+    // - two different width constraints with the exact same value
+    // - this view's width equal to another view's width
+    // - another view's height equal to this view's width (this view mentioned 2nd)
+    func getWidthConstraints() -> [NSLayoutConstraint] {
+        return getAllConstraints().filter( {
+            ($0.firstAttribute == .width && $0.firstItem as? UIView == self) ||
+            ($0.secondAttribute == .width && $0.secondItem as? UIView == self)
+        } )
+    }
+
+    // Example 2: Change width constraint(s) of this view to a specific value
+    // Make sure that we are looking at an equality constraint (not inequality)
+    // and that the constraint is not against another view
+    func changeWidth(to value: CGFloat) {
+
+        getAllConstraints().filter( {
+            $0.firstAttribute == .width &&
+                $0.relation == .equal &&
+                $0.secondAttribute == .notAnAttribute
+        } ).forEach( {$0.constant = value })
+    }
+
+    // Example 3: Change leading constraints only where this view is
+    // mentioned first. We could also filter leadingMargin, left, or leftMargin
+    func changeLeading(to value: CGFloat) {
+        getAllConstraints().filter( {
+            $0.firstAttribute == .leading &&
+                $0.firstItem as? UIView == self
+        }).forEach({$0.constant = value})
     }
 }
 

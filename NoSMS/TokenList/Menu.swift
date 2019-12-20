@@ -66,12 +66,60 @@ class MenuView: UIView {
         view.setBackgroundColor(.backCoverColor)
         return view
     }()
+    
+    private var nowTableViewX: CGFloat = 0  {
+           
+        didSet {
+
+            if nowTableViewX > 0 {
+
+                nowTableViewX = 0
+                tableView.changeLeading(to: 0)
+            } else {
+
+                tableView.changeLeading(to: nowTableViewX)
+            }
+        }
+    }
+    
+    private var nowGesX: CGFloat = 0
+    
+    private let tableViewBaseWitdh: CGFloat = ScaleWidth(at: 290)
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         addSubview(dissMissView)
         addSubview(tableView)
+        
+        let panGestureRecognizer = UIPanGestureRecognizer()
+        
+        addGestureRecognizer(panGestureRecognizer)
+        panGestureRecognizer.rx.event
+            .subscribe(onNext: { [weak self] panGestureRecognizer in
+                guard let self = self else { return }
+                
+                if panGestureRecognizer.state == .began {
+                    
+                    self.nowGesX = 0
+                } else if panGestureRecognizer.state == .changed {
+                    
+                    let transLationX = panGestureRecognizer.translation(in: self).x
+                    let moveX = self.nowGesX - transLationX
+                    self.nowGesX = transLationX
+                    self.nowTableViewX -= moveX
+                    
+                } else if panGestureRecognizer.state == .ended {
+                    
+                    if self.nowTableViewX >= -self.tableViewBaseWitdh / 2 {
+                        
+                        self.showView()
+                    } else {
+                        
+                        self.dismissView()
+                    }
+                }
+            }).disposed(by: disposeBag)
         
         dissMissView.snp.makeConstraints {
             
@@ -80,11 +128,11 @@ class MenuView: UIView {
         }
         
         tableView.snp.makeConstraints {
-            
-            $0.left.top.bottom.equalToSuperview()
-            $0.width.equalTo(ScaleWidth(at: 290))
+            $0.leading.equalTo((-self.tableViewBaseWitdh))
+            $0.top.bottom.equalToSuperview()
+            $0.width.equalTo(self.tableViewBaseWitdh)
         }
-      
+        
         dismissView()
         
         let gesture = UITapGestureRecognizer()
@@ -113,11 +161,28 @@ class MenuView: UIView {
     func showView() {
         
         isHidden = false
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            
+            self.dissMissView.alpha = 1
+            self.nowTableViewX = 0
+            self.layoutIfNeeded()
+        })
     }
     
     func dismissView() {
         
-        isHidden = true
+        
+        UIView.animate(withDuration: 0.3, animations: {
+                   
+            self.dissMissView.alpha = 0
+            self.nowTableViewX = -self.tableViewBaseWitdh
+            self.layoutIfNeeded()
+        }, completion: { _ in
+                   
+            
+            self.isHidden = true
+        })
     }
 }
 
@@ -239,3 +304,4 @@ class MenuViewTableViewCell: UITableViewCell {
         underLineView.isHidden = underLineHide
     }
 }
+

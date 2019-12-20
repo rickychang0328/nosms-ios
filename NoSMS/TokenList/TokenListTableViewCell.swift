@@ -396,7 +396,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 
 //                if lastTime == reFreshTime - 1 {
                     
-                    self.circleView.start(lastTime: Double(lastTime), refreshTime: Double(reFreshTime - 1))
+                    self.circleView.startAnimation(lastTime: Double(lastTime), refreshTime: Double(reFreshTime - 1))
 //                }
 
                 }).disposed(by: disposedBag)
@@ -486,32 +486,8 @@ class CircleView: UIView {
     
     var animation: CABasicAnimation = .init()
     
-    func getCircle(circleLast: Double = 1) {
-        
-        layoutIfNeeded()
-        superview?.layoutIfNeeded()
-        shapeLayer.removeFromSuperlayer()
-        
-        let shapeLayer = CAShapeLayer()
-        self.shapeLayer = shapeLayer
-        shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
-        shapeLayer.fillColor = UIColor.clear.cgColor
-        shapeLayer.lineWidth = lineWidth
-        shapeLayer.strokeColor = UIColor.countColor.cgColor
-        let arcCenter:CGPoint = shapeLayer.position // 設定圓心
-        let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
-        // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針
-        let path = UIBezierPath(arcCenter: arcCenter,
-                                radius: radius,
-                                startAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleLast))),
-                                endAngle: CGFloat(2 * Float.pi / 4 * 3) + CGFloat(2 * Float.pi), clockwise: true)
-        
-        shapeLayer.path = path.cgPath
-        shapeLayer.position = center
-        layer.addSublayer(shapeLayer)
-    }
     
-    func getCircleLayer(circleLast: Double = 0) {
+    func getCircleSubLayer(circleLast: Double = 0) {
         
         layoutIfNeeded()
         superview?.layoutIfNeeded()
@@ -536,16 +512,43 @@ class CircleView: UIView {
         layer.addSublayer(shapeLayer)
     }
     
-    func start(lastTime: Double, refreshTime: Double) {
+    func getCircle(circleLast: Double = 1, circleTo: Double = 1) {
+        
+        layoutIfNeeded()
+        superview?.layoutIfNeeded()
+        shapeLayer.removeFromSuperlayer()
+        
+        let shapeLayer = CAShapeLayer()
+        self.shapeLayer = shapeLayer
+        shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
+        shapeLayer.fillColor = UIColor.clear.cgColor
+        shapeLayer.lineWidth = lineWidth
+        shapeLayer.strokeColor = UIColor.countColor.cgColor
+        let arcCenter:CGPoint = shapeLayer.position // 設定圓心
+        let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
+        // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針
+        let path = UIBezierPath(arcCenter: arcCenter,
+                                radius: radius,
+                                startAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleLast))),
+                                endAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleTo))),
+                                clockwise: true)
+        
+        shapeLayer.path = path.cgPath
+        shapeLayer.position = center
+        layer.addSublayer(shapeLayer)
+    }
+    
+    func startAnimation(lastTime: Double, refreshTime: Double) {
         
         let last = lastTime / refreshTime
-        getCircleLayer(circleLast: last)
-        getCircle(circleLast: last)
+        let toWhere = (lastTime - 1) / refreshTime
+        getCircleSubLayer(circleLast: last)
+        getCircle(circleLast: last, circleTo: toWhere)
         
         let animation = CABasicAnimation(keyPath: "strokeEnd")
         animation.fromValue = 0
         animation.toValue = 1
-        animation.duration = lastTime
+        animation.duration = 1
         self.animation = animation
         shapeLayer.add(animation, forKey: nil)
     }
@@ -569,7 +572,7 @@ class NoSMSCircleLoadView: UIView {
         
         return Binder<UIColor>.init(self) { (view, color) in
             
-            view.baseCricleView.shapeLayer.strokeColor = color.cgColor
+            view.baseCricleView.subLayer.strokeColor = color.cgColor
         }
     }
     
@@ -595,17 +598,17 @@ class NoSMSCircleLoadView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func start(lastTime: Double, refreshTime: Double) {
+    func startAnimation(lastTime: Double, refreshTime: Double) {
 
-        baseCricleView.getCircle()
-        loadingCricleView.start(lastTime: lastTime, refreshTime: refreshTime)
+        baseCricleView.getCircleSubLayer()
+        loadingCricleView.startAnimation(lastTime: lastTime, refreshTime: refreshTime)
         loadingCricleView.shapeLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
         loadingCricleView.subLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
     }
     
     func remove() {
         
-        baseCricleView.shapeLayer.removeFromSuperlayer()
+        baseCricleView.subLayer.removeFromSuperlayer()
         loadingCricleView.shapeLayer.removeFromSuperlayer()
         loadingCricleView.subLayer.removeFromSuperlayer()
     }
