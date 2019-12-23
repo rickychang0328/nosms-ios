@@ -151,8 +151,6 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
     
     private let digitsView: DigitsView = .init(frame: .zero)
-
-//    private let digitsInHotpView: DigitsView = .init(frame: .zero)
     
     private var isOnTime: Bool = false
     
@@ -182,9 +180,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         circleView.addSubview(countTimeLabel)
         contentView.addSubview(tapGetPasswordButton)
         addSubview(deleteImageView)
-        contentView.addSubview(deletedButton)
+        addSubview(deletedButton)
         contentView.addSubview(digitsView)
-//        contentView.addSubview(digitsInHotpView)
         
         issuerLabel.snp.makeConstraints {
             
@@ -202,7 +199,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         deletedButton.snp.makeConstraints {
             
-            $0.top.left.bottom.equalToSuperview()
+            $0.top.bottom.left.equalToSuperview()
             $0.right.equalTo(contentView.snp.left).offset(20)
         }
 
