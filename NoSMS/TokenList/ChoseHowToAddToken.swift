@@ -29,9 +29,9 @@ class ChoseHowToAddTokenView: UIView {
             switch self {
             
             case .photo:
-                return "相册选取扫描"
+                return "相册选取二维码"
             case .camera:
-                return "扫描二维码"
+                return "相机扫描二维码"
             case .keyIn:
                 return "手动输入验证码"
             }

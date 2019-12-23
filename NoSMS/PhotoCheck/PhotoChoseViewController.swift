@@ -13,10 +13,16 @@ protocol PhotoChoseVCViewModelProtocol: BaseVCViewModelProtocol {
     
     var choseImage: Observable<UIImage?> { get }
     
-    func saveToken() -> Completable
+    func saveToken() -> Observable<PhotoChoseVCViewModel.Event>
 }
 
 class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
+    
+    enum Event {
+        
+        case success
+        case showAlert(title: String, message: String, completionHander: () -> Void)
+    }
     
     let choseImage: Observable<UIImage?>
     
@@ -30,9 +36,9 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
         super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "相册选取扫码")), backgroundColor: .clear)
     }
     
-    func saveToken() -> Completable {
+    func saveToken() -> Observable<Event> {
         
-        return Completable.create { completable in
+        return Observable<Event>.create { anyObserver in
             
             let dispose = self.choseImage.subscribe(onNext: { image in
                 
@@ -41,23 +47,34 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
                         let ciImage = CIImage(image: pickedImage),
                         let features = detector.features(in: ciImage) as? [CIQRCodeFeature] else {
                     
-                            completable(.error(NoSMSError.imageError))
-                            return
+                            anyObserver.onError(NoSMSError.imageError)
+                        return
                 }
                 
                 guard !features.isEmpty else {
-                    completable(.error(NoSMSError.imageisNotQRCode))
+                    
+                    anyObserver.onError(NoSMSError.imageisNotQRCode)
                     return
                 }
                 
                 let qrCodeLink = features.reduce(""){ $0 + ($1.messageString ?? "")}
-                      
-                do {
-                    try self.tokenStore.addTokenWith(urlString: qrCodeLink)
-                    completable(.completed)
-                } catch {
+                
+                self.tokenStore.addTokenWith(urlString: qrCodeLink) { [weak self] (event) in
                     
-                    completable(.error(error))
+                    guard let _ = self else { return }
+                    switch event {
+                        
+                    case .addSuccess:
+                        
+                        anyObserver.onNext(.success)
+                        anyObserver.onCompleted()
+                    case .haveTheSame(let title, let message, let completion):
+                        
+                        anyObserver.onNext(.showAlert(title: title, message: message, completionHander: completion))
+                    case .addError(let error):
+                        
+                        anyObserver.onError(error)
+                    }
                 }
             })
             
@@ -111,7 +128,9 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
             $0.edges.equalToSuperview()
         }
         
-        let barHeight = self.navigationController?.navigationBar.frame.height ?? 0
+        view.layoutIfNeeded()
+        let barHeight = (self.navigationController?.navigationBar.frame.height ?? 0) + (self.navigationController?.navigationBar.frame.origin.y ?? 0)
+        
         waitLabel.snp.makeConstraints {
             
             $0.top.equalTo(-barHeight)
@@ -126,14 +145,24 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             
             self.viewModel.saveToken()
-                .subscribe(onCompleted: {
+                .subscribe(onNext: { event in
                     
                     self.waitLabel.isHidden = true
                     
-                    NoSMSHUD.showToast(title: "识别成功！") {
+                    switch event {
                         
-                        self.dismiss(animated: true, completion: nil)
+                    case .success:
+                        NoSMSHUD.showToast(title: "识别成功！") {
+                            
+                            self.dismiss(animated: true, completion: nil)
+                        }
+                    case .showAlert(let title, let message, let completionHander):
+                        
+                        self.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completionHander) {
+                            self.navigationController?.popViewController(animated: true)
+                        }
                     }
+                    
                 }, onError: { _ in
                     
                     self.waitLabel.isHidden = true

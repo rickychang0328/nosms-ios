@@ -151,8 +151,6 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
     
     private let digitsView: DigitsView = .init(frame: .zero)
-
-//    private let digitsInHotpView: DigitsView = .init(frame: .zero)
     
     private var isOnTime: Bool = false
     
@@ -182,9 +180,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         circleView.addSubview(countTimeLabel)
         contentView.addSubview(tapGetPasswordButton)
         addSubview(deleteImageView)
-        contentView.addSubview(deletedButton)
+        addSubview(deletedButton)
         contentView.addSubview(digitsView)
-//        contentView.addSubview(digitsInHotpView)
         
         issuerLabel.snp.makeConstraints {
             
@@ -202,7 +199,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         deletedButton.snp.makeConstraints {
             
-            $0.top.left.bottom.equalToSuperview()
+            $0.top.bottom.left.equalToSuperview()
             $0.right.equalTo(contentView.snp.left).offset(20)
         }
 
@@ -222,7 +219,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         nameTextField.snp.makeConstraints {
                   
-            $0.left.right.centerY.equalTo(nameLabel).offset(1)
+            $0.left.centerY.equalTo(nameLabel).offset(1)
+            $0.right.equalTo(ScaleWidth(at: -16))
         }
         
         let textFieldUnderLine = UIView()
@@ -300,7 +298,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 if view.description.contains("UITableViewCellReorderControl") {
 
                     let imageOfReorder = view.subviews[0] as? UIImageView
-                    imageOfReorder?.image = .noSmsMoveCell
+                    imageOfReorder?.image = nil
+                    let imageView = UIImageView(image: .noSmsMoveCell)
+                    imageView.frame = .init(x: 0, y: 0, width: ScaleWidth(at: 18), height: ScaleWidth(at: 13.5))
+                    view.addSubview(imageView)
+                    imageView.center = .init(x: ScaleWidth(at: 10), y: passwordLabel.center.y)
                 }
             }
             

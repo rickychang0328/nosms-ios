@@ -132,10 +132,16 @@ protocol JoinManuallyVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
     var buttonEnable: Observable<Bool> { get }
 
-    func addTOTP() -> Completable
+    func addTOTP() -> Observable<JoinManuallyVCViewModel.Event>
 }
 
 class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol {
+    
+    enum Event {
+        
+        case success
+        case alertAction(title: String, message: String, completion: () -> Void)
+    }
     
     let buttonEnable: Observable<Bool>
     
@@ -199,9 +205,9 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
         
     }
   
-    func addTOTP() -> Completable {
+    func addTOTP() -> Observable<Event> {
                 
-        return Completable.create { (completion) -> Disposable in
+        return Observable<Event>.create { (anyObserver) -> Disposable in
             
             let disposed = Observable.combineLatest(self.joinManuallySectionItems.accountCellViewModel.inputString,
                                                     self.joinManuallySectionItems.issuerCellViewModel.inputString,
@@ -265,12 +271,21 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 
                 let addToken = Token(name: account, issuer: issuer, generator: generator)
                 
-                do {
-                    try self.tokenStore.addToken(addToken)
-                    completion(.completed)
-                } catch {
+                self.tokenStore.addToken(addToken) { (event) in
                     
-                    completion(.error(error))
+                    switch event {
+                                           
+                        case .addSuccess:
+                           
+                            anyObserver.onNext(.success)
+                            anyObserver.onCompleted()
+                        case .haveTheSame(let title, let message, let completion):
+                           
+                            anyObserver.onNext(.alertAction(title: title, message: message, completion: completion))
+                        case .addError(let error):
+                           
+                            anyObserver.onError(error)
+                    }
                 }
             })
         
@@ -314,8 +329,18 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
             
             guard let self = self else { return }
             
-            self.viewModel.addTOTP().subscribe(onCompleted: { [weak self] in
-                self?.navigationController?.popViewController(animated: true)
+            self.viewModel.addTOTP().subscribe(onNext: { [weak self] event in
+                
+                switch event {
+                    
+                case .success:
+                    
+                    self?.navigationController?.popViewController(animated: true)
+                    
+                case .alertAction(title: let title, message: let message, completion: let completion):
+                    
+                    self?.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completion, cancelAction: nil)
+                }
             }).disposed(by: self.disposedBag)
         }).disposed(by: disposedBag)
     }

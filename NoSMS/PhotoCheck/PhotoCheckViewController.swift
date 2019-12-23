@@ -299,8 +299,9 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         
         
         viewModel.reloadAlbum.subscribe(onNext: { [weak self] _ in
-            
-            self?.collectionView.reloadData()
+            guard let self = self else { return }
+            self.collectionView.reloadData()
+            self.resetAlbumSelectView()
             }).disposed(by: disposedBag)
         viewModel.newBarViewTitle.bind(to: navigationNewTitle.rx.text).disposed(by: disposedBag)
 
@@ -328,7 +329,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
                $0.left.equalTo(ScaleWidth(at: 40)).priorityLow()
                $0.right.equalTo(ScaleWidth(at: -40)).priorityLow()
            }
-       }
+        }
         tableViewButtonInNavigationBar.snp.makeConstraints {
             
             $0.right.centerY.equalToSuperview()
@@ -344,6 +345,12 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
             self.tableView.isHidden = !self.tableViewButtonInNavigationBar.isSelected
     
         }).disposed(by: disposedBag)
+    }
+    
+    private func resetAlbumSelectView() {
+        
+        tableViewButtonInNavigationBar.isSelected = false
+        tableView.isHidden = true
     }
     
     

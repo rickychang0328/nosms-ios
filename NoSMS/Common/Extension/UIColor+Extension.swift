@@ -3,6 +3,8 @@ import UIKit
 
 extension UIColor {
     
+    private static let _textBlackColor: UIColor = .init(red: 51/255, green: 51/255, blue: 51/255, alpha: 1)
+    
     private static let _nameColor: UIColor = .init(red: 102/255, green: 102/255, blue: 102/255, alpha: 1)
 
     private static let _sercetNormalColor: UIColor = .init(red: 81/255, green: 95/255, blue: 242/255, alpha: 1)
@@ -26,6 +28,11 @@ extension UIColor {
     private static let _alertBackgroundColor: UIColor = .init(red: 41/255, green: 44/255, blue: 68/255, alpha: 1)
     
     private static let _alertCancelButtonColor: UIColor = .init(red: 153/255, green: 153/255, blue: 153/255, alpha: 0.15)
+    
+    static var textBlackColor: UIColor {
+        
+        return _textBlackColor
+    }
     
     static var alertBackgroundColor: UIColor {
         
