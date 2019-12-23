@@ -161,10 +161,5 @@ class PhotoCheckCollectionViewCell: UICollectionViewCell {
             .observeOn(MainScheduler.instance)
             .bind(to: imageView.rx.image)
             .disposed(by: disposeBag)
-//        viewModel.imageData.subscribe(onNext: { [weak self] image in
-//            
-//            guard let self = self else { return }
-//            self.imageView.image =
-//            }).disposed(by: disposeBag)
     }
 }
