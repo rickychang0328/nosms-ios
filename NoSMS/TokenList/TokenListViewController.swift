@@ -159,7 +159,7 @@ class HomePageView: UIView {
         
         label.setText("启用两步验证后，无论何时您登录账号，\n都需要输入自己的密码和此应用生成的验证码")
             .setTextAlignment(.center)
-            .setFont(.pingFangLightFont(size: 15))
+            .setFont(.pingFangMediumFont(size: 15))
             .setNumberOfLine(0)
             .setTextColor(.white)
         return label
@@ -170,6 +170,7 @@ class HomePageView: UIView {
         let button = UIButton()
         button.setTitle("开始设置", for: .normal)
         button.addCornerAndBorder(backgroundColor: .clear, cornerRadius: ScaleWidth(at: 6), masksToBounds: false, borderColor: .homePageBorderColor, borderWidth: 1)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
         return button
     }()
     

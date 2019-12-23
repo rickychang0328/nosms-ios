@@ -8,12 +8,12 @@ protocol TokenStoreProtocol {
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
     var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
  
-    func addToken(_ token: Token) throws
+    func addToken(_ token: Token, eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
     func saveToken(_ token: Token, toPersistentToken persistentToken: PersistentToken) throws
     func updatePersistentToken(_ persistentToken: PersistentToken) throws
     func moveTokenFromIndex(_ origin: Int, toIndex destination: Int) throws
     func deleteToken(index: Int) throws
-    func addTokenWith(urlString: String) throws
+    func addTokenWith(urlString: String, eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
     func resetTokenSelected()
     func deleteSelectedToken() throws
 }
@@ -34,20 +34,11 @@ protocol AdapterTokenProtocol {
     var getOnTapPassword: () -> Void { get }
     var passwordShow: BehaviorSubject<Bool> { get }
     
-    func wantShowPassword()
+    func appDidBecomActiveReset()
+    func resetTimer()
 }
 
 class AdapterToken: AdapterTokenProtocol {
-    
-    func wantShowPassword() {
-        
-        switch tokenType {
-        case .counter:
-            passwordShow.onNext(false)
-        default:
-            break
-        }
-    }
 
     let passwordShow: BehaviorSubject<Bool> = .init(value: true)
     
@@ -114,7 +105,9 @@ class AdapterToken: AdapterTokenProtocol {
     
     private var disposeBag: DisposeBag = .init()
     
-    init(persistentToken: PersistentToken) {
+    private let timer: Observable<TimeInterval>
+    
+    init(persistentToken: PersistentToken, observerTimer: Observable<TimeInterval>) {
         
         self.persistentToken = persistentToken
         self.token = persistentToken.token
@@ -122,49 +115,81 @@ class AdapterToken: AdapterTokenProtocol {
         name.onNext(persistentToken.token.name)
         issuer.onNext(persistentToken.token.issuer)
         password.onNext(persistentToken.token.currentPassword ?? "")
+        lastTime = 0
 
+        self.timer = observerTimer
         switch persistentToken.token.generator.factor {
-            
+
         case .counter(_):
             
             self.refreshTimes = 0
             
-            lastTime = 0
             passwordShow.onNext(false)
             return
             
         case .timer(let period):
             
             self.refreshTimes = period
+            resetTimer()
         }
+    }
+    
+    func resetTimer() {
+        
+        if !isOnTime {
+            
+            return
+        }
+        
+        disposeBag = .init()
         
         let now = Date().timeIntervalSince1970
         
-        lastTime = TimeInterval(Int(now) % Int(refreshTimes))
+        let lastTimeReverse = TimeInterval(Int(now) % Int(refreshTimes))
         
-        lastTime = refreshTimes - lastTime
+        if lastTimeReverse == 0 {
+            
+            self.password.onNext(self.persistentToken.token.currentPassword ?? "")
+        } 
+        self.lastTime = self.refreshTimes - lastTimeReverse - 1
 
-        let observer = Observable<Int>.interval(RxTimeInterval.seconds(1), scheduler: MainScheduler())
-        observer.subscribe(onNext: { [weak self] int in
-        
+        timer.subscribe(onNext: { [weak self] now in
+            
             guard let self = self else { return }
-
-            if self.lastTime == 0 {
-
-                self.lastTime = self.refreshTimes - 1
+            let lastTimeReverse = TimeInterval(Int(now) % Int(self.refreshTimes))
+            
+            if lastTimeReverse == 0 {
+                
                 self.password.onNext(self.persistentToken.token.currentPassword ?? "")
 
             } else {
 
-                self.lastTime -= 1
             }
+            self.lastTime = self.refreshTimes - lastTimeReverse - 1
+
+
         }).disposed(by: disposeBag)
+    }
+    
+    func appDidBecomActiveReset() {
         
-        lastTimeObserver.onNext("\(Int(lastTime))")
+        switch tokenType {
+        case .counter:
+            passwordShow.onNext(false)
+        case .timer:
+            resetTimer()
+        }
     }
 }
 
 class KeychainTokenStore {
+    
+    enum AddTokenEvent {
+        
+        case addSuccess
+        case haveTheSame(title: String, message: String, completion: () -> Void)
+        case addError(Error)
+    }
     
     let haveSelectTokenToDelete: BehaviorSubject<Bool> = .init(value: false)
     
@@ -196,8 +221,10 @@ class KeychainTokenStore {
         }
     }
     
+    
     private var disposeBag: DisposeBag = .init()
     
+    private let timerObserver: Observable<TimeInterval> = BehaviorSubject<Int>.interval(RxTimeInterval.seconds(1), scheduler: ConcurrentMainScheduler.instance).map({ _ in return Date().timeIntervalSince1970})
     private init(keychain: Keychain = Keychain.sharedInstance,
                  userDefaults: UserDefaults = UserDefaults.standard) {
         
@@ -257,7 +284,7 @@ class KeychainTokenStore {
             }
         }) ?? []
         
-        adapterTokens = persistentTokens.map{ AdapterToken(persistentToken: $0) }
+        adapterTokens = persistentTokens.map{ AdapterToken(persistentToken: $0, observerTimer: timerObserver) }
         persistentTokensBehavior.onNext(adapterTokens)
 
         if persistentTokens.count > sortedIdentifiers.count {
@@ -307,28 +334,62 @@ extension KeychainTokenStore: TokenStoreProtocol {
         persistentTokensBehavior.onNext(adapterTokens)
     }
     
-    func addTokenWith(urlString: String) throws {
+    func addTokenWith(urlString: String, eventHandler: @escaping (AddTokenEvent) -> Void) {
         
         guard let url = URL(string: urlString) else {
             
-            throw KeyChainTokenError.cannotCreatURL
+//            throw KeyChainTokenError.cannotCreatURL
+            eventHandler(.addError(KeyChainTokenError.cannotCreatURL))
+            return
         }
         
         guard let token = Token(url: url) else {
             
-            throw KeyChainTokenError.cannotCreatToken
+//            throw KeyChainTokenError.cannotCreatToken
+            eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
+            return
         }
-        try addToken(token)
+        addToken(token, eventHandler: eventHandler)
     }
     
     // MARK: Actions
 
-    func addToken(_ token: Token) throws {
+    func addToken(_ token: Token, eventHandler: @escaping (AddTokenEvent) -> Void) {
+        
+        let haveSameToken = persistentTokens.map({$0.token}).contains(where: {$0.name == token.name && $0.issuer == token.issuer})
+        
+        if haveSameToken {
+            
+            eventHandler(.haveTheSame(title: "此帐号已存在，请确认是否要继续添加", message: "[ \(token.issuer) ] \(token.name)", completion: {
+                do {
+                    try self.addTokenSure(token)
+                    eventHandler(.addSuccess)
+
+                } catch {
+                    
+                    eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
+                }
+            }))
+        } else {
+            
+            do {
+                try self.addTokenSure(token)
+                eventHandler(.addSuccess)
+
+            } catch {
+                
+                eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
+            }
+        }
+    }
+    
+    private func addTokenSure(_ token: Token) throws {
+        
         let newPersistentToken = try keychain.add(token)
         persistentTokens.append(newPersistentToken)
-        adapterTokens.append(AdapterToken(persistentToken: newPersistentToken))
+        adapterTokens.append(AdapterToken(persistentToken: newPersistentToken, observerTimer: timerObserver))
         persistentTokensBehavior.onNext(adapterTokens)
-
+        resetTimer()
         saveTokenOrder()
     }
 
@@ -369,9 +430,14 @@ extension KeychainTokenStore: TokenStoreProtocol {
         saveTokenOrder()
     }
     
-    func resetHotpPasswordShow() {
+    func appDidBecomeActiveResetting() {
         
-        adapterTokens.forEach({ $0.wantShowPassword() })
+        adapterTokens.forEach({ $0.appDidBecomActiveReset() })
+    }
+    
+    private func resetTimer() {
+        
+        adapterTokens.forEach({$0.resetTimer()})
     }
 }
 

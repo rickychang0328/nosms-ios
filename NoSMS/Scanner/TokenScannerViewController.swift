@@ -93,6 +93,7 @@ enum TokenEvent {
     case start
     case error(Error)
     case endScanTask
+    case alertAction(title: String, message: String, completion: () -> Void)
 }
 
 protocol TokenScannerVCViewModelProtocol: BaseVCViewModelProtocol {
@@ -137,14 +138,23 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                 self.eventResult.onNext(.error(error))
             case .getQRCodeString(let string):
                 
-                do {
+                self.tokenStore.addTokenWith(urlString: string, eventHandler: { [weak self] event in
+                        
+                    guard let self = self else { return }
                     
-                    try self.tokenStore.addTokenWith(urlString: string)
-                    self.eventResult.onNext(.endScanTask)
-                } catch {
-                    
-                    self.eventResult.onNext(.error(error))
-                }
+                    switch event {
+                        
+                    case .addSuccess:
+                        
+                        self.eventResult.onNext(.endScanTask)
+                    case .haveTheSame(title: let title, message: let message, completion: let completion):
+                        
+                        self.eventResult.onNext(.alertAction(title: title, message: message, completion: completion))
+                    case .addError(let error):
+                        
+                        self.eventResult.onNext(.error(error))
+                    }
+                })
             }
         }).disposed(by: disposedBag)
     }
@@ -208,19 +218,26 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
         
         viewModel.eventResult.subscribe(onNext: { [weak self] result in
             
+            guard let self = self else { return }
             switch result {
                 
             case .start:
                 break
             case .error(let error):
                 print(error)
-                self?.errorAlertHandler()
+                self.errorAlertHandler()
             case .endScanTask:
                 
                 NoSMSHUD.showToast(title: "识别成功！") { [weak self] in
                     
                     self?.navigationController?.popViewController(animated: true)
                 }
+            case .alertAction(title: let title, message: let message, completion: let completion):
+                
+                self.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completion) { [weak self] in
+                    self?.viewModel.startScan()
+                }
+                
             }
         }).disposed(by: disposedBag)
         

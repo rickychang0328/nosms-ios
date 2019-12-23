@@ -275,7 +275,7 @@ class MenuViewTableViewCell: UITableViewCell {
         titleImageView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 20))
-            $0.size.equalTo(ScaleWidth(at: 19))
+            $0.size.equalTo(ScaleWidth(at: 25))
             $0.centerY.equalToSuperview()
         }
         

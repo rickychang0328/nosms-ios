@@ -8,6 +8,8 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
     private let titleLabel: UILabel = {
         
         let label = UILabel()
+        label.setFont(.pingFangSemiBoldFont(size: 14))
+            .setTextColor(.textBlackColor)
         
         return label
     }()
@@ -17,7 +19,7 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         let textField = UITextField()
         
         textField.font = .pingFangMediumFont(size: 15)
-        textField.textColor = .nameColor
+        textField.textColor = .textBlackColor
         return textField
     }()
     
@@ -93,7 +95,8 @@ class JoinManuallyTOTPSwitchTableViewCell<ViewModel: JoinManuallyCellSwitchItems
     private let titleLabel: UILabel = {
         
         let label = UILabel()
-        
+        label.setTextColor(.textBlackColor)
+            .setFont(.pingFangSemiBoldFont(size: 14))
         return label
     }()
     
