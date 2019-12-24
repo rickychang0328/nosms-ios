@@ -295,6 +295,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         navigationController?.view.addSubview(choseHowToAddTokenView)
         navigationController?.view.addSubview(menuView)
         
+        
         homePageView.snp.makeConstraints {
             
             $0.top.equalTo(view.snp.topMargin)
@@ -377,6 +378,34 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             }).disposed(by: disposedBag)
 
         tableView.backgroundColor = .backgroudColor
+        
+        NotificationCenter.default.rx
+            .notification(UIWindow.keyboardWillShowNotification)
+            .compactMap({$0.userInfo})
+            .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
+            .map({$0.height})
+            .subscribe(onNext: { [weak self] height in
+                guard let self = self else { return }
+                
+                UIView.animate(withDuration: 0.3) {
+                    
+                    self.tableView.changeBottom(to: -height)
+                    self.view.layoutIfNeeded()
+                }
+            }).disposed(by: disposedBag)
+        
+        NotificationCenter.default.rx
+           .notification(UIWindow.keyboardWillHideNotification)
+           .subscribe(onNext: { [weak self] _ in
+               guard let self = self else { return }
+               
+               UIView.animate(withDuration: 0.3) {
+                   
+                   self.tableView.changeBottom(to: 0)
+                   self.view.layoutIfNeeded()
+               }
+           }).disposed(by: disposedBag)
+        
     }
     
     private func wantToShowHomePageOrNot() {
