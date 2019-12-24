@@ -85,7 +85,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     }
 }
  
-class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel> {
+class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate {
     
     private let nameLabel: UILabel = {
        
@@ -261,7 +261,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.edges.equalTo(passwordLabel)
         }
         digitsView.isHidden = true
- 
+        
+        nameTextField.delegate = self
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        
+        textField.resignFirstResponder()
+        return true
     }
     
     private func changeLayout() {

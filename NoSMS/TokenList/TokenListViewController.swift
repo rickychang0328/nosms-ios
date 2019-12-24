@@ -280,6 +280,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private let choseHowToAddTokenView: ChoseHowToAddTokenView = .init(frame: .zero)
     
     private let menuView: MenuView = .init(frame: .zero)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -294,6 +295,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         view.addSubview(homePageView)
         navigationController?.view.addSubview(choseHowToAddTokenView)
         navigationController?.view.addSubview(menuView)
+        
         
         homePageView.snp.makeConstraints {
             
@@ -348,11 +350,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
             
-                self.tableView.setEditing(false, animated: true)
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
                 self.tableView.endEditing(true)
+
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
+                
         }).disposed(by: disposedBag)
     
         navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
@@ -377,6 +380,44 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             }).disposed(by: disposedBag)
 
         tableView.backgroundColor = .backgroudColor
+        
+        NotificationCenter.default.rx
+            .notification(UIWindow.keyboardWillShowNotification)
+            .compactMap({$0.userInfo})
+            .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
+            .map({$0.height})
+            .subscribe(onNext: { [weak self] height in
+                guard let self = self else { return }
+                
+                UIView.animate(withDuration: 0.1) {
+                    
+                    self.tableView.changeBottom(to: -height)
+                    self.view.layoutIfNeeded()
+                }
+            }).disposed(by: disposedBag)
+        
+        NotificationCenter.default.rx
+           .notification(UIWindow.keyboardWillHideNotification)
+           .subscribe(onNext: { [weak self] _ in
+               guard let self = self else { return }
+               
+               UIView.animate(withDuration: 0.1) {
+                   
+                   self.tableView.changeBottom(to: 0)
+                   self.view.layoutIfNeeded()
+                    self.tableView.setEditing(false, animated: true)
+
+               }
+           }).disposed(by: disposedBag)
+        
+        menuView.choseEvent.subscribe(onNext: { [weak self] event in
+            
+            guard let self = self else { return }
+            let nextVC = event.nextVC
+            
+            self.navigationController?.pushViewController(nextVC, animated: true)
+            
+        }).disposed(by: disposedBag)
     }
     
     private func wantToShowHomePageOrNot() {
