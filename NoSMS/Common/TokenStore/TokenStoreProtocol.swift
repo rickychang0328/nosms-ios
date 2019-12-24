@@ -34,7 +34,7 @@ protocol AdapterTokenProtocol {
     var getOnTapPassword: () -> Void { get }
     var passwordShow: BehaviorSubject<Bool> { get }
     
-    func appDidBecomActiveReset()
+    func appDidEnterBackgroundReset()
     func resetTimer()
 }
 
@@ -171,7 +171,7 @@ class AdapterToken: AdapterTokenProtocol {
         }).disposed(by: disposeBag)
     }
     
-    func appDidBecomActiveReset() {
+    func appDidEnterBackgroundReset() {
         
         switch tokenType {
         case .counter:
@@ -338,14 +338,12 @@ extension KeychainTokenStore: TokenStoreProtocol {
         
         guard let url = URL(string: urlString) else {
             
-//            throw KeyChainTokenError.cannotCreatURL
             eventHandler(.addError(KeyChainTokenError.cannotCreatURL))
             return
         }
         
         guard let token = Token(url: url) else {
             
-//            throw KeyChainTokenError.cannotCreatToken
             eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
             return
         }
@@ -387,8 +385,10 @@ extension KeychainTokenStore: TokenStoreProtocol {
         
         let newPersistentToken = try keychain.add(token)
         persistentTokens.append(newPersistentToken)
-        adapterTokens.append(AdapterToken(persistentToken: newPersistentToken, observerTimer: timerObserver))
+        let adapterToken = AdapterToken(persistentToken: newPersistentToken, observerTimer: timerObserver)
+        adapterTokens.append(adapterToken)
         persistentTokensBehavior.onNext(adapterTokens)
+        adapterToken.passwordShow.onNext(true)
         resetTimer()
         saveTokenOrder()
     }
@@ -430,9 +430,9 @@ extension KeychainTokenStore: TokenStoreProtocol {
         saveTokenOrder()
     }
     
-    func appDidBecomeActiveResetting() {
+    func appDidEnterBackgroundResetting() {
         
-        adapterTokens.forEach({ $0.appDidBecomActiveReset() })
+        adapterTokens.forEach({ $0.appDidEnterBackgroundReset() })
     }
     
     private func resetTimer() {
