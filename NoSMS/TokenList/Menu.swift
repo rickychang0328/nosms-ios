@@ -36,9 +36,22 @@ class MenuView: UIView {
                 return "服务条款"
             }
         }
+        
+        var nextVC: UIViewController {
+            
+            switch self {
+
+            case .legal:
+                return UIViewController()
+            case .privacy:
+                return PrivacyViewController()
+            case .service:
+                return UIViewController()
+            }
+        }
     }
     
-    let chosePhoto: PublishSubject<ChoseEvnet> = .init()
+    let choseEvent: PublishSubject<ChoseEvnet> = .init()
     
     private lazy var tableView: UITableView = {
         
@@ -54,7 +67,7 @@ class MenuView: UIView {
         return tableView
     }()
     
-    private let choseEvnets: [ChoseEvnet] = [.service, .privacy, .legal]
+    private let choseEvnets: [ChoseEvnet] = [.privacy]
     
     private let cellHeight: CGFloat = ScaleWidth(at: 63)
     
@@ -146,12 +159,11 @@ class MenuView: UIView {
         tableView.rx.itemSelected.subscribe(onNext: { [weak self] indexPath in
             
             guard let self = self else { return }
-            self.dismissView()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.dismissView {
                 
-                self.chosePhoto.onNext(self.choseEvnets[indexPath.row])
+                self.choseEvent.onNext(self.choseEvnets[indexPath.row])
             }
+           
         }).disposed(by: disposeBag)
     }
     
@@ -171,7 +183,7 @@ class MenuView: UIView {
         })
     }
     
-    func dismissView() {
+    func dismissView(completion: (() -> Void)? = nil) {
         
         
         UIView.animate(withDuration: 0.3, animations: {
@@ -181,7 +193,7 @@ class MenuView: UIView {
             self.layoutIfNeeded()
         }, completion: { _ in
                    
-            
+            completion?()
             self.isHidden = true
         })
     }
@@ -228,7 +240,12 @@ extension MenuView: UITableViewDelegate, UITableViewDataSource {
         
         let underLineHide: Bool
         
-        if indexPath.row == (choseEvnets.count - 1) {
+        
+        
+        if choseEvnets.count == 1 {
+            
+            underLineHide = false
+        } else if indexPath.row == (choseEvnets.count - 1) {
             
             underLineHide = true
         } else {
@@ -304,5 +321,16 @@ class MenuViewTableViewCell: UITableViewCell {
         titleLabel.text = title
         underLineView.isHidden = underLineHide
     }
+    
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+        
+        if highlighted {
+           
+            contentView.backgroundColor = .alertCancelButtonColor
+        } else {
+           
+            contentView.backgroundColor = .white
+        }
+    }
 }
-

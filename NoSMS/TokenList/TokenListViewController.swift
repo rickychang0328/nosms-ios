@@ -280,6 +280,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private let choseHowToAddTokenView: ChoseHowToAddTokenView = .init(frame: .zero)
     
     private let menuView: MenuView = .init(frame: .zero)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -349,11 +350,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
             
-                self.tableView.setEditing(false, animated: true)
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
                 self.tableView.endEditing(true)
+
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
+                
         }).disposed(by: disposedBag)
     
         navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
@@ -387,7 +389,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .subscribe(onNext: { [weak self] height in
                 guard let self = self else { return }
                 
-                UIView.animate(withDuration: 0.3) {
+                UIView.animate(withDuration: 0.1) {
                     
                     self.tableView.changeBottom(to: -height)
                     self.view.layoutIfNeeded()
@@ -399,13 +401,23 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
            .subscribe(onNext: { [weak self] _ in
                guard let self = self else { return }
                
-               UIView.animate(withDuration: 0.3) {
+               UIView.animate(withDuration: 0.1) {
                    
                    self.tableView.changeBottom(to: 0)
                    self.view.layoutIfNeeded()
+                    self.tableView.setEditing(false, animated: true)
+
                }
            }).disposed(by: disposedBag)
         
+        menuView.choseEvent.subscribe(onNext: { [weak self] event in
+            
+            guard let self = self else { return }
+            let nextVC = event.nextVC
+            
+            self.navigationController?.pushViewController(nextVC, animated: true)
+            
+        }).disposed(by: disposedBag)
     }
     
     private func wantToShowHomePageOrNot() {

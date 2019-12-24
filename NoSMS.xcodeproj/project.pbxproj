@@ -27,6 +27,7 @@
 		2A91DFCE23ABB84400A630E9 /* Menu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A91DFCD23ABB84400A630E9 /* Menu.swift */; };
 		2AD796B023A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD796AF23A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift */; };
 		2AD796B223A8DDF600BEF6E8 /* PhotoChoseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD796B123A8DDF600BEF6E8 /* PhotoChoseViewController.swift */; };
+		2AE3166223B1F3FE001DDBB2 /* BaseWebViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3166123B1F3FE001DDBB2 /* BaseWebViewController.swift */; };
 		2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */; };
 		2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */; };
 		2AE53BEF23A2499600AB1319 /* TOTPURLParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */; };
@@ -82,6 +83,7 @@
 		2A91DFCD23ABB84400A630E9 /* Menu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Menu.swift; sourceTree = "<group>"; };
 		2AD796AF23A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckCollectionViewCell.swift; sourceTree = "<group>"; };
 		2AD796B123A8DDF600BEF6E8 /* PhotoChoseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoChoseViewController.swift; sourceTree = "<group>"; };
+		2AE3166123B1F3FE001DDBB2 /* BaseWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseWebViewController.swift; sourceTree = "<group>"; };
 		2AE3DC4C238CC876009AC8EE /* TokenStoreProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStoreProtocol.swift; sourceTree = "<group>"; };
 		2AE3DC4F238D3201009AC8EE /* TokenScannerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenScannerViewController.swift; sourceTree = "<group>"; };
 		2AE53BEA23A2499600AB1319 /* TOTPURLParsing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TOTPURLParsing.swift; sourceTree = "<group>"; };
@@ -188,6 +190,7 @@
 				2A75E651238B80FF00E8CAB9 /* BaseViewController.swift */,
 				2A75E653238B814300E8CAB9 /* BaseTableViewController.swift */,
 				2A75E655238B824A00E8CAB9 /* BaseNavigaitonItem.swift */,
+				2AE3166123B1F3FE001DDBB2 /* BaseWebViewController.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -608,6 +611,7 @@
 				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,
 				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
 				2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */,
+				2AE3166223B1F3FE001DDBB2 /* BaseWebViewController.swift in Sources */,
 				2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */,
 				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,
 				2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */,
