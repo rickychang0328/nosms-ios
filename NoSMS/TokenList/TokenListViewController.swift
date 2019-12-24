@@ -381,34 +381,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 
         tableView.backgroundColor = .backgroudColor
         
-        NotificationCenter.default.rx
-            .notification(UIWindow.keyboardWillShowNotification)
-            .compactMap({$0.userInfo})
-            .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
-            .map({$0.height})
-            .subscribe(onNext: { [weak self] height in
-                guard let self = self else { return }
-                
-                UIView.animate(withDuration: 0.1) {
-                    
-                    self.tableView.changeBottom(to: -height)
-                    self.view.layoutIfNeeded()
-                }
-            }).disposed(by: disposedBag)
-        
-        NotificationCenter.default.rx
-           .notification(UIWindow.keyboardWillHideNotification)
-           .subscribe(onNext: { [weak self] _ in
-               guard let self = self else { return }
-               
-               UIView.animate(withDuration: 0.1) {
-                   
-                   self.tableView.changeBottom(to: 0)
-                   self.view.layoutIfNeeded()
-
-               }
-           }).disposed(by: disposedBag)
-        
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
             
             guard let self = self else { return }
@@ -464,6 +436,33 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
         
+        NotificationCenter.default.rx
+           .notification(UIWindow.keyboardWillShowNotification)
+           .compactMap({$0.userInfo})
+           .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
+           .map({$0.height})
+           .subscribe(onNext: { [weak self] height in
+               guard let self = self else { return }
+               
+               UIView.animate(withDuration: 0.1) {
+                   
+                   self.tableView.changeBottom(to: -height)
+                   self.view.layoutIfNeeded()
+               }
+           }).disposed(by: lifeCycleDisposeBag)
+       
+        NotificationCenter.default.rx
+            .notification(UIWindow.keyboardWillHideNotification)
+            .subscribe(onNext: { [weak self] _ in
+                guard let self = self else { return }
+              
+                UIView.animate(withDuration: 0.1) {
+                  
+                    self.tableView.changeBottom(to: 0)
+                    self.view.layoutIfNeeded()
+
+                }
+          }).disposed(by: lifeCycleDisposeBag)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
