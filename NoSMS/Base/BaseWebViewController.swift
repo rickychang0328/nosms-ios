@@ -34,7 +34,7 @@ class PrivacyVCViewModel: BaseWebVCViewModelProtocol {
     
     let url: URL = (URL(string: "https://mustauth.com/privacy.html") ?? URL(fileReferenceLiteralResourceName: ""))
     
-    let navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "隐私条款"))
+    let navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "隐私权政策"))
     
     let vcBackgroundColor: BehaviorSubject<UIColor> = .init(value: .clear)
 }

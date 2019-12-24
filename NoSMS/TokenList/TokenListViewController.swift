@@ -352,7 +352,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
                 self.tableView.endEditing(true)
-
+                self.tableView.setEditing(false, animated: true)
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
                 
@@ -405,7 +405,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                    
                    self.tableView.changeBottom(to: 0)
                    self.view.layoutIfNeeded()
-                    self.tableView.setEditing(false, animated: true)
 
                }
            }).disposed(by: disposedBag)
