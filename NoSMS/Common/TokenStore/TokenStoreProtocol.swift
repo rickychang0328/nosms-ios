@@ -146,22 +146,19 @@ class AdapterToken: AdapterTokenProtocol {
         let now = Date().timeIntervalSince1970
         
         let lastTimeReverse = TimeInterval(Int(now) % Int(refreshTimes))
-        
-        if lastTimeReverse == 0 {
             
-            self.password.onNext(self.persistentToken.token.currentPassword ?? "")
-        } 
+        password.onNext(persistentToken.token.currentPassword ?? "")
+        
         self.lastTime = self.refreshTimes - lastTimeReverse - 1
 
         timer.subscribe(onNext: { [weak self] now in
-            
             guard let self = self else { return }
             let lastTimeReverse = TimeInterval(Int(now) % Int(self.refreshTimes))
             
             if lastTimeReverse == 0 {
                 
-                self.password.onNext(self.persistentToken.token.currentPassword ?? "")
 
+                self.password.onNext(self.persistentToken.token.currentPassword ?? "")
             } else {
 
             }
@@ -177,7 +174,7 @@ class AdapterToken: AdapterTokenProtocol {
         case .counter:
             passwordShow.onNext(false)
         case .timer:
-            resetTimer()
+            break
         }
     }
 }
@@ -433,6 +430,11 @@ extension KeychainTokenStore: TokenStoreProtocol {
     func appDidEnterBackgroundResetting() {
         
         adapterTokens.forEach({ $0.appDidEnterBackgroundReset() })
+    }
+    
+    func appWillEnterForeground () {
+        
+        resetTimer()
     }
     
     private func resetTimer() {

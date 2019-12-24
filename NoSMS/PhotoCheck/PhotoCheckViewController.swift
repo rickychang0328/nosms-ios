@@ -306,6 +306,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         viewModel.newBarViewTitle.bind(to: navigationNewTitle.rx.text).disposed(by: disposedBag)
 
         let leftBarButton = UIBarButtonItem(title: "取消", style: .plain, target: nil, action: nil)
+        leftBarButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.pingFangMediumFont(size: 16)], for: .normal)
         leftBarButton.rx.tap.subscribe(onNext: { [weak self] _ in
             
             self?.dismiss(animated: true, completion: nil)
