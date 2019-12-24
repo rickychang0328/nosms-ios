@@ -288,9 +288,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         navigationController?.navigationBar.layer.shadowRadius = 4.0
         navigationController?.navigationBar.layer.shadowOpacity = 1.0
         navigationController?.navigationBar.layer.masksToBounds = false
-        navigationController?.navigationBar.setBackgroundImage(_:UIImage(),
-                for: .any,
-                barMetrics: .default)
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         
         view.addSubview(homePageView)
@@ -314,7 +312,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }
         
         choseHowToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
-            
             guard let self = self else { return }
             
             switch event {
@@ -326,11 +323,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             case .keyIn:
                 self.showKeyinTokenVC()
             }
-            }).disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         homePageView.tapButtonEvent.subscribe(onNext: { [weak self] _ in
-            
             guard let self = self else { return }
+            
             self.choseHowToAddTokenView.showView()
         }).disposed(by: disposedBag)
         
@@ -345,7 +342,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         leftbarItem.rx.tap.subscribe(onNext: { [weak self] in
             
             self?.menuView.showView()
-            }).disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         inEditTableViewBarButton.rx.tap
             .subscribe(onNext: { [weak self] _ in

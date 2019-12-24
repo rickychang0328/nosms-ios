@@ -228,7 +228,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         nameTextField.addSubview(textFieldUnderLine)
         textFieldUnderLine.snp.makeConstraints {
             
-            $0.left.right.bottom.equalToSuperview()
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(ScaleWidth(at: 4))
             $0.height.equalTo(1)
         }
         

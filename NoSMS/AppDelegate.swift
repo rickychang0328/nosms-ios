@@ -32,7 +32,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         
-        print("applicationWillEnterForeground")
+        KeychainTokenStore.shared.appWillEnterForeground()
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
