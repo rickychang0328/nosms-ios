@@ -118,7 +118,7 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
     
     private let tokenStore: TokenStoreProtocol
     
-    init(navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "扫描二微码")),
+    init(navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "相机扫描二维码")),
         backgroundColor: UIColor = .clear,
         tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
         qrCodeScanner: QRCodeScannerProtocol = QRCodeScanner()) {
