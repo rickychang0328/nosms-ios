@@ -213,7 +213,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             
             $0.left.equalTo(issuerLabel)
             $0.right.equalTo(ScaleWidth(at: -50))
-            $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10))
+            $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10)).priorityLow()
             $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
         }
         
