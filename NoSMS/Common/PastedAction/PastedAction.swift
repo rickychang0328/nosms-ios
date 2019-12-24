@@ -13,7 +13,7 @@ class PastedAction {
     
     func applicationDidBecomeActive() {
         
-        guard let pastedString = UIPasteboard.general.string else {
+        guard let pastedString = UIPasteboard.general.string?.trimmingCharacters(in: .whitespaces) else {
             
             return
         }

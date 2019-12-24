@@ -28,6 +28,26 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         
         PastedAction.shared.applicationDidBecomeActive()
-        KeychainTokenStore.shared.appDidBecomeActiveResetting()
     }
+    
+    func applicationWillEnterForeground(_ application: UIApplication) {
+        
+        print("applicationWillEnterForeground")
+    }
+    
+    func applicationWillResignActive(_ application: UIApplication) {
+        
+        print("applicationWillResignActive")
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        
+        KeychainTokenStore.shared.appDidEnterBackgroundResetting()
+    }
+    
+//    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+//
+//    }
+    
+    
 }

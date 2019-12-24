@@ -207,8 +207,14 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
             $0.edges.equalToSuperview()
         }
         
+        if #available(iOS 11, *) {
+
+        } else {
+            automaticallyAdjustsScrollViewInsets = false
+        }
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.estimatedRowHeight = 20
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -259,7 +265,7 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         
-        return viewModel.cellViewModels[section].sectionHeaderViewModel?.sectionViewHeight ?? 0
+        return viewModel.cellViewModels[section].sectionHeaderViewModel?.sectionViewHeight ?? 0.000000001
     }
     
     func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {

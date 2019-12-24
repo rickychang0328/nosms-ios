@@ -60,8 +60,10 @@ struct TOTP {
         let secretData: Data
         
         init(_ value: String) throws {
+            
+            let stringURL = value.trimmingCharacters(in: .whitespaces)
                                 
-            guard let url = URL(string: value) else {
+            guard let url = URL(string: stringURL) else {
                 
                 throw SerializationError.urlGenerationFailure
             }
