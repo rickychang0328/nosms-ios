@@ -178,7 +178,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
         
         
         joinManuallySectionItems.urlCellViewModel.inputString
-            .compactMap({ try? $0.totp.urlStringParsing().secretString })
+            .compactMap({ try? $0.mustAuth.urlParsing().secretString })
             .bind(to: joinManuallySectionItems.keyTokenCellViewModel.inputString)
             .disposed(by: disposedBag)
 
