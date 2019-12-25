@@ -234,7 +234,7 @@ extension UIViewController {
     
     func showAlert(title: String? = nil,
                    message: String? = nil,
-                   confirmTitle: String = "ok",
+                   confirmTitle: String = "确认",
                    cancelTitle: String = "取消",
                    confirmAction: (() -> Void)? = nil,
                    cancelAction: (() -> Void)? = nil) {

@@ -8,6 +8,7 @@ private let defaultDigits: Int = 6
 private let defaultCounter: UInt64 = 0
 private let defaultPeriod: TimeInterval = 30
 
+private let kMustAuthScheme = "mustauth"
 private let kOTPAuthScheme = "otpauth"
 private let kQueryAlgorithmKey = "algorithm"
 private let kQuerySecretKey = "secret"
@@ -15,7 +16,6 @@ private let kQueryCounterKey = "counter"
 private let kQueryDigitsKey = "digits"
 private let kQueryPeriodKey = "period"
 private let kQueryIssuerKey = "issuer"
-
 private let kFactorCounterKey = "hotp"
 private let kFactorTimerKey = "totp"
 
@@ -39,11 +39,41 @@ enum DeserializationError: Error {
     case invalidSecret(String)
     case invalidAlgorithm(String)
     case invalidDigits(String)
+    case actionError
 }
 
-struct TOTP {
+struct MustAuth {
     
-    struct URLStringParsing {
+    static let kQueryActionKey = "action"
+    static let kQueryActionGetValue = "get"
+    static let kQueryActionSetValue = "set"
+
+    
+    struct URLParsing {
+        
+        enum ActionEnum {
+            
+            case get
+            case set
+            
+            init?(string: String) {
+                
+                switch string {
+                case kQueryActionGetValue:
+                    
+                    self = .get
+                case kQueryActionSetValue:
+                    
+                    self = .set
+                    
+                default:
+                    
+                    return nil
+                }
+            }
+        }
+        
+        let action: ActionEnum
         
         let name: String
         
@@ -59,6 +89,8 @@ struct TOTP {
         
         let secretData: Data
         
+        let url: URL
+        
         init(_ value: String) throws {
             
             let stringURL = value.trimmingCharacters(in: .whitespaces)
@@ -68,7 +100,7 @@ struct TOTP {
                 throw SerializationError.urlGenerationFailure
             }
             
-            guard url.scheme == kOTPAuthScheme else {
+            guard url.scheme == kOTPAuthScheme || url.scheme == kMustAuthScheme else {
                 throw DeserializationError.invalidURLScheme
             }
 
@@ -99,7 +131,39 @@ struct TOTP {
             guard let secret = try queryItems.value(for: kQuerySecretKey).map(parseSecret) else {
                 throw DeserializationError.missingSecret
             }
+            
+            guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                
+                throw SerializationError.urlGenerationFailure
+            }
+            
+            let action: ActionEnum
+            
+            if let actionQuery = urlComponents.queryItems?.firstIndex(where: {$0.name == kQueryActionKey}) {
+                
+                guard let actionString = urlComponents.queryItems?[actionQuery].value,
+                    let actionEnum = ActionEnum(string: actionString) else {
+                        
+                    throw  DeserializationError.actionError
+                }
+                urlComponents.queryItems?.remove(at: actionQuery)
+                action = actionEnum
+                
+            } else {
+                
+                action = .set
+            }
+            
+            guard let newURL = urlComponents.url else {
+                
+                throw SerializationError.urlGenerationFailure
+            }
                // Skip the leading "/"
+            
+            guard !url.path.isEmpty else {
+                
+                throw SerializationError.urlGenerationFailure
+            }
             let fullName = String(url.path.dropFirst())
 
             let issuer: String
@@ -110,7 +174,7 @@ struct TOTP {
                 issuer = String(fullName[..<separatorRange.lowerBound])
             } else {
                 // The default value is an empty string
-                issuer = ""
+                throw SerializationError.urlGenerationFailure
             }
             
             let name = shortName(byTrimming: issuer, from: fullName)
@@ -122,6 +186,8 @@ struct TOTP {
             self.factor = factor
             self.secretString = secretString
             self.secretData = secret
+            self.url = newURL
+            self.action = action
         }
     }
     
@@ -132,9 +198,9 @@ struct TOTP {
         self.value = value
     }
     
-    func urlStringParsing() throws -> URLStringParsing {
+    func urlParsing() throws -> URLParsing {
         
-        return try URLStringParsing(value)
+        return try URLParsing(value)
     }
     
     func secretStringToData() throws -> Data {
@@ -223,8 +289,8 @@ private func algorithmFromString(_ string: String) throws -> Generator.Algorithm
 
 extension String {
     
-    var totp: TOTP {
+    var mustAuth: MustAuth {
         
-        TOTP(self)
+        MustAuth(self)
     }
 }

@@ -130,7 +130,8 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     if showPassword ?? true {
                         
                         UIPasteboard.general.string = adapterToken.persistentToken.token.currentPassword
-                        anyObserver.onNext(adapterToken.persistentToken.token.currentPassword ?? "")
+                        
+                        anyObserver.onNext("[ \(adapterToken.persistentToken.token.issuer) ]\n\(adapterToken.persistentToken.token.name)\n验证码已复制")
                         anyObserver.onCompleted()
                     } else {
                         
@@ -374,9 +375,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         tableView.rx.itemSelected
             .map({ $0.row })
             .flatMapLatest(self.viewModel.selectItem)
-            .subscribe(onNext: { [weak self] _ in
+            .subscribe(onNext: { [weak self] string in
             
-                NoSMSHUD.showToast(title: "已复制")
+                NoSMSHUD.showToast(title: string)
             }).disposed(by: disposedBag)
 
         tableView.backgroundColor = .backgroudColor
@@ -442,13 +443,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
            .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
            .map({$0.height})
            .subscribe(onNext: { [weak self] height in
-               guard let self = self else { return }
-               
-               UIView.animate(withDuration: 0.1) {
-                   
-                   self.tableView.changeBottom(to: -height)
-                   self.view.layoutIfNeeded()
-               }
+                guard let self = self else { return }
+                if self.isFirstResponder {
+                    UIView.animate(withDuration: 0.1) {
+                                      
+                        self.tableView.changeBottom(to: -height)
+                        self.view.layoutIfNeeded()
+                    }
+                }
            }).disposed(by: lifeCycleDisposeBag)
        
         NotificationCenter.default.rx

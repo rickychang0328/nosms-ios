@@ -195,7 +195,7 @@ class KeychainTokenStore {
     private let userDefaults: UserDefaults
     let persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]> = .init(value: [])
     
-    private var adapterTokens: [AdapterTokenProtocol] = []
+    var adapterTokens: [AdapterTokenProtocol] = []
     
     private var persistentTokens: [PersistentToken] = []
     
@@ -440,6 +440,11 @@ extension KeychainTokenStore: TokenStoreProtocol {
     private func resetTimer() {
         
         adapterTokens.forEach({$0.resetTimer()})
+    }
+    
+    func getSameTokens(name: String, issuer: String) -> [AdapterTokenProtocol] {
+        
+        return adapterTokens.filter({($0.persistentToken.token.name == name) && ($0.persistentToken.token.issuer == issuer) })
     }
 }
 
