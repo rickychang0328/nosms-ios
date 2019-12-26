@@ -166,7 +166,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
         }
         
         let tokenObserver = joinManuallySectionItems.urlCellViewModel.inputString
-                            .compactMap({ Token(url: URL(string: $0) ?? URL(fileURLWithPath: "")) })
+                            .compactMap({ Token(customURL: URL(string: $0) ?? URL(fileURLWithPath: "")) })
         
         tokenObserver.map({$0.name})
             .bind(to: joinManuallySectionItems.accountCellViewModel.inputString)
