@@ -47,32 +47,31 @@ struct MustAuth {
     static let kQueryActionKey = "action"
     static let kQueryActionGetValue = "get"
     static let kQueryActionSetValue = "set"
-
     
-    struct URLParsing {
+    enum ActionEnum {
         
-        enum ActionEnum {
+        case get
+        case set
+        
+        init?(string: String) {
             
-            case get
-            case set
-            
-            init?(string: String) {
+            switch string {
+            case kQueryActionGetValue:
                 
-                switch string {
-                case kQueryActionGetValue:
-                    
-                    self = .get
-                case kQueryActionSetValue:
-                    
-                    self = .set
-                    
-                default:
-                    
-                    return nil
-                }
+                self = .get
+            case kQueryActionSetValue:
+                
+                self = .set
+                
+            default:
+                
+                return nil
             }
         }
-        
+    }
+    
+    struct URLParsing {
+    
         let action: ActionEnum
         
         let name: String
@@ -177,6 +176,11 @@ struct MustAuth {
                 throw SerializationError.urlGenerationFailure
             }
             
+            if issuer.trimmingCharacters(in: .whitespaces).isEmpty {
+                
+                throw SerializationError.urlGenerationFailure
+            }
+            
             let name = shortName(byTrimming: issuer, from: fullName)
             
             self.name = name
@@ -198,7 +202,7 @@ struct MustAuth {
         self.value = value
     }
     
-    func urlParsing() throws -> URLParsing {
+    func urlSetParsing() throws -> URLParsing {
         
         return try URLParsing(value)
     }
@@ -206,6 +210,55 @@ struct MustAuth {
     func secretStringToData() throws -> Data {
         
         return try parseSecret(value)
+    }
+    
+    func parsingGetURL() throws -> ParsingGetURL {
+        
+        return try ParsingGetURL(value: value)
+    }
+    
+    struct ParsingGetURL {
+        
+        let name: String
+        let issuer: String
+        
+        init(value: String) throws {
+            
+            let stringURL = value.trimmingCharacters(in: .whitespaces)
+                                
+            guard let url = URL(string: stringURL) else {
+                
+                throw SerializationError.urlGenerationFailure
+            }
+            
+            guard url.scheme == kOTPAuthScheme || url.scheme == kMustAuthScheme else {
+                throw DeserializationError.invalidURLScheme
+            }
+
+            let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+
+            guard !url.path.isEmpty else {
+                
+                throw SerializationError.urlGenerationFailure
+            }
+            let fullName = String(url.path.dropFirst())
+
+            let issuer: String
+            if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
+                issuer = issuerString
+            } else if let separatorRange = fullName.range(of: ":") {
+                // If there is no issuer string, try to extract one from the name
+                issuer = String(fullName[..<separatorRange.lowerBound])
+            } else {
+                // The default value is an empty string
+                throw SerializationError.urlGenerationFailure
+            }
+            
+            let name = shortName(byTrimming: issuer, from: fullName)
+            
+            self.name = name
+            self.issuer = issuer
+        }
     }
 }
 
@@ -292,5 +345,13 @@ extension String {
     var mustAuth: MustAuth {
         
         MustAuth(self)
+    }
+}
+
+extension URL {
+    
+    var mustAuth: MustAuth {
+        
+        MustAuth(self.absoluteString)
     }
 }
