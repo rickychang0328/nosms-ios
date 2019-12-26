@@ -128,6 +128,11 @@ struct MustAuth {
                 throw DeserializationError.missingSecret
             }
             
+            if secretString.isEmpty {
+                
+                throw DeserializationError.missingSecret
+            }
+            
             guard let secret = try queryItems.value(for: kQuerySecretKey).map(parseSecret) else {
                 throw DeserializationError.missingSecret
             }
@@ -369,6 +374,18 @@ extension Token {
         if urlComp.scheme == MustAuth.kMustAuthScheme {
             
             urlComp.scheme = MustAuth.kOTPAuthScheme
+        }
+        
+        let queryItems = urlComp.queryItems ?? []
+        
+        guard let secretString = try? queryItems.value(for: kQuerySecretKey) else {
+            
+            return nil
+        }
+        
+        if secretString.isEmpty {
+            
+            return nil
         }
         
         guard let url = urlComp.url else {
