@@ -1,9 +1,3 @@
-//
-//  BaseNavigaitonItem.swift
-//  TWAzureAuthenticator
-//
-//  Created by 誠帷數位科技 on 2019/11/25.
-//
 
 import Foundation
 import RxCocoa

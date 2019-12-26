@@ -8,8 +8,6 @@ private let defaultDigits: Int = 6
 private let defaultCounter: UInt64 = 0
 private let defaultPeriod: TimeInterval = 30
 
-private let kMustAuthScheme = "mustauth"
-private let kOTPAuthScheme = "otpauth"
 private let kQueryAlgorithmKey = "algorithm"
 private let kQuerySecretKey = "secret"
 private let kQueryCounterKey = "counter"
@@ -47,6 +45,9 @@ struct MustAuth {
     static let kQueryActionKey = "action"
     static let kQueryActionGetValue = "get"
     static let kQueryActionSetValue = "set"
+    static let kMustAuthScheme = "mustauth"
+    static let kOTPAuthScheme = "otpauth"
+
     
     enum ActionEnum {
         
@@ -353,5 +354,33 @@ extension URL {
     var mustAuth: MustAuth {
         
         MustAuth(self.absoluteString)
+    }
+}
+
+extension Token {
+    
+    init?(customURL: URL) {
+        
+        guard var urlComp = URLComponents(url: customURL, resolvingAgainstBaseURL: false) else {
+            
+            return nil
+        }
+        
+        if urlComp.scheme == MustAuth.kMustAuthScheme {
+            
+            urlComp.scheme = MustAuth.kOTPAuthScheme
+        }
+        
+        guard let url = urlComp.url else {
+            
+            return nil
+        }
+        
+        guard let token = Token(url: url) else {
+            
+            return nil
+        }
+        
+        self = token
     }
 }

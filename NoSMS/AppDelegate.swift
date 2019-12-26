@@ -1,9 +1,3 @@
-//
-//  AppDelegate.swift
-//  TWAzureAuthenticator
-//
-//  Created by 誠帷數位科技 on 2019/11/22.
-//
 
 import UIKit
 
@@ -87,11 +81,11 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             if let token = try? url.absoluteString.mustAuth.urlSetParsing() {
                 
                 let nowVC = window?.rootViewController?.getNowWhichVCDisplay()
-                nowVC?.showAlert(title: "请确认是否要添加",
-                                message: "[ \(token.issuer) ] \(token.name)",
-                                confirmAction: {
-                                    
-                    KeychainTokenStore.shared.addTokenWith(urlString: token.url.absoluteString) { event in
+
+                
+                let tokens = KeychainTokenStore.shared.getSameTokens(name: token.name, issuer: token.issuer)
+                
+                let saveClosure = { KeychainTokenStore.shared.addTokenWith(urlString: token.url.absoluteString) { event in
                         switch event {
                             
                         case .addSuccess:
@@ -103,7 +97,17 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                             NoSMSHUD.showToast(title: "创建失败")
                         }
                     }
-                })
+                }
+                
+                if tokens.count > 0 {
+                    
+                    saveClosure()
+                } else {
+                    
+                    nowVC?.showAlert(title: "请确认是否要添加",
+                                    message: "[ \(token.issuer) ] \(token.name)",
+                                    confirmAction: saveClosure)
+                }
                 
             } else {
                 

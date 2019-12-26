@@ -1,9 +1,3 @@
-//
-//  TWAzureAuthenticatorUITests.swift
-//  TWAzureAuthenticatorUITests
-//
-//  Created by 誠帷數位科技 on 2019/11/22.
-//
 
 import XCTest
 

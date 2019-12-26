@@ -339,7 +339,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
             return
         }
         
-        guard let token = Token(url: url) else {
+        guard let token = Token(customURL: url) else {
             
             eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
             return
