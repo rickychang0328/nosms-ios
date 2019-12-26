@@ -18,7 +18,7 @@ class PastedAction {
             return
         }
         
-        if let _ = try? pastedString.mustAuth.urlParsing() {
+        if let _ = try? pastedString.mustAuth.urlSetParsing() {
             
             
         } else {

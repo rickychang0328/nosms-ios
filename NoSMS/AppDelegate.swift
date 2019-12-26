@@ -47,8 +47,8 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
                 
-        let action: MustAuth.URLParsing.ActionEnum
-        
+        let action: MustAuth.ActionEnum
+    
         let urlComp = URLComponents(string: url.absoluteString) ?? URLComponents()
         
         if let querys = urlComp.queryItems {
@@ -58,7 +58,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             //超過兩個的action邏輯
             if actionQuerys.count == 1 {
                 
-                guard let actionString = actionQuerys[0].value, let actionEnum = MustAuth.URLParsing.ActionEnum(string: actionString) else {
+                guard let actionString = actionQuerys[0].value, let actionEnum = MustAuth.ActionEnum(string: actionString) else {
                     
                     NoSMSHUD.showToast(title: "URL匹配失败")
                     return false
@@ -84,7 +84,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             
         case .set:
             
-            if let token = try? url.absoluteString.mustAuth.urlParsing() {
+            if let token = try? url.absoluteString.mustAuth.urlSetParsing() {
                 
                 let nowVC = window?.rootViewController?.getNowWhichVCDisplay()
                 nowVC?.showAlert(title: "请确认是否要添加",
@@ -112,7 +112,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             }
         case .get:
             
-            if let token = try? url.absoluteString.mustAuth.urlParsing() {
+            if let token = try? url.mustAuth.parsingGetURL() {
             
                 let tokens = KeychainTokenStore.shared.getSameTokens(name: token.name, issuer: token.issuer)
                 
@@ -130,7 +130,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 }
             } else {
                 
-                NoSMSHUD.showToast(title: "URL匹配失败")
+                NoSMSHUD.showToast(title: "复制失败")
                 return false
             }
         }
