@@ -41,6 +41,8 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
                 
+        PastedAction.shared.applicationIsOpenFromURL()
+        
         let action: MustAuth.ActionEnum
     
         let urlComp = URLComponents(string: url.absoluteString) ?? URLComponents()
