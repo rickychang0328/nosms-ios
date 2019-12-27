@@ -9,18 +9,34 @@ class PastedAction {
     
     let intoAppPastedAction: PublishSubject<String> = .init()
     
+    private var openFromURL: Bool = false
+    
     private init() {}
     
+    func applicationIsOpenFromURL() {
+        
+        openFromURL = true
+    }
+    
     func applicationDidBecomeActive() {
+        
+        if openFromURL {
+            
+            openFromURL = false
+            return
+        }
         
         guard let pastedString = UIPasteboard.general.string?.trimmingCharacters(in: .whitespaces) else {
             
             return
         }
         
-        if let _ = try? pastedString.mustAuth.urlSetParsing() {
+        if let token = try? pastedString.mustAuth.urlSetParsing() {
             
-            
+            if token.action == .get {
+                
+                return
+            }
         } else {
             
             UserDefaults.standard.setString(key: .pastedString, value: pastedString)

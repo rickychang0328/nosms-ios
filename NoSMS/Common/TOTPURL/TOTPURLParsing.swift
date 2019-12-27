@@ -163,34 +163,11 @@ struct MustAuth {
                 
                 throw SerializationError.urlGenerationFailure
             }
-               // Skip the leading "/"
             
-            guard !url.path.isEmpty else {
-                
-                throw SerializationError.urlGenerationFailure
-            }
-            let fullName = String(url.path.dropFirst())
-
-            let issuer: String
-            if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
-                issuer = issuerString
-            } else if let separatorRange = fullName.range(of: ":") {
-                // If there is no issuer string, try to extract one from the name
-                issuer = String(fullName[..<separatorRange.lowerBound])
-            } else {
-                // The default value is an empty string
-                throw SerializationError.urlGenerationFailure
-            }
+            let nameAndIssuer = try getNameAndIssuer(queryItems: queryItems, url: url)
             
-            if issuer.trimmingCharacters(in: .whitespaces).isEmpty {
-                
-                throw SerializationError.urlGenerationFailure
-            }
-            
-            let name = shortName(byTrimming: issuer, from: fullName)
-            
-            self.name = name
-            self.issuer = issuer
+            self.name = nameAndIssuer.name
+            self.issuer = nameAndIssuer.issuer
             self.algorithm = algorithm
             self.digits = digits
             self.factor = factor
@@ -243,27 +220,10 @@ struct MustAuth {
 
             let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
 
-            guard !url.path.isEmpty else {
-                
-                throw SerializationError.urlGenerationFailure
-            }
-            let fullName = String(url.path.dropFirst())
-
-            let issuer: String
-            if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
-                issuer = issuerString
-            } else if let separatorRange = fullName.range(of: ":") {
-                // If there is no issuer string, try to extract one from the name
-                issuer = String(fullName[..<separatorRange.lowerBound])
-            } else {
-                // The default value is an empty string
-                throw SerializationError.urlGenerationFailure
-            }
+            let nameAndIssuer = try getNameAndIssuer(queryItems: queryItems, url: url)
             
-            let name = shortName(byTrimming: issuer, from: fullName)
-            
-            self.name = name
-            self.issuer = issuer
+            self.name = nameAndIssuer.name
+            self.issuer = nameAndIssuer.issuer
         }
     }
 }
@@ -345,6 +305,40 @@ private func algorithmFromString(_ string: String) throws -> Generator.Algorithm
     }
 }
 
+private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (name: String, issuer: String) {
+    
+    guard !url.path.isEmpty else {
+        
+        throw SerializationError.urlGenerationFailure
+    }
+    let fullName = String(url.path.dropFirst())
+
+    let issuer: String
+    if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
+        issuer = issuerString
+    } else if let separatorRange = fullName.range(of: ":") {
+        // If there is no issuer string, try to extract one from the name
+        issuer = String(fullName[..<separatorRange.lowerBound])
+    } else {
+        // The default value is an empty string
+        throw SerializationError.urlGenerationFailure
+    }
+    
+    if issuer.trimmingCharacters(in: .whitespaces).isEmpty {
+          
+        throw SerializationError.urlGenerationFailure
+    }
+    
+    let name = shortName(byTrimming: issuer, from: fullName)
+    
+    if name.trimmingCharacters(in: .whitespaces).isEmpty {
+        
+        throw SerializationError.urlGenerationFailure
+    }
+    
+    return (name, issuer)
+}
+
 
 extension String {
     
@@ -394,6 +388,11 @@ extension Token {
         }
         
         guard let token = Token(url: url) else {
+            
+            return nil
+        }
+        
+        guard let _ = try? getNameAndIssuer(queryItems: queryItems, url: url) else {
             
             return nil
         }
