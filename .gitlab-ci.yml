@@ -17,6 +17,8 @@ archive_project:
   - python ~/artifacts/${IOS_DEPLOY_NAME}/ci_deploy_new_version.py ${CI_COMMIT_REF_NAME} ${CI_COMMIT_SHA}
   - scp ~/artifacts/${IOS_DEPLOY_NAME}/${IOS_TARGET_NAME}_${CI_COMMIT_SHA}.ipa proxy2:/srv/nginx/html/artifacts/${IOS_DEPLOY_NAME}/
   - scp ~/artifacts/${IOS_DEPLOY_NAME}/version_infos.json proxy2:/srv/nginx/html/artifacts/${IOS_DEPLOY_NAME}/
+  - ssh proxy2 "python /srv/nginx/html/artifacts/${IOS_DEPLOY_NAME}/ci_deploy_new_version.py ${CI_COMMIT_REF_NAME} ${CI_COMMIT_SHA}"
+
 
   stage: archive
   tags:
