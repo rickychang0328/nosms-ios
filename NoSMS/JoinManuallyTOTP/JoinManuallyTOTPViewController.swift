@@ -215,9 +215,21 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                                                     self.joinManuallySectionItems.baseTimeCellViewModel.switcher)
             .subscribe(onNext: { [weak self] account, issuer, key, baseTime in
                    
-                guard let self = self else { return }
+                guard let self = self else {
+                    
+                    return
+                }
                 
-                guard let secret = MF_Base32Codec.data(fromBase32String: key) else { return }
+                guard let secret = MF_Base32Codec.data(fromBase32String: key) else {
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
+                
+                guard !key.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
                 
                 let algorithm: Generator.Algorithm
                 
@@ -269,7 +281,13 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 guard let generator = Generator(factor: factor, secret: secret, algorithm: algorithm, digits: digits) else {
                     return }
                 
-                guard account.filter({$0 == ":"}).count == 0, issuer.filter({$0 == ":"}).count == 0 else {
+                guard !account.contains(":"), !issuer.contains(":") else {
+                    
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
+                
+                guard !account.trimmingCharacters(in: .whitespaces).isEmpty else {
                     
                     anyObserver.onError(SerializationError.urlGenerationFailure)
                     return
