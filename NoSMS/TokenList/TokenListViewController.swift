@@ -152,7 +152,13 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
 
 class HomePageView: UIView {
     
-    private let logoImageView: UIImageView = .init(image: .noSmsLogo)
+    private let logoImageView: UIImageView = {
+        
+        let imageView = UIImageView(image: .noSmsLogo)
+        
+        imageView.contentMode = .scaleAspectFill
+        return imageView
+    }()
     
     private let descriptionLabel: UILabel = {
         
@@ -190,16 +196,16 @@ class HomePageView: UIView {
         
         logoImageView.snp.makeConstraints {
             
-            $0.top.equalTo(ScaleWidth(at: 142.5))
-            $0.left.equalTo(ScaleWidth(at: 121))
-            $0.right.equalTo(ScaleWidth(at: -121))
-            $0.height.equalTo(ScaleWidth(at: 146.5))
+            $0.top.equalTo(ScaleWidth(at: 126.5))
+            $0.left.equalTo(ScaleWidth(at: 97.5))
+            $0.right.equalTo(ScaleWidth(at: -97.5))
+            $0.height.equalTo(ScaleWidth(at: 180))
         }
         
         descriptionLabel.snp.makeConstraints {
             
             $0.centerX.equalTo(logoImageView)
-            $0.top.equalTo(logoImageView.snp.bottom).offset(ScaleHeight(at: 67.5))
+            $0.top.equalTo(logoImageView.snp.bottom).offset(ScaleHeight(at: 50))
             $0.left.equalTo(ScaleWidth(at: 37.5))
             $0.right.equalTo(ScaleWidth(at: -37.5))
         }
