@@ -313,6 +313,12 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
     }
     let fullName = String(url.path.dropFirst())
 
+    guard fullName.filter({$0 == ":"}).count == 1  else {
+        
+        throw SerializationError.urlGenerationFailure
+    }
+    
+    
     let issuer: String
     if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
         issuer = issuerString
@@ -321,11 +327,6 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
         issuer = String(fullName[..<separatorRange.lowerBound])
     } else {
         // The default value is an empty string
-        throw SerializationError.urlGenerationFailure
-    }
-    
-    if issuer.trimmingCharacters(in: .whitespaces).isEmpty {
-          
         throw SerializationError.urlGenerationFailure
     }
     
