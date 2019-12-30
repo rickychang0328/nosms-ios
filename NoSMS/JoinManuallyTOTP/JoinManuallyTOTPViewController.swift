@@ -269,6 +269,12 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 guard let generator = Generator(factor: factor, secret: secret, algorithm: algorithm, digits: digits) else {
                     return }
                 
+                guard account.filter({$0 == ":"}).count == 0, issuer.filter({$0 == ":"}).count == 0 else {
+                    
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
+                
                 let addToken = Token(name: account, issuer: issuer, generator: generator)
                 
                 self.tokenStore.addToken(addToken) { (event) in
@@ -341,6 +347,10 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
                     
                     self?.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completion, cancelAction: nil)
                 }
+            }, onError:  { _ in
+                
+                NoSMSHUD.showToast(title: "创建失败")
+
             }).disposed(by: self.disposedBag)
         }).disposed(by: disposedBag)
     }
