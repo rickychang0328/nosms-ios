@@ -154,9 +154,8 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
         self.tokenStore = tokenStore
         
         self.buttonEnable = Observable.combineLatest(joinManuallySectionItems.accountCellViewModel.inputString,
-                                                     joinManuallySectionItems.issuerCellViewModel.inputString,
                                                      joinManuallySectionItems.keyTokenCellViewModel.inputString)
-                                                    .map({$0.0.count > 0 && $0.1.count > 0 && $0.2.count > 0 })
+                                                    .map({$0.0.count > 0 && $0.1.count > 0})
         
         super.init(navigationItem: navigationItemViewModel, backgroundColor: .white)
         
