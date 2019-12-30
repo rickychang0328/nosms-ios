@@ -50,7 +50,7 @@ class PhotoManager {
                 
         let smartOptions = PHFetchOptions()
         let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: smartOptions)
-                
+        
         for index in 0 ..< smartAlbums.count {
                         
             smartOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
@@ -174,6 +174,11 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
             selectAlbum = 0
             return
         }
+        
+        if photoManager.photos.count == 0 {
+            
+            return
+        }
         selectAlbum = index
         
         for isSeleted in tableViewSectionItem.rowItems {
@@ -190,7 +195,6 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
     func getAlbum() {
         
         photoManager.reloadAlbum()
-        selectAlbum = photoManager.photos.count - 1
 
         for index in photoManager.photos.indices {
             
@@ -207,7 +211,7 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
                                                          photoCount: .init(value: photoCount),
                                                          isSelected: .init(value: isSelected)))
         }
-        selectAlbum = photoManager.photos.count - 1
+        
         selectAlbum(index: selectAlbum)
     }
 }
