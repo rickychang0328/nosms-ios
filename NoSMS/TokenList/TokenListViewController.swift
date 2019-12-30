@@ -444,7 +444,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
            .map({$0.height})
            .subscribe(onNext: { [weak self] height in
                 guard let self = self else { return }
-                if self.isFirstResponder {
+                if UIApplication.shared.applicationState == .active  {
                     UIView.animate(withDuration: 0.1) {
                                       
                         self.tableView.changeBottom(to: -height)
