@@ -215,9 +215,21 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                                                     self.joinManuallySectionItems.baseTimeCellViewModel.switcher)
             .subscribe(onNext: { [weak self] account, issuer, key, baseTime in
                    
-                guard let self = self else { return }
+                guard let self = self else {
+                    
+                    return
+                }
                 
-                guard let secret = MF_Base32Codec.data(fromBase32String: key) else { return }
+                guard let secret = MF_Base32Codec.data(fromBase32String: key) else {
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
+                
+                guard !key.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
                 
                 let algorithm: Generator.Algorithm
                 
@@ -268,6 +280,18 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 
                 guard let generator = Generator(factor: factor, secret: secret, algorithm: algorithm, digits: digits) else {
                     return }
+                
+                guard !account.contains(":"), !issuer.contains(":") else {
+                    
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
+                
+                guard !account.trimmingCharacters(in: .whitespaces).isEmpty else {
+                    
+                    anyObserver.onError(SerializationError.urlGenerationFailure)
+                    return
+                }
                 
                 let addToken = Token(name: account, issuer: issuer, generator: generator)
                 
@@ -341,6 +365,10 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
                     
                     self?.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completion, cancelAction: nil)
                 }
+            }, onError:  { _ in
+                
+                NoSMSHUD.showToast(title: "创建失败")
+
             }).disposed(by: self.disposedBag)
         }).disposed(by: disposedBag)
     }
