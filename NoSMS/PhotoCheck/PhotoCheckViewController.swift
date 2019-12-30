@@ -17,13 +17,13 @@ protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
 
 class PhotoListObject {
     
-    let photoAlbum: PHCollection
+    let photoAlbum: PHAssetCollection
     
     var photosAsset: [PHAsset]
     
     var photosImageData: [BehaviorSubject<UIImage?>]
     
-    internal init(photoAlbum: PHCollection, photosAsset: [PHAsset], photosImageData: [BehaviorSubject<UIImage?>]) {
+    internal init(photoAlbum: PHAssetCollection, photosAsset: [PHAsset], photosImageData: [BehaviorSubject<UIImage?>]) {
         
         self.photoAlbum = photoAlbum
         self.photosAsset = photosAsset
@@ -51,6 +51,7 @@ class PhotoManager {
         let smartOptions = PHFetchOptions()
         let smartAlbums = PHAssetCollection.fetchAssetCollections(with: .smartAlbum, subtype: .albumRegular, options: smartOptions)
         
+        //生成相簿
         for index in 0 ..< smartAlbums.count {
                         
             smartOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
@@ -104,6 +105,17 @@ class PhotoManager {
                 }
             }
         }
+        
+        
+        //將最近加入放置頭位
+        guard let recentlyAddedIndex = photos.firstIndex(where: {$0.photoAlbum.assetCollectionSubtype == .smartAlbumRecentlyAdded}) else {
+            
+            return
+        }
+        
+        let album = photos[recentlyAddedIndex]
+        photos.remove(at: recentlyAddedIndex)
+        photos.insert(album, at: 0)
     }
 }
 
