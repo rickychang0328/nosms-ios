@@ -460,9 +460,15 @@ extension KeychainTokenStore: TokenStoreProtocol {
         adapterTokens.forEach({$0.resetTimer()})
     }
     
-    func getSameTokens(name: String, issuer: String) -> [AdapterTokenProtocol] {
+    func getAllSameTokens(name: String, issuer: String) -> [AdapterTokenProtocol] {
         
         return adapterTokens.filter({($0.persistentToken.token.name == name) && ($0.persistentToken.token.issuer == issuer) })
+
+    }
+
+    func getSameTokensWithType(name: String, issuer: String, isOnTime: Bool) -> [AdapterTokenProtocol] {
+        
+        return getAllSameTokens(name: name, issuer: issuer).filter({$0.isOnTime == isOnTime})
     }
 }
 
