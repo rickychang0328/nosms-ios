@@ -76,6 +76,12 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
         
+        guard url.host == "totp" || url.host == "hotp" || url.host == nil else {
+            
+            NoSMSHUD.showToast(title: "URL匹配失败")
+            return false
+        }
+        
         switch action {
             
         case .set:
@@ -85,7 +91,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 let nowVC = window?.rootViewController?.getNowWhichVCDisplay()
 
                 
-                let tokens = KeychainTokenStore.shared.getSameTokens(name: token.name, issuer: token.issuer)
+                let tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
                 
                 let saveClosure = { KeychainTokenStore.shared.addTokenWith(urlString: token.url.absoluteString) { event in
                         switch event {
@@ -120,13 +126,27 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             
             if let token = try? url.mustAuth.parsingGetURL() {
             
-                let tokens = KeychainTokenStore.shared.getSameTokens(name: token.name, issuer: token.issuer)
+                let tokens: [AdapterTokenProtocol]
+                
+                //url action get 的條件判斷 totp, hotp, 與空白的可能
+                if let isOntime = token.isOnTime {
+                    
+                    tokens = KeychainTokenStore.shared.getSameTokensWithType(name: token.name, issuer: token.issuer, isOnTime: isOntime)
+                } else {
+                    
+                    tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
+                }
                 
                 if tokens.count == 0 {
                     
                     NoSMSHUD.showToast(title: "未匹配到验证码")
                 } else if tokens.count == 1 {
                     
+                    //如果是 hotp 要更新一下
+                    if !tokens[0].isOnTime {
+                        
+                        tokens[0].getOnTapPassword()
+                    }
                     UIPasteboard.general.string = tokens[0].persistentToken.token.currentPassword
                     
                     NoSMSHUD.showToast(title: "[ \(token.issuer) ]\n\(token.name)\n验证码已复制")
