@@ -100,7 +100,7 @@ struct MustAuth {
                 throw SerializationError.urlGenerationFailure
             }
             
-            guard url.scheme == kOTPAuthScheme || url.scheme == kMustAuthScheme else {
+            guard url.scheme?.lowercased() == kOTPAuthScheme || url.scheme?.lowercased() == kMustAuthScheme else {
                 throw DeserializationError.invalidURLScheme
             }
 
@@ -204,6 +204,7 @@ struct MustAuth {
         
         let name: String
         let issuer: String
+        let isOnTime: Bool?
         
         init(value: String) throws {
             
@@ -214,9 +215,10 @@ struct MustAuth {
                 throw SerializationError.urlGenerationFailure
             }
             
-            guard url.scheme == kOTPAuthScheme || url.scheme == kMustAuthScheme else {
+            guard url.scheme?.lowercased() == kOTPAuthScheme || url.scheme?.lowercased() == kMustAuthScheme else {
                 throw DeserializationError.invalidURLScheme
             }
+
 
             let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
 
@@ -224,6 +226,18 @@ struct MustAuth {
             
             self.name = nameAndIssuer.name
             self.issuer = nameAndIssuer.issuer
+            
+            
+            if url.host == "totp" {
+                
+                self.isOnTime = true
+            } else if url.host == "hotp" {
+                
+                self.isOnTime = false
+            } else {
+                    
+                self.isOnTime = nil
+            }
         }
     }
 }
@@ -313,8 +327,8 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
     }
     let fullName = String(url.path.dropFirst())
 
-    guard fullName.filter({$0 == ":"}).count == 1  else {
-        
+    guard fullName.filter({$0 == ":"}).count <= 1 else {
+
         throw SerializationError.urlGenerationFailure
     }
     
@@ -327,7 +341,7 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
         issuer = String(fullName[..<separatorRange.lowerBound])
     } else {
         // The default value is an empty string
-        throw SerializationError.urlGenerationFailure
+        issuer = ""
     }
     
     let name = shortName(byTrimming: issuer, from: fullName)
@@ -365,11 +379,13 @@ extension Token {
             
             return nil
         }
-        
-        if urlComp.scheme == MustAuth.kMustAuthScheme {
+
+        guard urlComp.scheme?.lowercased() == MustAuth.kOTPAuthScheme || urlComp.scheme?.lowercased() == MustAuth.kMustAuthScheme else {
             
-            urlComp.scheme = MustAuth.kOTPAuthScheme
+            return nil
         }
+        
+        urlComp.scheme = MustAuth.kOTPAuthScheme
         
         let queryItems = urlComp.queryItems ?? []
         

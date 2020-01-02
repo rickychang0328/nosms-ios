@@ -351,6 +351,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .subscribe(onNext: { [weak self] hotpShowPassword in
                 
                 self?.hotpShowPassword = hotpShowPassword
+                
+                if hotpShowPassword {
+                    
+                    self?.tapGetPasswordButton.isEnabled = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        self?.tapGetPasswordButton.isEnabled = true
+                    }
+                }
                 self?.changeLayout()
             }).disposed(by: disposedBag)
         
