@@ -327,8 +327,8 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
     }
     let fullName = String(url.path.dropFirst())
 
-    guard fullName.filter({$0 == ":"}).count == 1  else {
-        
+    guard fullName.filter({$0 == ":"}).count <= 1 else {
+
         throw SerializationError.urlGenerationFailure
     }
     
@@ -341,7 +341,7 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
         issuer = String(fullName[..<separatorRange.lowerBound])
     } else {
         // The default value is an empty string
-        throw SerializationError.urlGenerationFailure
+        issuer = ""
     }
     
     let name = shortName(byTrimming: issuer, from: fullName)
