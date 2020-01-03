@@ -351,13 +351,23 @@ extension KeychainTokenStore: TokenStoreProtocol {
     
     func addTokenWith(urlString: String, eventHandler: @escaping (AddTokenEvent) -> Void) {
         
-        guard let url = URL(string: urlString) else {
+        //中文坑 可能需要轉碼 但如果轉過碼又轉一次會爆
+        let urlComfirm: URL
+        
+        if let url = URL(string: urlString) {
+            
+            urlComfirm = url
+        } else if let decodeURL = urlString.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+            let url = URL(string: decodeURL) {
+            
+            urlComfirm = url
+        } else {
             
             eventHandler(.addError(KeyChainTokenError.cannotCreatURL))
             return
         }
         
-        guard let token = Token(customURL: url) else {
+        guard let token = Token(customURL: urlComfirm) else {
             
             eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
             return

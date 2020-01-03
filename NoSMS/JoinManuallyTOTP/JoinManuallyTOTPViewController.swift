@@ -115,7 +115,7 @@ class JoinManuallySectionItems: JoinManuallySectionItemsProtocol {
          accountCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "账号",
                                                                                                  textfieldPlaceHolder: "hello@example.com"),
          issuerCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "issuer",
-                                                                                                    textfieldPlaceHolder: "smaill-chat-text"),
+                                                                                                    textfieldPlaceHolder: "small-chat-text"),
          keyTokenCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "密钥",
                                                                                                   textfieldPlaceHolder: "fwjf btrf"),
          baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol = JoinManuallyCellSwitchItems(title: "基于时间")) {
@@ -177,7 +177,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
         
         
         joinManuallySectionItems.urlCellViewModel.inputString
-            .compactMap({ try? $0.mustAuth.urlSetParsing().secretString })
+            .compactMap({ try? $0.mustAuth.parsingSetURL().secretString })
             .bind(to: joinManuallySectionItems.keyTokenCellViewModel.inputString)
             .disposed(by: disposedBag)
 

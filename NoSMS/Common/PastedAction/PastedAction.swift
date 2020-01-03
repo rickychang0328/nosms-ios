@@ -31,7 +31,7 @@ class PastedAction {
             return
         }
         
-        if let token = try? pastedString.mustAuth.urlSetParsing() {
+        if let token = try? pastedString.mustAuth.parsingSetURL() {
             
             if token.action == .get {
                 
