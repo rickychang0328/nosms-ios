@@ -86,7 +86,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             
         case .set:
             
-            if let token = try? url.absoluteString.mustAuth.urlSetParsing() {
+            if let token = try? url.absoluteString.mustAuth.parsingSetURL() {
                 
                 let nowVC = window?.rootViewController?.getNowWhichVCDisplay()
 
