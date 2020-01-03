@@ -185,7 +185,7 @@ struct MustAuth {
         self.value = value
     }
     
-    func urlSetParsing() throws -> URLParsing {
+    func parsingSetURL() throws -> URLParsing {
         
         return try URLParsing(value)
     }
@@ -295,10 +295,10 @@ private func stringForAlgorithm(_ algorithm: Generator.Algorithm) -> String {
     }
 }
 
-private func shortName(byTrimming issuer: String, from fullName: String) -> String {
-    if !issuer.isEmpty {
-        let prefix = issuer + ":"
-        if fullName.hasPrefix(prefix), let prefixRange = fullName.range(of: prefix) {
+private func shortNameFix(from fullName: String) -> String {
+    if fullName.contains(":") {
+        let prefix = ":"
+        if let prefixRange = fullName.range(of: prefix) {
             let substringAfterSeparator = fullName[prefixRange.upperBound...]
             return substringAfterSeparator.trimmingCharacters(in: CharacterSet.whitespaces)
         }
@@ -326,13 +326,7 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
         throw SerializationError.urlGenerationFailure
     }
     let fullName = String(url.path.dropFirst())
-
-    guard fullName.filter({$0 == ":"}).count <= 1 else {
-
-        throw SerializationError.urlGenerationFailure
-    }
-    
-    
+ 
     let issuer: String
     if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
         issuer = issuerString
@@ -344,10 +338,20 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
         issuer = ""
     }
     
-    let name = shortName(byTrimming: issuer, from: fullName)
+    if issuer.contains(":") {
+        
+        throw SerializationError.urlGenerationFailure
+    }
+    
+    let name = shortNameFix(from: fullName)
     
     if name.trimmingCharacters(in: .whitespaces).isEmpty {
         
+        throw SerializationError.urlGenerationFailure
+    }
+    
+    if name.contains(":") {
+
         throw SerializationError.urlGenerationFailure
     }
     
@@ -375,7 +379,7 @@ extension Token {
     
     init?(customURL: URL) {
         
-        guard var urlComp = URLComponents(url: customURL, resolvingAgainstBaseURL: false) else {
+        guard let urlComp = URLComponents(url: customURL, resolvingAgainstBaseURL: false) else {
             
             return nil
         }
@@ -384,8 +388,6 @@ extension Token {
             
             return nil
         }
-        
-        urlComp.scheme = MustAuth.kOTPAuthScheme
         
         let queryItems = urlComp.queryItems ?? []
         
@@ -404,16 +406,34 @@ extension Token {
             return nil
         }
         
-        guard let token = Token(url: url) else {
-            
+        let factor: Generator.Factor
+        switch url.host {
+        case .some(kFactorCounterKey):
+            let counterValue: UInt64 = (try? queryItems.value(for: kQueryCounterKey).map(parseCounterValue)) ?? defaultCounter
+            factor = .counter(counterValue)
+        case .some(kFactorTimerKey):
+            let period = (try? queryItems.value(for: kQueryPeriodKey).map(parseTimerPeriod)) ?? defaultPeriod
+            factor = .timer(period: period)
+        case .some(_):
+            return nil
+        case .none:
+            return nil
+        }
+
+        let algorithm = (try? queryItems.value(for: kQueryAlgorithmKey).map(algorithmFromString)) ?? defaultAlgorithm
+        let digits = (try? queryItems.value(for: kQueryDigitsKey).map(parseDigits)) ?? defaultDigits
+        guard let secret = try? queryItems.value(for: kQuerySecretKey).map(parseSecret) else {
             return nil
         }
         
-        guard let _ = try? getNameAndIssuer(queryItems: queryItems, url: url) else {
+        guard let generator = Generator(factor: factor, secret: secret, algorithm: algorithm, digits: digits) else {
+            return nil }
+
+        guard let nameAndIssuer = try? getNameAndIssuer(queryItems: queryItems, url: url) else {
             
             return nil
         }
-        
-        self = token
+
+        self = Token(name: nameAndIssuer.name, issuer: nameAndIssuer.issuer, generator: generator)
     }
 }
