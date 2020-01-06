@@ -10,6 +10,7 @@ class MenuView: UIView {
         case legal
         case privacy
         case service
+        case helper
         
         fileprivate var image: UIImage {
 
@@ -19,7 +20,7 @@ class MenuView: UIView {
                 return .noSmsLegal
             case .privacy:
                 return .noSmsPrivacy
-            case .service:
+            case .service, .helper:
                 return .noSmsService
             }
         }
@@ -34,6 +35,8 @@ class MenuView: UIView {
                 return "隐私权政策"
             case .service:
                 return "服务条款"
+            case .helper:
+                return "帮助中心"
             }
         }
         
@@ -47,6 +50,8 @@ class MenuView: UIView {
                 return PrivacyViewController()
             case .service:
                 return UIViewController()
+            case .helper:
+                return HelperViewController()
             }
         }
     }
@@ -67,7 +72,7 @@ class MenuView: UIView {
         return tableView
     }()
     
-    private let choseEvnets: [ChoseEvnet] = [.privacy]
+    private let choseEvnets: [ChoseEvnet] = [.privacy, .helper]
     
     private let cellHeight: CGFloat = ScaleWidth(at: 63)
     
