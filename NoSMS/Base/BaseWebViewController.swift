@@ -48,3 +48,21 @@ class PrivacyViewController: BaseWebViewController<PrivacyVCViewModel> {
     }
 }
 
+class HelperVCViewModel: BaseWebVCViewModelProtocol {
+    
+    let url: URL = (URL(string: "https://mustauth.com/help.html") ?? URL(fileReferenceLiteralResourceName: ""))
+    
+    let navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "帮助中心"))
+    
+    let vcBackgroundColor: BehaviorSubject<UIColor> = .init(value: .clear)
+}
+
+class HelperViewController: BaseWebViewController<HelperVCViewModel> {
+    
+    convenience init() {
+        
+        let viewModel = HelperVCViewModel()
+        self.init(viewModel: viewModel)
+    }
+}
+
