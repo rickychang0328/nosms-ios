@@ -47,7 +47,25 @@ struct MustAuth {
     static let kQueryActionSetValue = "set"
     static let kMustAuthScheme = "mustauth"
     static let kOTPAuthScheme = "otpauth"
-
+    
+    var regularExpression: RegularExpression {
+        
+        return RegularExpression(string: value)
+    }
+        
+    struct RegularExpression {
+        
+        let string: String
+        
+        func validSecret() -> Bool {
+            
+            let base32Reg = "^[a-zA-Z2-7]+$"
+            let secretPred = NSPredicate(format:"SELF MATCHES %@", base32Reg)
+            let result = secretPred.evaluate(with: string)
+            
+            return result
+        }
+    }
     
     enum ActionEnum {
         
@@ -128,7 +146,7 @@ struct MustAuth {
                 throw DeserializationError.missingSecret
             }
             
-            if secretString.isEmpty {
+            if secretString.isEmpty || !secretString.mustAuth.regularExpression.validSecret() {
                 
                 throw DeserializationError.missingSecret
             }
@@ -396,7 +414,7 @@ extension Token {
             return nil
         }
         
-        if secretString.isEmpty {
+        if secretString.isEmpty || !secretString.mustAuth.regularExpression.validSecret() {
             
             return nil
         }
