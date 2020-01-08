@@ -220,7 +220,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                     return
                 }
                 
-                guard key.count > 1, key.count < 17, key.mustAuth.regularExpression.validSecret() else {
+                guard key.count > 1, key.count < 201, key.mustAuth.regularExpression.validSecret() else {
                     
                     anyObserver.onNext(.secretError)
                     anyObserver.onCompleted()
