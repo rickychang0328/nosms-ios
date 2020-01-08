@@ -141,6 +141,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
         
         case success
         case alertAction(title: String, message: String, completion: () -> Void)
+        case secretError
     }
     
     let buttonEnable: Observable<Bool>
@@ -216,6 +217,13 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                    
                 guard let self = self else {
                     
+                    return
+                }
+                
+                guard key.count > 1, key.count < 17, key.mustAuth.regularExpression.validSecret() else {
+                    
+                    anyObserver.onNext(.secretError)
+                    anyObserver.onCompleted()
                     return
                 }
                 
@@ -363,6 +371,9 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
                 case .alertAction(title: let title, message: let message, completion: let completion):
                     
                     self?.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completion, cancelAction: nil)
+                case .secretError:
+                    
+                    NoSMSHUD.showToast(title: "密钥无效")
                 }
             }, onError:  { _ in
                 
