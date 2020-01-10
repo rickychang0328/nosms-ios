@@ -2,15 +2,39 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import PhotosUI
 
 protocol PhotoCheckCollectionViewCellViewModelProtocol {
     
-    var imageData: Observable<UIImage?> { get }
+//    var imageData: Observable<UIImage?> { get }
+    
+    func image(targetSize: CGSize) -> Observable<UIImage?>
 }
 
 struct PhotoCheckCollectionViewCellViewModel: PhotoCheckCollectionViewCellViewModelProtocol {
     
-    let imageData: Observable<UIImage?>
+    private let photoAsset: PHAsset
+    
+    init(photoAsset: PHAsset) {
+        
+        self.photoAsset = photoAsset
+    }
+    
+    func image(targetSize: CGSize) -> Observable<UIImage?> {
+        
+        return Observable<UIImage?>.create { anyObserver -> Disposable in
+            
+            PHCachingImageManager.default().requestImage(for: self.photoAsset, targetSize: targetSize, contentMode: .default, options: nil, resultHandler: { (image, info) in
+                
+                print(image)
+                print(info)
+                anyObserver.onNext(image)
+            })
+            
+            
+            return Disposables.create { }
+        }
+    }
 }
 
 
@@ -156,9 +180,7 @@ class PhotoCheckCollectionViewCell: UICollectionViewCell {
     func setupCell(viewModel: PhotoCheckCollectionViewCellViewModelProtocol) {
         
         
-        viewModel.imageData
-            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInitiated))
-            .observeOn(MainScheduler.instance)
+        viewModel.image(targetSize: imageView.frame.size)
             .bind(to: imageView.rx.image)
             .disposed(by: disposeBag)
     }

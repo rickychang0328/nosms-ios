@@ -40,6 +40,8 @@ class PhotoManager {
     private let phImageManager: PHImageManager = .default()
     
     private let phPhoteLibrary: PHPhotoLibrary = .shared()
+    
+    private let queue: DispatchQueue = .init(label: "Photo")
             
     private init() {
         
@@ -82,26 +84,29 @@ class PhotoManager {
                         sameAlbum.photosAsset.insert(photos[index], at: index)
                         sameAlbum.photosImageData.insert(photoImage[index], at: index)
                         
-                        DispatchQueue.global().async {
-                            
-                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
-                                photoImage[index].onNext(image)
-                            })
-                        }
+//                        queue.async {
+//                            
+//                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, info) in
+//                                
+//                                print(info)
+//                                photoImage[index].onNext(image)
+//                            })
+//                        }
                     }
                 } else {
                     
                     self.photos.append(PhotoListObject(photoAlbum: imageList, photosAsset: photos, photosImageData: photoImage))
                     
-                    for index in photos.indices {
-                        
-                        DispatchQueue.global().async {
-                            
-                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
-                                photoImage[index].onNext(image)
-                            })
-                        }
-                    }
+//                    for index in photos.indices {
+//
+//                        queue.async {
+//
+//                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, info) in
+//                                print(info)
+//                                photoImage[index].onNext(image)
+//                            })
+//                        }
+//                    }
                 }
             }
         }
@@ -173,8 +178,7 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         
         if selectAlbum < photoManager.photos.count {
             
-            photoImageData = photoManager.photos[selectAlbum].photosImageData
-                .map({PhotoCheckCollectionViewCellViewModel(imageData: $0)})
+            photoImageData = photoManager.photos[selectAlbum].photosAsset.map({ PhotoCheckCollectionViewCellViewModel(photoAsset: $0)})
         }
         reloadAlbum.onNext("")
     }
@@ -300,7 +304,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         collectionView.rx.itemSelected.map{$0.row}
             .subscribe(onNext: { [weak self] index in
                 guard let self = self else { return }
-                let image = self.viewModel.photoImageData[index].imageData
+                let image = self.viewModel.photoImageData[index].image(targetSize: self.view.frame.size)
                 self.goPhotoChoseImageVC(image: image)
             })
             .disposed(by: disposedBag)
