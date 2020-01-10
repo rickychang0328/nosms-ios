@@ -28,6 +28,7 @@ protocol AdapterTokenProtocol {
     var refreshTimes: TimeInterval { get }
     var lastTimeObserver: BehaviorSubject<String> { get }
     var persistentToken: PersistentToken { get }
+    var token: Token { get }
     var wantDeleted: BehaviorSubject<Bool> { get }
     var digits: Int { get }
     var isOnTime: Bool { get }
@@ -51,7 +52,7 @@ class AdapterToken: AdapterTokenProtocol {
         self.passwordShow.onNext(true)
     }
     
-    private var token: Token
+    var token: Token
     
     var isOnTime: Bool {
         
@@ -254,9 +255,9 @@ class KeychainTokenStore {
                                    
                         if self.persistentTokens[index].token.name != newName {
                             
-                            let generator = tokenArray[index].persistentToken.token.generator
+                            let generator = tokenArray[index].token.generator
                             
-                            let issuer = tokenArray[index].persistentToken.token.issuer
+                            let issuer = tokenArray[index].token.issuer
                             try? self.saveToken(Token(name: newName, issuer: issuer, generator: generator), toPersistentToken: tokenArray[index].persistentToken)
                         }
                     }).disposed(by: self.disposeBag)
@@ -472,7 +473,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
     
     func getAllSameTokens(name: String, issuer: String) -> [AdapterTokenProtocol] {
         
-        return adapterTokens.filter({($0.persistentToken.token.name == name) && ($0.persistentToken.token.issuer == issuer) })
+        return adapterTokens.filter({($0.token.name == name) && ($0.token.issuer == issuer) })
 
     }
 

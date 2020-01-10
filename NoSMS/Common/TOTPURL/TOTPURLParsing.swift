@@ -47,8 +47,17 @@ struct MustAuth {
     static let kQueryActionSetValue = "set"
     static let kMustAuthScheme = "mustauth"
     static let kOTPAuthScheme = "otpauth"
-
     
+    static var factorTimerKey: String {
+        
+        return kFactorTimerKey
+    }
+    
+    static var factorCounterKey: String {
+        
+        return kFactorCounterKey
+    }
+
     enum ActionEnum {
         
         case get
@@ -228,10 +237,10 @@ struct MustAuth {
             self.issuer = nameAndIssuer.issuer
             
             
-            if url.host == "totp" {
+            if url.host == kFactorTimerKey {
                 
                 self.isOnTime = true
-            } else if url.host == "hotp" {
+            } else if url.host == kFactorCounterKey {
                 
                 self.isOnTime = false
             } else {
