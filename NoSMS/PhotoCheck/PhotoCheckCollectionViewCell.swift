@@ -5,12 +5,29 @@ import RxSwift
 
 protocol PhotoCheckCollectionViewCellViewModelProtocol {
     
-    var imageData: Observable<UIImage?> { get }
+    var imageData: BehaviorSubject<UIImage?> { get }
+    
+    func image(targetSize: CGSize) -> Observable<UIImage?>
 }
 
 struct PhotoCheckCollectionViewCellViewModel: PhotoCheckCollectionViewCellViewModelProtocol {
     
-    let imageData: Observable<UIImage?>
+    private let photoObject: PhotoObject
+    
+    var imageData: BehaviorSubject<UIImage?> {
+        
+        return photoObject.photoImage
+    }
+    
+    init(photoObject: PhotoObject) {
+        
+        self.photoObject = photoObject
+    }
+    
+    func image(targetSize: CGSize) -> Observable<UIImage?> {
+        
+        return photoObject.image(targetSize: targetSize)
+    }
 }
 
 
@@ -19,8 +36,8 @@ class PhotoCheckTableViewCellViewModel: BaseTableViewCellViewModelProtocol {
     let baseCellItem: BaseTableViewCellViewModelItemProtocol = BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none), cellHeight: UITableView.automaticDimension, cellBackgroundColor: .init(value: .clear), cellContentViewBGColor: .init(value: .photoTableViewCellBGColor))
     
     var cellFactoryType: TableViewCellFactoryType { return .photoCheckTableViewCell(viewModel: self)}
-    
-    let image: BehaviorSubject<UIImage?>
+        
+    let photoObject: PhotoObject
     
     let title: BehaviorSubject<String?>
     
@@ -28,14 +45,19 @@ class PhotoCheckTableViewCellViewModel: BaseTableViewCellViewModelProtocol {
     
     let isSelected: BehaviorSubject<Bool>
     
-    internal init(image: BehaviorSubject<UIImage?>,
+    internal init(photoObject: PhotoObject,
                   title: BehaviorSubject<String?>,
                   photoCount: BehaviorSubject<String>,
                   isSelected: BehaviorSubject<Bool>) {
-        self.image = image
+        self.photoObject = photoObject
         self.title = title
         self.photoCount = photoCount
         self.isSelected = isSelected
+    }
+    
+    func getImage(targetSize: CGSize) -> Observable<UIImage?> {
+        
+        return photoObject.image(targetSize: targetSize)
     }
 }
 
@@ -73,13 +95,13 @@ class PhotoCheckTableViewCell: BaseTableViewCell<PhotoCheckTableViewCellViewMode
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
-        
         addSubview(titleImageView)
         addSubview(titleLabel)
         addSubview(countLabel)
         addSubview(selectedImageView)
         
         titleImageView.snp.makeConstraints {
+            
             $0.left.equalTo(ScaleWidth(at: 3))
             $0.top.equalTo(ScaleWidth(at: 3))
             $0.size.equalTo(ScaleWidth(at: 60))
@@ -113,14 +135,16 @@ class PhotoCheckTableViewCell: BaseTableViewCell<PhotoCheckTableViewCellViewMode
     override func bindData(viewModel: PhotoCheckTableViewCellViewModel) {
         super.bindData(viewModel: viewModel)
         
+        layoutIfNeeded()
         viewModel.title.bind(to: titleLabel.rx.text).disposed(by: disposedBag)
         
-        viewModel.image.bind(to: titleImageView.rx.image).disposed(by: disposedBag)
+        viewModel.getImage(targetSize: .init(width: titleImageView.bounds.width * 3, height: titleImageView.bounds.height * 3))
+            .bind(to: titleImageView.rx.image)
+            .disposed(by: disposedBag)
         
         viewModel.photoCount.bind(to: countLabel.rx.text).disposed(by: disposedBag)
         
         viewModel.isSelected.map({!$0}).bind(to: selectedImageView.rx.isHidden).disposed(by: disposedBag)
-        
     }
 }
 
@@ -155,10 +179,8 @@ class PhotoCheckCollectionViewCell: UICollectionViewCell {
     
     func setupCell(viewModel: PhotoCheckCollectionViewCellViewModelProtocol) {
         
-        
-        viewModel.imageData
-            .subscribeOn(ConcurrentDispatchQueueScheduler(qos: .userInitiated))
-            .observeOn(MainScheduler.instance)
+        layoutIfNeeded()
+        viewModel.image(targetSize: .init(width: imageView.bounds.width * 4, height: imageView.bounds.height * 4))
             .bind(to: imageView.rx.image)
             .disposed(by: disposeBag)
     }

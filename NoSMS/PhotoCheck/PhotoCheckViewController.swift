@@ -13,21 +13,54 @@ protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
     func selectAlbum(index: Int)
     func getAlbum()
+    func getImageData(index: Int) -> Observable<UIImage?>
+}
+
+class PhotoObject {
+        
+    let photoAsset: PHAsset
+    
+    let photoImage: BehaviorSubject<UIImage?>
+    
+    internal init(photoAsset: PHAsset, photoImage: BehaviorSubject<UIImage?>) {
+        self.photoAsset = photoAsset
+        self.photoImage = photoImage
+    }
+    
+    func image(targetSize: CGSize) -> Observable<UIImage?> {
+        
+        if let image = try? photoImage.value(), image.size == targetSize {
+            
+            return Observable<UIImage?>.create { anyObserver in
+                
+                anyObserver.onNext(image)
+                anyObserver.onCompleted()
+                return Disposables.create {}
+            }
+        } else {
+            
+            return Observable<UIImage?>.create { anyObserver -> Disposable in
+                
+                PHCachingImageManager.default().requestImage(for: self.photoAsset, targetSize: targetSize, contentMode: .default, options: nil, resultHandler: { (image, info) in
+                    self.photoImage.onNext(image)
+                    anyObserver.onNext(image)
+                })
+                
+                return Disposables.create { }
+            }
+        }
+    }
 }
 
 class PhotoListObject {
     
     let photoAlbum: PHAssetCollection
     
-    var photosAsset: [PHAsset]
+    var photoObjects: [PhotoObject]
     
-    var photosImageData: [BehaviorSubject<UIImage?>]
-    
-    internal init(photoAlbum: PHAssetCollection, photosAsset: [PHAsset], photosImageData: [BehaviorSubject<UIImage?>]) {
-        
+    internal init(photoAlbum: PHAssetCollection, photoObjects: [PhotoObject]) {
         self.photoAlbum = photoAlbum
-        self.photosAsset = photosAsset
-        self.photosImageData = photosImageData
+        self.photoObjects = photoObjects
     }
 }
 
@@ -40,6 +73,8 @@ class PhotoManager {
     private let phImageManager: PHImageManager = .default()
     
     private let phPhoteLibrary: PHPhotoLibrary = .shared()
+    
+    private let queue: DispatchQueue = .init(label: "Photo")
             
     private init() {
         
@@ -58,54 +93,33 @@ class PhotoManager {
             smartOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
             let imageList = smartAlbums[index]
             let assetFetchResult = PHAsset.fetchAssets(in: imageList, options: smartOptions)
-            var photos: [PHAsset] = []
-            var photoImage: [BehaviorSubject<UIImage?>] = []
+            
+            var photoObjects: [PhotoObject] = []
             
             if assetFetchResult.count > 0 {
                 
                 for index in 0 ..< assetFetchResult.count {
 
                     let behaviorSubject: BehaviorSubject<UIImage?> = .init(value: nil)
-                    photoImage.append(behaviorSubject)
-                    photos.append(assetFetchResult[index])
+                    let asset = assetFetchResult[index]
+                    
+                    photoObjects.append(PhotoObject(photoAsset: asset, photoImage: behaviorSubject))
                 }
                 
                 // 照片大於零才加入相簿的邏輯 新加照片會讀取的邏輯
                 if let sameAlbum = self.photos.first(where: {$0.photoAlbum.localIdentifier == imageList.localIdentifier}),
-                    let whereIndex = photos.firstIndex(where: {$0.localIdentifier == sameAlbum.photosAsset[0].localIdentifier}) {
-                    
-                    print(photos.count)
-                    print(sameAlbum.photosAsset.count)
+                    let whereIndex = photoObjects.firstIndex(where: {$0.photoAsset.localIdentifier == sameAlbum.photoObjects[0].photoAsset.localIdentifier}) {
                     
                     for index in 0 ..< whereIndex {
                         
-                        sameAlbum.photosAsset.insert(photos[index], at: index)
-                        sameAlbum.photosImageData.insert(photoImage[index], at: index)
-                        
-                        DispatchQueue.global().async {
-                            
-                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
-                                photoImage[index].onNext(image)
-                            })
-                        }
+                        sameAlbum.photoObjects.insert(photoObjects[index], at: index)
                     }
                 } else {
                     
-                    self.photos.append(PhotoListObject(photoAlbum: imageList, photosAsset: photos, photosImageData: photoImage))
-                    
-                    for index in photos.indices {
-                        
-                        DispatchQueue.global().async {
-                            
-                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
-                                photoImage[index].onNext(image)
-                            })
-                        }
-                    }
+                    self.photos.append(PhotoListObject(photoAlbum: imageList, photoObjects: photoObjects))
                 }
             }
         }
-        
         
         //將最近加入放置頭位
         guard let recentlyAddedIndex = photos.firstIndex(where: {$0.photoAlbum.assetCollectionSubtype == .smartAlbumRecentlyAdded}) else {
@@ -173,8 +187,8 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         
         if selectAlbum < photoManager.photos.count {
             
-            photoImageData = photoManager.photos[selectAlbum].photosImageData
-                .map({PhotoCheckCollectionViewCellViewModel(imageData: $0)})
+            photoImageData = photoManager.photos[selectAlbum].photoObjects
+                .map({ PhotoCheckCollectionViewCellViewModel(photoObject: $0)})
         }
         reloadAlbum.onNext("")
     }
@@ -210,15 +224,15 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
 
         for index in photoManager.photos.indices {
             
-            let photoObject = photoManager.photos[index]
+            let photoListObject = photoManager.photos[index]
             
-            let title = photoObject.photoAlbum.localizedTitle
-            let photoImage = photoObject.photosImageData[0]
-            let photoCount = "(\(photoObject.photosAsset.count))"
+            let title = photoListObject.photoAlbum.localizedTitle
+            let photoObject = photoListObject.photoObjects[0]
+            let photoCount = "(\(photoListObject.photoObjects.count))"
             let isSelected: Bool = false
             
             tableViewSectionItem.rowItems
-                .append(PhotoCheckTableViewCellViewModel(image: photoImage,
+                .append(PhotoCheckTableViewCellViewModel(photoObject: photoObject,
                                                          title: .init(value: title),
                                                          photoCount: .init(value: photoCount),
                                                          isSelected: .init(value: isSelected)))
@@ -226,26 +240,39 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         
         selectAlbum(index: selectAlbum)
     }
+    
+    func getImageData(index: Int) -> Observable<UIImage?> {
+        
+        let selectAlbum = self.selectAlbum
+        
+        return Observable<UIImage?>.create { anyObserver -> Disposable in
+            
+            let asset = self.photoManager.photos[selectAlbum].photoObjects[index].photoAsset
+            
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.isSynchronous = false
+
+            PHImageManager.default().requestImage(for: asset, targetSize: .init(width: 1000, height: 1000), contentMode: .default, options: options) { image, info in
+                
+                let imageQualityState = info?[PHImageResultIsDegradedKey] as? Bool
+                
+                if imageQualityState ?? true {
+                    
+                    
+                } else {
+                    
+                    anyObserver.onNext(image)
+                    anyObserver.onCompleted()
+                }
+            }
+            
+            return Disposables.create {}
+        }
+    }
 }
 
 class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTableViewController<ViewModel>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        
-        return viewModel.photosCount
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCheckCollectionViewCell.self", for: indexPath) as? PhotoCheckCollectionViewCell else {
-            
-            return UICollectionViewCell()
-        }
-        
-        cell.setupCell(viewModel: viewModel.photoImageData[indexPath.row])
-        return cell
-    }
-    
     
     private let collectionView: UICollectionView = {
        
@@ -300,8 +327,10 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         collectionView.rx.itemSelected.map{$0.row}
             .subscribe(onNext: { [weak self] index in
                 guard let self = self else { return }
-                let image = self.viewModel.photoImageData[index].imageData
-                self.goPhotoChoseImageVC(image: image)
+                let image = self.viewModel.getImageData(index: index)
+                let placeHolderImage = self.viewModel.photoImageData[index].imageData
+                self.goPhotoChoseImageVC(image: image, placeHolderImage: placeHolderImage)
+
             })
             .disposed(by: disposedBag)
         
@@ -385,9 +414,25 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         navigationBarView.isHidden = true
     }
     
-    private func goPhotoChoseImageVC(image: Observable<UIImage?>) {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image))
+        return viewModel.photosCount
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "PhotoCheckCollectionViewCell.self", for: indexPath) as? PhotoCheckCollectionViewCell else {
+            
+            return UICollectionViewCell()
+        }
+        
+        cell.setupCell(viewModel: viewModel.photoImageData[indexPath.row])
+        return cell
+    }
+    
+    private func goPhotoChoseImageVC(image: Observable<UIImage?>, placeHolderImage: Observable<UIImage?>) {
+        
+        let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image, placeHolderImage: placeHolderImage))
         navigationController?.pushViewController(nextVC, animated: true)
     }
 }

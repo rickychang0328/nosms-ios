@@ -129,9 +129,9 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     
                     if showPassword ?? true {
                         
-                        UIPasteboard.general.string = adapterToken.persistentToken.token.currentPassword
+                        UIPasteboard.general.string = try? adapterToken.password.value()
                         
-                        anyObserver.onNext("[ \(adapterToken.persistentToken.token.issuer) ]\n\(adapterToken.persistentToken.token.name)\n验证码已复制")
+                        anyObserver.onNext("[ \(adapterToken.token.issuer) ]\n\(adapterToken.token.name)\n验证码已复制")
                         anyObserver.onCompleted()
                     } else {
                         
