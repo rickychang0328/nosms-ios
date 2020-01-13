@@ -76,7 +76,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             return false
         }
         
-        guard url.host == "totp" || url.host == "hotp" || url.host == nil else {
+        guard url.host == MustAuth.factorTimerKey || url.host == MustAuth.factorCounterKey || url.host == nil else {
             
             NoSMSHUD.showToast(title: "URL匹配失败")
             return false
@@ -147,7 +147,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                         
                         tokens[0].getOnTapPassword()
                     }
-                    UIPasteboard.general.string = tokens[0].persistentToken.token.currentPassword
+                    UIPasteboard.general.string = tokens[0].token.currentPassword
                     
                     NoSMSHUD.showToast(title: "[ \(token.issuer) ]\n\(token.name)\n验证码已复制")
                 } else {

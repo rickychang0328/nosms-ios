@@ -12,6 +12,7 @@ enum NoSMSError: Error {
 protocol PhotoChoseVCViewModelProtocol: BaseVCViewModelProtocol {
     
     var choseImage: Observable<UIImage?> { get }
+    var placeHolderImage: Observable<UIImage?> { get }
     
     func saveToken() -> Observable<PhotoChoseVCViewModel.Event>
 }
@@ -26,14 +27,18 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
     
     let choseImage: Observable<UIImage?>
     
+    let placeHolderImage: Observable<UIImage?>
+    
     private let tokenStore: TokenStoreProtocol
     
     init(choseImage: Observable<UIImage?>,
+         placeHolderImage: Observable<UIImage?>,
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared) {
         
         self.choseImage = choseImage
         self.tokenStore = tokenStore
-        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "相册选取二维码")), backgroundColor: .clear)
+        self.placeHolderImage = placeHolderImage
+        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "相册选取二维码")), backgroundColor: .white)
     }
     
     func saveToken() -> Observable<Event> {
@@ -42,39 +47,52 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
             
             let dispose = self.choseImage.subscribe(onNext: { image in
                 
-                guard let pickedImage = image,
-                        let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy:CIDetectorAccuracyHigh]),
-                        let ciImage = CIImage(image: pickedImage),
-                        let features = detector.features(in: ciImage) as? [CIQRCodeFeature] else {
-                    
-                            anyObserver.onError(NoSMSError.imageError)
+                var displayImage = image
+                for index in 0...1 {
+
+                    guard let pickedImage = displayImage,
+                           let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy:CIDetectorAccuracyHigh]),
+                           let ciImage = CIImage(image: pickedImage),
+                           let features = detector.features(in: ciImage) as? [CIQRCodeFeature] else {
+                                
+                        anyObserver.onError(NoSMSError.imageError)
                         return
-                }
-                
-                guard !features.isEmpty else {
-                    
-                    anyObserver.onError(NoSMSError.imageisNotQRCode)
-                    return
-                }
-                
-                let qrCodeLink = features.reduce(""){ $0 + ($1.messageString ?? "")}
-                
-                self.tokenStore.addTokenWith(urlString: qrCodeLink) { [weak self] (event) in
-                    
-                    guard let _ = self else { return }
-                    switch event {
-                        
-                    case .addSuccess:
-                        
-                        anyObserver.onNext(.success)
-                        anyObserver.onCompleted()
-                    case .haveTheSame(let title, let message, let completion):
-                        
-                        anyObserver.onNext(.showAlert(title: title, message: message, completionHander: completion))
-                    case .addError(let error):
-                        
-                        anyObserver.onError(error)
                     }
+                    
+                    guard !features.isEmpty else {
+                            
+                        
+                        if index == 0 {
+                           
+                            displayImage = displayImage?.imageResize(sizeChange: .init(width: 500, height: 500))
+                            continue
+                        } else {
+                               
+                            anyObserver.onError(NoSMSError.imageisNotQRCode)
+                            return
+                        }
+                    }
+                                   
+                    let qrCodeLink = features.reduce(""){ $0 + ($1.messageString ?? "")}
+                    
+                    self.tokenStore.addTokenWith(urlString: qrCodeLink) { [weak self] (event) in
+                           
+                        guard let _ = self else { return }
+                        switch event {
+                               
+                        case .addSuccess:
+                               
+                            anyObserver.onNext(.success)
+                            anyObserver.onCompleted()
+                        case .haveTheSame(let title, let message, let completion):
+                               
+                            anyObserver.onNext(.showAlert(title: title, message: message, completionHander: completion))
+                        case .addError(let error):
+                               
+                            anyObserver.onError(error)
+                        }
+                    }
+                    break
                 }
             })
             
@@ -136,6 +154,8 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
             $0.top.equalTo(-barHeight)
             $0.left.right.bottom.equalToSuperview()
         }
+        
+        viewModel.placeHolderImage.bind(to: choseImageView.rx.image).disposed(by: disposedBag)
         viewModel.choseImage.bind(to: choseImageView.rx.image).disposed(by: disposedBag)
     }
     
