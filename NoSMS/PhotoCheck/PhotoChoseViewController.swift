@@ -38,7 +38,7 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
         self.choseImage = choseImage
         self.tokenStore = tokenStore
         self.placeHolderImage = placeHolderImage
-        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "相册选取二维码")), backgroundColor: .clear)
+        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "相册选取二维码")), backgroundColor: .white)
     }
     
     func saveToken() -> Observable<Event> {
