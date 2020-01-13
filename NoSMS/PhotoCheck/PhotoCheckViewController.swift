@@ -13,6 +13,7 @@ protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
     func selectAlbum(index: Int)
     func getAlbum()
+    func getImageData(index: Int) -> Observable<UIImage?>
 }
 
 class PhotoListObject {
@@ -74,9 +75,6 @@ class PhotoManager {
                 if let sameAlbum = self.photos.first(where: {$0.photoAlbum.localIdentifier == imageList.localIdentifier}),
                     let whereIndex = photos.firstIndex(where: {$0.localIdentifier == sameAlbum.photosAsset[0].localIdentifier}) {
                     
-                    print(photos.count)
-                    print(sameAlbum.photosAsset.count)
-                    
                     for index in 0 ..< whereIndex {
                         
                         sameAlbum.photosAsset.insert(photos[index], at: index)
@@ -84,7 +82,7 @@ class PhotoManager {
                         
                         DispatchQueue.global().async {
                             
-                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
+                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 400, height: 400), contentMode: .default, options: nil, resultHandler: { (image, _) in
                                 photoImage[index].onNext(image)
                             })
                         }
@@ -97,7 +95,11 @@ class PhotoManager {
                         
                         DispatchQueue.global().async {
                             
-                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 1000, height: 1000), contentMode: .default, options: nil, resultHandler: { (image, _) in
+                            let options = PHImageRequestOptions()
+                            options.deliveryMode = .highQualityFormat
+                            options.isSynchronous = false
+                            self.phImageManager.requestImage(for: photos[index], targetSize: CGSize(width: 400, height: 400), contentMode: .default, options: options, resultHandler: { (image, info) in
+                                
                                 photoImage[index].onNext(image)
                             })
                         }
@@ -226,6 +228,36 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         
         selectAlbum(index: selectAlbum)
     }
+    
+    func getImageData(index: Int) -> Observable<UIImage?> {
+        
+        let selectAlbum = self.selectAlbum
+        
+        return Observable<UIImage?>.create { anyObserver -> Disposable in
+            
+            let asset = self.photoManager.photos[selectAlbum].photosAsset[index]
+            
+            let options = PHImageRequestOptions()
+            options.deliveryMode = .highQualityFormat
+            options.isSynchronous = false
+
+            PHImageManager.default().requestImage(for: asset, targetSize: .init(width: 1000, height: 1000), contentMode: .default, options: options) { image, info in
+                
+                let imageQualityState = info?[PHImageResultIsDegradedKey] as? Bool
+                
+                if imageQualityState ?? true {
+                    
+                    
+                } else {
+                    
+                    anyObserver.onNext(image)
+                    anyObserver.onCompleted()
+                }
+            }
+            
+            return Disposables.create {}
+        }
+    }
 }
 
 class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTableViewController<ViewModel>, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
@@ -300,8 +332,9 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         collectionView.rx.itemSelected.map{$0.row}
             .subscribe(onNext: { [weak self] index in
                 guard let self = self else { return }
-                let image = self.viewModel.photoImageData[index].imageData
-                self.goPhotoChoseImageVC(image: image)
+                let image = self.viewModel.getImageData(index: index)
+                let placeHolderImage = self.viewModel.photoImageData[index].imageData
+                self.goPhotoChoseImageVC(image: image, placeHolderImage: placeHolderImage)
             })
             .disposed(by: disposedBag)
         
@@ -385,9 +418,9 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         navigationBarView.isHidden = true
     }
     
-    private func goPhotoChoseImageVC(image: Observable<UIImage?>) {
+    private func goPhotoChoseImageVC(image: Observable<UIImage?>, placeHolderImage: Observable<UIImage?>) {
         
-        let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image))
+        let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image, placeHolderImage: placeHolderImage))
         navigationController?.pushViewController(nextVC, animated: true)
     }
 }
