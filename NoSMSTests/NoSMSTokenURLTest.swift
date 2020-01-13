@@ -27,6 +27,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
             
         } else {
             
@@ -43,6 +51,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+           
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
             
         } else {
             
@@ -59,7 +75,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "go ogle")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
             
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "go ogle")
         } else {
             
             XCTFail()
@@ -74,6 +97,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
             
         } else {
             
@@ -90,6 +121,15 @@ class NoSMSTokenURLTest: XCTestCase {
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "Levi@gmail.com")
             
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
+            
         } else {
             
             XCTFail()
@@ -104,7 +144,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
             
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
         } else {
             
             XCTFail()
@@ -119,6 +166,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
             
         } else {
             
@@ -134,6 +189,14 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "google")
             XCTAssertEqual(token.name, "gmail.com")
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
             
         } else {
             
@@ -150,6 +213,15 @@ class NoSMSTokenURLTest: XCTestCase {
             XCTAssertEqual(token.issuer, "")
             XCTAssertEqual(token.name, "Levi@gmail.com")
             
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "")
+            
         } else {
             
             XCTFail()
@@ -164,6 +236,15 @@ class NoSMSTokenURLTest: XCTestCase {
             
             XCTAssertEqual(token.issuer, "")
             XCTAssertEqual(token.name, "Levi@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "")
             
         } else {
             
@@ -180,6 +261,15 @@ class NoSMSTokenURLTest: XCTestCase {
             XCTAssertEqual(token.issuer, "")
             XCTAssertEqual(token.name, "Levi@gmail.com")
             
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "")
+            
         } else {
             
             XCTFail()
@@ -195,6 +285,15 @@ class NoSMSTokenURLTest: XCTestCase {
             XCTAssertEqual(token.issuer, "")
             XCTAssertEqual(token.name, "Levi@gmail.com")
             
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "")
+            
         } else {
             
             XCTFail()
@@ -202,8 +301,10 @@ class NoSMSTokenURLTest: XCTestCase {
         if let url = URL(string: "mustauth://totp/google:Levi:@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=google") {
             
             let token = Token(customURL: url)
-            
             XCTAssertNil(token)
+            
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()
@@ -214,6 +315,8 @@ class NoSMSTokenURLTest: XCTestCase {
             let token = Token(customURL: url)
             
             XCTAssertNil(token)
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()
@@ -223,6 +326,8 @@ class NoSMSTokenURLTest: XCTestCase {
             let token = Token(customURL: url)
             
             XCTAssertNil(token)
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()
@@ -232,6 +337,8 @@ class NoSMSTokenURLTest: XCTestCase {
             let token = Token(customURL: url)
             
             XCTAssertNil(token)
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()
@@ -241,6 +348,8 @@ class NoSMSTokenURLTest: XCTestCase {
             let token = Token(customURL: url)
             
             XCTAssertNil(token)
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()
@@ -250,6 +359,8 @@ class NoSMSTokenURLTest: XCTestCase {
             let token = Token(customURL: url)
             
             XCTAssertNil(token)
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()
@@ -259,6 +370,8 @@ class NoSMSTokenURLTest: XCTestCase {
             let token = Token(customURL: url)
             
             XCTAssertNil(token)
+            let mustauth = try? url.mustAuth.parsingSetURL()
+            XCTAssertNil(mustauth)
         } else {
             
             XCTFail()

@@ -50,7 +50,6 @@ class PhotoObject {
             }
         }
     }
-
 }
 
 class PhotoListObject {

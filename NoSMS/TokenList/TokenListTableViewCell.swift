@@ -346,7 +346,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .bind(to: passwordLabel.rx.text)
             .disposed(by: disposedBag)
         
-        //hotp 的密碼是否顯示
+        //hotp 的密碼是否顯示 有動作後要讓 button 不能按一陣子
         viewModel.passwordShow
             .subscribe(onNext: { [weak self] hotpShowPassword in
                 
@@ -361,6 +361,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 }
                 self?.changeLayout()
             }).disposed(by: disposedBag)
+        // 先預設給按
+        tapGetPasswordButton.isEnabled = true
         
         viewModel.lastTime
             .bind(to: countTimeLabel.rx.text)
