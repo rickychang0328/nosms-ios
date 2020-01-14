@@ -21,7 +21,9 @@ class PhotoObject {
     let photoAsset: PHAsset
     
     let photoImage: BehaviorSubject<UIImage?>
-    
+
+    private var isDisplay: Bool = false
+ 
     internal init(photoAsset: PHAsset, photoImage: BehaviorSubject<UIImage?>) {
         self.photoAsset = photoAsset
         self.photoImage = photoImage
@@ -29,24 +31,22 @@ class PhotoObject {
     
     func image(targetSize: CGSize) -> Observable<UIImage?> {
         
-        if let image = try? photoImage.value(), image.size == targetSize {
+        isDisplay = true
+        return Observable<UIImage?>.create { anyObserver -> Disposable in
             
-            return Observable<UIImage?>.create { anyObserver in
+            PHImageManager.default().requestImage(for: self.photoAsset, targetSize: targetSize, contentMode: .default, options: nil, resultHandler: { (image, info) in
                 
-                anyObserver.onNext(image)
-                anyObserver.onCompleted()
-                return Disposables.create {}
-            }
-        } else {
-            
-            return Observable<UIImage?>.create { anyObserver -> Disposable in
-                
-                PHCachingImageManager.default().requestImage(for: self.photoAsset, targetSize: targetSize, contentMode: .default, options: nil, resultHandler: { (image, info) in
-                    self.photoImage.onNext(image)
+                if self.isDisplay {
+                    
                     anyObserver.onNext(image)
-                })
+                    self.photoImage.onNext(image)
+                }
+            })
+            
+            return Disposables.create {
                 
-                return Disposables.create { }
+                self.isDisplay = false
+                self.photoImage.onNext(nil)
             }
         }
     }
@@ -66,6 +66,13 @@ class PhotoListObject {
 
 class PhotoManager {
     
+    enum Event {
+        
+        case firstReload
+        case reloadDone
+        case havePhotoList
+    }
+    
     static let shared: PhotoManager = .init()
         
     private(set) var photos: [PhotoListObject] = []
@@ -74,12 +81,9 @@ class PhotoManager {
     
     private let phPhoteLibrary: PHPhotoLibrary = .shared()
     
-    private let queue: DispatchQueue = .init(label: "Photo")
-            
-    private init() {
-        
-        reloadAlbum()
-    }
+    let event: BehaviorSubject<Event> = .init(value: .firstReload)
+    
+    private init() {}
     
     func reloadAlbum() {
                 
@@ -391,6 +395,8 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
             self.tableView.isHidden = !self.tableViewButtonInNavigationBar.isSelected
     
         }).disposed(by: disposedBag)
+        
+        viewModel.getAlbum()
     }
     
     private func resetAlbumSelectView() {
@@ -404,7 +410,6 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         super.viewWillAppear(animated)
         
         navigationBarView.isHidden = false
-        viewModel.getAlbum()
         
     }
     
