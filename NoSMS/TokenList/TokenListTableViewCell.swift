@@ -157,6 +157,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private var hotpShowPassword: Bool = false
     
     private let circleView: NoSMSCircleLoadView = NoSMSCircleLoadView()
+    
+    private let moveImageView: UIImageView = {
+        
+        let imageView = UIImageView(image: .noSmsMoveCell)
+        imageView.frame = .init(x: 0, y: 0, width: ScaleWidth(at: 18), height: ScaleWidth(at: 13.5))
+        
+        return imageView
+    }()
         
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -271,6 +279,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return true
     }
     
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        moveImageView.removeFromSuperview()
+    }
+    
     private func changeLayout() {
         
         UIView.animate(withDuration: 0.1, animations: {
@@ -307,16 +320,15 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
 
                     let imageOfReorder = view.subviews[0] as? UIImageView
                     imageOfReorder?.image = nil
-                    let imageView = UIImageView(image: .noSmsMoveCell)
-                    imageView.frame = .init(x: 0, y: 0, width: ScaleWidth(at: 18), height: ScaleWidth(at: 13.5))
-                    view.addSubview(imageView)
-                    imageView.center = .init(x: ScaleWidth(at: 10), y: passwordLabel.center.y)
+                    view.addSubview(moveImageView)
+                    moveImageView.center = .init(x: ScaleWidth(at: 10), y: passwordLabel.center.y)
                 }
             }
             
             digitsView.setColor(UIColor.black.withAlphaComponent(0.1))
         } else {
             
+            moveImageView.removeFromSuperview()
             digitsView.setColor(.black)
         }
     }
