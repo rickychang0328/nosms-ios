@@ -173,12 +173,12 @@ class PhotoCheckCollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        imageView.image = nil
         disposeBag = .init()
     }
     
     func setupCell(viewModel: PhotoCheckCollectionViewCellViewModelProtocol) {
         
+        layoutIfNeeded()
         viewModel.image(targetSize: .init(width: imageView.bounds.width * 4, height: imageView.bounds.height * 4))
             .bind(to: imageView.rx.image)
             .disposed(by: disposeBag)
