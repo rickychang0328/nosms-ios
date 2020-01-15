@@ -6,7 +6,7 @@ import PhotosUI
 
 protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
-    var reloadAlbum: PublishSubject<Any> { get }
+    var reloadAlbum: PublishSubject<PhotoCheckVCViewModel.Event> { get }
     var photosCount: Int { get }
     var photoImageData: [PhotoCheckCollectionViewCellViewModelProtocol] { get }
     var newBarViewTitle: BehaviorSubject<String?> { get }
@@ -14,6 +14,7 @@ protocol PhotoCheckVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     func selectAlbum(index: Int)
     func getAlbum()
     func getImageData(index: Int) -> Observable<UIImage?>
+    func reloadMorePhoto()
 }
 
 class PhotoObject {
@@ -58,20 +59,49 @@ class PhotoListObject {
     
     var photoObjects: [PhotoObject]
     
-    internal init(photoAlbum: PHAssetCollection, photoObjects: [PhotoObject]) {
+    var photoFetchAsset: PHFetchResult<PHAsset>
+    
+    let photoReloadOnceCount: Int
+    
+    internal init(photoAlbum: PHAssetCollection, photoObjects: [PhotoObject], photoFetchAsset: PHFetchResult<PHAsset>, photoReloadOnceCount: Int) {
+        
         self.photoAlbum = photoAlbum
         self.photoObjects = photoObjects
+        self.photoFetchAsset = photoFetchAsset
+        self.photoReloadOnceCount = photoReloadOnceCount
+    }
+    
+    func getMorePhotoObject() {
+        
+        let nowCount = photoObjects.count
+        
+        let allAlbum = photoFetchAsset.count
+        
+        if nowCount < allAlbum {
+            
+            let addCount: Int
+            
+            if (nowCount + photoReloadOnceCount) < allAlbum {
+                
+                addCount = nowCount + photoReloadOnceCount
+            } else {
+                
+                addCount = allAlbum
+            }
+            
+            for index in nowCount ..< addCount {
+                
+                let photoAsset = photoFetchAsset[index]
+                photoObjects.append(PhotoObject(photoAsset: photoAsset, photoImage: .init(value: nil)))
+            }
+        } else {
+            
+            return
+        }
     }
 }
 
 class PhotoManager {
-    
-    enum Event {
-        
-        case firstReload
-        case reloadDone
-        case havePhotoList
-    }
     
     static let shared: PhotoManager = .init()
         
@@ -80,8 +110,8 @@ class PhotoManager {
     private let phImageManager: PHImageManager = .default()
     
     private let phPhoteLibrary: PHPhotoLibrary = .shared()
-    
-    let event: BehaviorSubject<Event> = .init(value: .firstReload)
+        
+    let photoReloadOnceCount = 100
     
     private init() {}
     
@@ -97,30 +127,49 @@ class PhotoManager {
             smartOptions.predicate = NSPredicate(format: "mediaType = %d", PHAssetMediaType.image.rawValue)
             let imageList = smartAlbums[index]
             let assetFetchResult = PHAsset.fetchAssets(in: imageList, options: smartOptions)
-            
-            var photoObjects: [PhotoObject] = []
-            
-            if assetFetchResult.count > 0 {
-                
-                for index in 0 ..< assetFetchResult.count {
-
-                    let behaviorSubject: BehaviorSubject<UIImage?> = .init(value: nil)
-                    let asset = assetFetchResult[index]
-                    
-                    photoObjects.append(PhotoObject(photoAsset: asset, photoImage: behaviorSubject))
-                }
-                
-                // 照片大於零才加入相簿的邏輯 新加照片會讀取的邏輯
-                if let sameAlbum = self.photos.first(where: {$0.photoAlbum.localIdentifier == imageList.localIdentifier}),
-                    let whereIndex = photoObjects.firstIndex(where: {$0.photoAsset.localIdentifier == sameAlbum.photoObjects[0].photoAsset.localIdentifier}) {
-                    
-                    for index in 0 ..< whereIndex {
                         
-                        sameAlbum.photoObjects.insert(photoObjects[index], at: index)
+            if assetFetchResult.count > 0 {
+                // 照片大於零才加入相簿的邏輯 新加照片會讀取的邏輯
+                if let sameAlbum = self.photos.first(where: {$0.photoAlbum.localIdentifier == imageList.localIdentifier}) {
+                    
+                    var photoObjects: [PhotoObject] = []
+                    
+                    for index in 0 ..< assetFetchResult.count {
+                        
+                        let asset = assetFetchResult[index]
+                        
+                        if asset.localIdentifier == sameAlbum.photoObjects[0].photoAsset.localIdentifier {
+                            
+                            break
+                        } else {
+                            
+                            photoObjects.append(PhotoObject(photoAsset: asset, photoImage: .init(value: nil)))
+                        }
                     }
+                    sameAlbum.photoFetchAsset = assetFetchResult
+                    sameAlbum.photoObjects = photoObjects + sameAlbum.photoObjects
                 } else {
                     
-                    self.photos.append(PhotoListObject(photoAlbum: imageList, photoObjects: photoObjects))
+                    var photoObjects: [PhotoObject] = []
+                    
+                    let loopEnd: Int
+                    
+                    if assetFetchResult.count > photoReloadOnceCount {
+                        
+                        loopEnd = photoReloadOnceCount
+                    } else {
+                        
+                        loopEnd = assetFetchResult.count
+                    }
+                    
+                    for index in 0 ..< loopEnd {
+                        
+                        let behaviorSubject: BehaviorSubject<UIImage?> = .init(value: nil)
+                        let asset = assetFetchResult[index]
+                        photoObjects.append(PhotoObject(photoAsset: asset, photoImage: behaviorSubject))
+                    }
+                    
+                    self.photos.append(PhotoListObject(photoAlbum: imageList, photoObjects: photoObjects, photoFetchAsset: assetFetchResult, photoReloadOnceCount: photoReloadOnceCount))
                 }
             }
         }
@@ -158,6 +207,12 @@ class PhotoCheckVCTableViewSectionItems: BaseTableViewSectionItemsProtocol {
 
 class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
     
+    enum Event {
+        
+        case selectAlbumDone
+        case addPhotoDone
+    }
+    
     let newBarViewTitle: BehaviorSubject<String?> = .init(value: "")
 
     var cellViewModels: [BaseTableViewSectionItemsProtocol] {
@@ -179,7 +234,7 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
     private var selectAlbum: Int = 0
     
     var photoImageData: [PhotoCheckCollectionViewCellViewModelProtocol] = []
-    let reloadAlbum: PublishSubject<Any> = .init()
+    let reloadAlbum: PublishSubject<Event> = .init()
     
     init(backgroundColor: UIColor = .clear,
          navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: ""))) {
@@ -194,7 +249,6 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
             photoImageData = photoManager.photos[selectAlbum].photoObjects
                 .map({ PhotoCheckCollectionViewCellViewModel(photoObject: $0)})
         }
-        reloadAlbum.onNext("")
     }
     
     func selectAlbum(index: Int) {
@@ -220,19 +274,21 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         newBarViewTitle.onNext(photoManager.photos[index].photoAlbum.localizedTitle)
         
         reloadPhoto()
+        reloadAlbum.onNext(.selectAlbumDone)
     }
     
     func getAlbum() {
         
         photoManager.reloadAlbum()
-
+        
+        tableViewSectionItem.rowItems = []
         for index in photoManager.photos.indices {
             
             let photoListObject = photoManager.photos[index]
             
             let title = photoListObject.photoAlbum.localizedTitle
             let photoObject = photoListObject.photoObjects[0]
-            let photoCount = "(\(photoListObject.photoObjects.count))"
+            let photoCount = "(\(photoListObject.photoFetchAsset.count))"
             let isSelected: Bool = false
             
             tableViewSectionItem.rowItems
@@ -245,6 +301,27 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
         selectAlbum(index: selectAlbum)
     }
     
+    func reloadMorePhoto() {
+        
+        let nowPhotoList = photoManager.photos[selectAlbum]
+        
+        if photoImageData.count == nowPhotoList.photoFetchAsset.count {
+            
+            return
+        } else {
+            
+            if photoImageData.count == nowPhotoList.photoObjects.count {
+                
+                nowPhotoList.getMorePhotoObject()
+                reloadPhoto()
+                reloadAlbum.onNext(.addPhotoDone)
+            } else {
+                
+                return
+            }
+        }
+    }
+
     func getImageData(index: Int) -> Observable<UIImage?> {
         
         let selectAlbum = self.selectAlbum
@@ -328,7 +405,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
             
             $0.edges.equalToSuperview()
         }
-        collectionView.rx.itemSelected.map{$0.row}
+        collectionView.rx.itemSelected.map{ $0.row }
             .subscribe(onNext: { [weak self] index in
                 guard let self = self else { return }
                 let image = self.viewModel.getImageData(index: index)
@@ -337,21 +414,40 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
 
             })
             .disposed(by: disposedBag)
+
+        collectionView.rx.willDisplayCell.map({$0.at.row})
+            .subscribe(onNext: { [weak self] index in
+
+                guard let self = self else { return }
+                if index > self.viewModel.photosCount - 20 {
+
+                    self.viewModel.reloadMorePhoto()
+                }
+            }).disposed(by: disposedBag)
         
         tableView.isHidden = true
         tableView.bounces = false
         tableView.backgroundColor = .backCoverColor
-        tableView.rx.itemSelected.map({$0.row}).subscribe(onNext: { [weak self] index in
+        tableView.rx.itemSelected.map({$0.row})
+            .subscribe(onNext: { [weak self] index in
             
-            self?.viewModel.selectAlbum(index: index)
+                self?.viewModel.selectAlbum(index: index)
             }).disposed(by: disposedBag)
         
-        
-        viewModel.reloadAlbum.subscribe(onNext: { [weak self] _ in
-            guard let self = self else { return }
-            self.collectionView.reloadData()
-            self.resetAlbumSelectView()
+        viewModel.reloadAlbum.subscribe(onNext: { [weak self] event in
+                guard let self = self else { return }
+            
+                self.collectionView.reloadData()
+                switch event {
+                    
+                case .selectAlbumDone:
+                    self.resetAlbumSelectView()
+                    self.tableView.reloadData()
+                case .addPhotoDone:
+                    break
+                }
             }).disposed(by: disposedBag)
+        
         viewModel.newBarViewTitle.bind(to: navigationNewTitle.rx.text).disposed(by: disposedBag)
 
         let leftBarButton = UIBarButtonItem(title: "取消", style: .plain, target: nil, action: nil)
