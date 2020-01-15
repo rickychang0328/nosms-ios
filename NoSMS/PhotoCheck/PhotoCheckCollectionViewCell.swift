@@ -110,7 +110,7 @@ class PhotoCheckTableViewCell: BaseTableViewCell<PhotoCheckTableViewCellViewMode
         titleLabel.snp.makeConstraints {
             
             $0.top.equalTo(ScaleWidth(at: 22.5))
-            $0.bottom.equalTo(ScaleWidth(at: -22.5))
+            $0.bottom.equalTo(ScaleWidth(at: -22.5)).priorityLow()
             $0.left.equalTo(titleImageView.snp.right).offset(ScaleWidth(at: 15))
         }
         
