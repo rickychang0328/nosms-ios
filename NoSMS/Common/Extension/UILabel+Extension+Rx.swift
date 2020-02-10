@@ -14,3 +14,14 @@ extension Reactive where Base: UILabel {
     }
 }
 
+
+extension Reactive where Base: UITableView {
+    
+    var isEditing: Binder<Bool> {
+        
+        return Binder<Bool>(self.base) { view, isEdit in
+            
+            view.isEditing = isEdit
+        }
+    }
+}

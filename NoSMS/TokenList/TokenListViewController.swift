@@ -13,38 +13,107 @@ protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
     var eventResult: BehaviorSubject<TokenListViewModelEvent> { get }
     var deleteIsEnable: Observable<Bool> { get }
+    var tokenIsEmpty: Bool { get }
     
     func deleteToken()
     func selectItem(index: Int) -> Observable<String>
     func swapToken(beforeIndex: Int, afterIndex: Int)
     func tableViewEndEdit()
+    func searchText(input: String)
 }
 
 protocol TokenListSectionItemProtocol: BaseTableViewSectionItemsProtocol {
     
-    var rowItems: [BaseTableViewCellViewModelProtocol] { get set }
+    var rowItems: [TokenListTableViewCellViewModelProtocol] { get set }
+    
+    func setSearchString(input: String)
+    func getRealIndex(afterSearchIndex: Int) -> Int
 }
 
 class TokenListSectionItem: TokenListSectionItemProtocol {
+    
+    private struct AfterSearchViewModel {
+        
+        let tokenListItem: TokenListTableViewCellViewModelProtocol
+        let realIndex: Int
+    }
+    
+    private var searchString: String = .init()
     
     var sectionHeaderViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol?
     
     var sectionFooterViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol?
     
     var numberOfRow: Int {
-        
-        return rowItems.count
+  
+        return searchItems.count
     }
     
-    var rowItems: [BaseTableViewCellViewModelProtocol] = []
+    var rowItems: [TokenListTableViewCellViewModelProtocol] = [] {
+        
+        didSet {
+            
+            setSearchString(input: searchString)
+        }
+    }
+    
+    private var searchItems: [AfterSearchViewModel] = []
     
     subscript(index: Int) -> BaseTableViewCellViewModelProtocol {
         
-        return rowItems[index]
+        return searchItems[index].tokenListItem
+    }
+    
+    // input 空的就會回到不搜索狀態
+    func setSearchString(input: String) {
+        
+        searchString = input
+        searchItems = []
+    
+        if input.isEmpty {
+            
+            for index in rowItems.indices {
+                
+                searchItems.append(AfterSearchViewModel(tokenListItem: rowItems[index], realIndex: index))
+                rowItems[index].isInSearch.onNext(!input.isEmpty)
+            }
+        } else {
+            
+            for index in rowItems.indices {
+                
+                let disposble = Observable.combineLatest(rowItems[index].name, rowItems[index].issuer)
+                    .map({ $0.0.lowercased().contains(input.lowercased()) ||
+                        $0.1.lowercased().contains(input.lowercased())})
+                    .subscribe(onNext: { sameSearch in
+                        
+                        if sameSearch {
+                            
+                            self.searchItems.append(
+                                AfterSearchViewModel(tokenListItem: self.rowItems[index],
+                                                     realIndex: index))
+                            self.rowItems[index].isInSearch.onNext(!input.isEmpty)
+                        } else {
+                            
+                            
+                        }
+                    })
+                disposble.dispose()
+            }
+        }
+    }
+    
+    func getRealIndex(afterSearchIndex: Int) -> Int {
+        
+        return searchItems[afterSearchIndex].realIndex
     }
 }
 
 class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
+    
+    var tokenIsEmpty: Bool {
+        
+        return tokenStore.tokenIsEmpty
+    }
     
     let deleteIsEnable: Observable<Bool>
   
@@ -118,11 +187,13 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     }
     
     func selectItem(index: Int) -> Observable<String> {
+        
+        let realIndex = sectionItems.getRealIndex(afterSearchIndex: index)
 
         let observer: Observable<String> = .create { anyObserver -> Disposable in
             
             let disposed = self.tokenStore.persistentTokensBehavior
-                .map({$0[index]})
+                .map({$0[realIndex]})
                 .subscribe(onNext: { adapterToken in
                     
                     let showPassword = try? adapterToken.passwordShow.value()
@@ -147,6 +218,12 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     func tableViewEndEdit() {
         
         tokenStore.resetTokenSelected()
+    }
+    
+    func searchText(input: String) {
+        
+        sectionItems.setSearchString(input: input)
+        eventResult.onNext(.reloadData)
     }
 }
 
@@ -238,6 +315,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                    
             guard let self = self else { return }
             self.choseHowToAddTokenView.showView()
+            if self.searchTextField.isFirstResponder {
+                              
+                self.searchTextField.resignFirstResponder()
+            }
                    
         }).disposed(by: disposedBag)
         
@@ -246,16 +327,20 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     }()
 
     private lazy var beforeEditTableViewBarButton: UIBarButtonItem = {
-
+        
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setImage(.noSmsEdit, for: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 25, height: 25)
         button.rx.tap
             .subscribe(onNext: { [weak self] _ in
-            guard let self = self else { return }
-            self.tableView.setEditing(true, animated: true)
-            self.navigationItem.leftBarButtonItem?.isEnabled = false
-            self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
+                guard let self = self else { return }
+                self.tableView.setEditing(true, animated: true)
+                if self.searchTextField.isFirstResponder {
+                    
+                    self.searchTextField.resignFirstResponder()
+                }
+                self.navigationItem.leftBarButtonItem?.isEnabled = false
+                self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
         }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
@@ -263,6 +348,35 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     }()
     
     private let inEditTableViewBarButton: UIBarButtonItem = .init(image: .noSmsDone, style: .plain, target: nil, action: nil)
+    
+    private lazy var leftBarButton: UIBarButtonItem = {
+
+        let button = UIButton(type: UIButton.ButtonType.custom)
+        button.setImage(.noSmsMore, for: .normal)
+        button.frame = .init(x: 0, y: 0, width: 25, height: 25)
+        button.rx.tap
+            .subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                self.menuView.showView()
+                if self.searchTextField.isFirstResponder {
+                                  
+                    self.searchTextField.resignFirstResponder()
+                }
+            }).disposed(by: disposedBag)
+        button.addSubview(self.updateRedView)
+        let barBtn = UIBarButtonItem(customView: button)
+        
+        return barBtn
+    }()
+    
+    private let updateRedView: UIView = {
+        
+        let view = UIView()
+        view.frame = .init(x: 18, y: 0, width: 8, height: 8)
+        view.setBackgroundColor(.red)
+        .addCornerRadius(at: 4)
+        return view
+    }()
     
     private let bottomView: UIView = {
        
@@ -288,6 +402,24 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private let menuView: MenuView = .init(frame: .zero)
     
+    private let searchTextField: UITextField = {
+       
+        let textField = UITextField()
+        textField.textColor = .textBlackColor
+        textField.backgroundColor = .white
+        textField.placeholder = "Seach"
+        return textField
+    }()
+    
+    private let resetSearchButton: UIButton = {
+        
+        let button = UIButton()
+        button.setTitle("取消", for: .normal)
+        button.tintColor = .blue
+        button.backgroundColor = .red
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -299,10 +431,30 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         
+        view.addSubview(searchTextField)
+        view.addSubview(resetSearchButton)
         view.addSubview(homePageView)
         navigationController?.view.addSubview(choseHowToAddTokenView)
         navigationController?.view.addSubview(menuView)
         
+        searchTextField.snp.makeConstraints {
+            
+            $0.left.right.top.equalToSuperview()
+            $0.height.equalTo(ScaleWidth(at: 44))
+        }
+        
+        resetSearchButton.snp.makeConstraints {
+            
+            $0.top.right.equalToSuperview()
+            $0.bottom.equalTo(searchTextField)
+            $0.width.equalTo(ScaleWidth(at: 44))
+        }
+        
+        tableView.snp.remakeConstraints {
+            
+            $0.top.equalTo(searchTextField.snp.bottom)
+            $0.left.bottom.right.equalToSuperview()
+        }
         
         homePageView.snp.makeConstraints {
             
@@ -343,35 +495,32 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         view.addSubview(bottomView)
         bottomView.addSubview(deleteTokenButton)
         bottomViewSetup()
-                
-        let leftbarItem = UIBarButtonItem(image: .noSmsMore, style: .plain, target: nil, action: nil)
-                
-        navigationItem.leftBarButtonItem = leftbarItem
-        
-        leftbarItem.rx.tap.subscribe(onNext: { [weak self] in
+                        
+        navigationItem.leftBarButtonItem = leftBarButton
             
-            self?.menuView.showView()
-        }).disposed(by: disposedBag)
-        
         inEditTableViewBarButton.rx.tap
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
             
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
+                if self.searchTextField.isFirstResponder {
+                                  
+                    self.searchTextField.resignFirstResponder()
+                }
                 self.tableView.endEditing(true)
                 self.tableView.setEditing(false, animated: true)
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
                 
-        }).disposed(by: disposedBag)
+            }).disposed(by: disposedBag)
     
         navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
         
         viewModel.eventResult.subscribe(onNext: { [weak self] _ in
             
-            self?.tableView.reloadData()
-            self?.wantToShowHomePageOrNot()
-        }).disposed(by: disposedBag)
+                self?.tableView.reloadData()
+                self?.wantToShowHomePageOrNot()
+            }).disposed(by: disposedBag)
         
         tableView.rx.itemMoved
             .map({($0.sourceIndex.row, $0.destinationIndex.row)})
@@ -390,17 +539,38 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
             
-            guard let self = self else { return }
-            let nextVC = event.nextVC
+                guard let self = self else { return }
+                let nextVC = event.nextVC
+                
+                self.navigationController?.pushViewController(nextVC, animated: true)
+                
+            }).disposed(by: disposedBag)
+        
+        searchTextField.rx.text
+            .orEmpty
+            .distinctUntilChanged()
+            .subscribe(onNext: viewModel.searchText)
+            .disposed(by: disposedBag)
+        
+        resetSearchButton.rx.tap
+            .subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                self.resetSearch()
+            }).disposed(by: disposedBag)
+    }
+    
+    private func resetSearch() {
+        
+        searchTextField.text = ""
+        if searchTextField.isFirstResponder {
             
-            self.navigationController?.pushViewController(nextVC, animated: true)
-            
-        }).disposed(by: disposedBag)
+            searchTextField.resignFirstResponder()
+        }
     }
     
     private func wantToShowHomePageOrNot() {
         
-        if viewModel.cellViewModels[0].numberOfRow == 0 {
+        if viewModel.tokenIsEmpty {
                    
             navigationItem.rightBarButtonItems = []
             homePageView.isHidden = false
@@ -565,7 +735,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
                 self.showAlertToOpenSettingURL(title: "相簿读取失败", message: "相簿权限未开启")
             }
-            }).disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
     }
     
     private func showAlertToOpenSettingURL(title: String?, message: String?) {
@@ -597,16 +767,5 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModel.deleteToken()
         })
-    }
-}
-
-extension Reactive where Base: UITableView {
-    
-    var isEditing: Binder<Bool> {
-        
-        return Binder<Bool>(self.base) { view, isEdit in
-            
-            view.isEditing = isEdit
-        }
     }
 }

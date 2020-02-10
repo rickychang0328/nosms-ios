@@ -5,6 +5,7 @@ import RxSwift
 
 protocol TokenStoreProtocol {
     
+    var tokenIsEmpty: Bool { get }
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
     var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
  
@@ -321,6 +322,11 @@ enum KeyChainTokenError: Error {
 }
 
 extension KeychainTokenStore: TokenStoreProtocol {
+    
+    var tokenIsEmpty: Bool {
+        
+        return adapterTokens.isEmpty
+    }
     
     func deleteToken(index: Int) throws {
         try deletePersistentToken(persistentTokens[index])

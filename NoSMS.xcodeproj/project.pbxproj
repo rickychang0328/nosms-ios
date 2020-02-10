@@ -15,6 +15,9 @@
 		2A2AF08A238F9A0F00BCC143 /* PhotoCheckViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */; };
 		2A2AF08C238FA39100BCC143 /* UIViewController+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */; };
 		2A3A846823AB133C002D4482 /* NoSMSHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A3A846723AB133C002D4482 /* NoSMSHUD.swift */; };
+		2A43D70923EA60E900E0E85C /* DigitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A43D70823EA60E900E0E85C /* DigitsView.swift */; };
+		2A43D70B23EA612F00E0E85C /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A43D70A23EA612F00E0E85C /* CircleView.swift */; };
+		2A43D70D23EA650F00E0E85C /* PhotoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A43D70C23EA650F00E0E85C /* PhotoManager.swift */; };
 		2A55BA9B23A727A300142382 /* UIImage+AppImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */; };
 		2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */; };
 		2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */; };
@@ -73,6 +76,9 @@
 		2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCheckViewController.swift; sourceTree = "<group>"; };
 		2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Extension.swift"; sourceTree = "<group>"; };
 		2A3A846723AB133C002D4482 /* NoSMSHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoSMSHUD.swift; sourceTree = "<group>"; };
+		2A43D70823EA60E900E0E85C /* DigitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitsView.swift; sourceTree = "<group>"; };
+		2A43D70A23EA612F00E0E85C /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
+		2A43D70C23EA650F00E0E85C /* PhotoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoManager.swift; sourceTree = "<group>"; };
 		2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+AppImageExtension.swift"; sourceTree = "<group>"; };
 		2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListViewController.swift; sourceTree = "<group>"; };
 		2A75E64F238B7E1700E8CAB9 /* SnapKit+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SnapKit+Extension.swift"; sourceTree = "<group>"; };
@@ -169,6 +175,7 @@
 				2A2AF089238F9A0F00BCC143 /* PhotoCheckViewController.swift */,
 				2AD796AF23A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift */,
 				2AD796B123A8DDF600BEF6E8 /* PhotoChoseViewController.swift */,
+				2A43D70C23EA650F00E0E85C /* PhotoManager.swift */,
 			);
 			path = PhotoCheck;
 			sourceTree = "<group>";
@@ -188,6 +195,8 @@
 				2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */,
 				2A21B08423A9FBD800922FBB /* ChoseHowToAddToken.swift */,
 				2A91DFCD23ABB84400A630E9 /* Menu.swift */,
+				2A43D70823EA60E900E0E85C /* DigitsView.swift */,
+				2A43D70A23EA612F00E0E85C /* CircleView.swift */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
@@ -624,6 +633,9 @@
 				2AD796B023A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift in Sources */,
 				2A75E654238B814300E8CAB9 /* BaseTableViewController.swift in Sources */,
 				2A75E656238B824A00E8CAB9 /* BaseNavigaitonItem.swift in Sources */,
+				2A43D70923EA60E900E0E85C /* DigitsView.swift in Sources */,
+				2A43D70D23EA650F00E0E85C /* PhotoManager.swift in Sources */,
+				2A43D70B23EA612F00E0E85C /* CircleView.swift in Sources */,
 				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,
 				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
 				2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */,
