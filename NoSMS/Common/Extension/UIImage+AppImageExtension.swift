@@ -48,7 +48,9 @@ extension UIImage {
         
         return UIImage(named: "NoSMS_service") ?? UIImage()
     }
-    
+    static var noSmsVersionUpdate:UIImage {
+        return UIImage(named:"NoSMS_versionupdate") ?? UIImage()
+    }
     static var noSmsBack: UIImage {
         
         return UIImage(named: "NoSMS_back") ?? UIImage()

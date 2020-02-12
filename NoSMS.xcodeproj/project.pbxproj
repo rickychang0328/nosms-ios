@@ -49,6 +49,9 @@
 		2AF655502387ABA8000D8787 /* NoSMSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* NoSMSUITests.swift */; };
 		7F871825ADA176CFB4C66265 /* Pods_NoSMS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */; };
 		A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */; };
+		BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8323F3FDCF00A08CD6 /* Repository.swift */; };
+		BB93FD8623F3FDCF00A08CD6 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */; };
+		BB93FD8823F3FF2C00A08CD6 /* VersionUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */; };
 		E5575E7C04B29979F3929C37 /* Pods_NoSMSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -132,6 +135,9 @@
 		A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.debug.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.debug.xcconfig"; sourceTree = "<group>"; };
 		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB93FD8323F3FDCF00A08CD6 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
+		BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionUpdateViewController.swift; sourceTree = "<group>"; };
 		C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.debug.xcconfig"; sourceTree = "<group>"; };
 		CBD28FD7B7CA61CFE1125CDC /* Pods-NoSMSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSUITests.debug.xcconfig"; path = "Target Support Files/Pods-NoSMSUITests/Pods-NoSMSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -337,6 +343,8 @@
 		2AF6552C2387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXGroup;
 			children = (
+				BB93FD7C23F3FD3300A08CD6 /* APINetWork */,
+				BB93FD7B23F3FC8A00A08CD6 /* VersionUpdate */,
 				2AE53BF223A249B000AB1319 /* JoinManuallyTOTP */,
 				2A2AF088238F99AC00BCC143 /* PhotoCheck */,
 				2AE3DC4E238D31E3009AC8EE /* Scanner */,
@@ -399,6 +407,23 @@
 				725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BB93FD7B23F3FC8A00A08CD6 /* VersionUpdate */ = {
+			isa = PBXGroup;
+			children = (
+				BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */,
+			);
+			path = VersionUpdate;
+			sourceTree = "<group>";
+		};
+		BB93FD7C23F3FD3300A08CD6 /* APINetWork */ = {
+			isa = PBXGroup;
+			children = (
+				BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */,
+				BB93FD8323F3FDCF00A08CD6 /* Repository.swift */,
+			);
+			path = APINetWork;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -626,6 +651,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BB93FD8823F3FF2C00A08CD6 /* VersionUpdateViewController.swift in Sources */,
 				2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */,
 				2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */,
 				2A91DFCE23ABB84400A630E9 /* Menu.swift in Sources */,
@@ -634,6 +660,7 @@
 				2AD796B223A8DDF600BEF6E8 /* PhotoChoseViewController.swift in Sources */,
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
 				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
+				BB93FD8623F3FDCF00A08CD6 /* APIClient.swift in Sources */,
 				2A21B08323A9C18A00922FBB /* AuthorizationManager.swift in Sources */,
 				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
 				2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */,
@@ -655,6 +682,7 @@
 				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,
 				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
 				2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */,
+				BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */,
 				2AE3166223B1F3FE001DDBB2 /* BaseWebViewController.swift in Sources */,
 				2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */,
 				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,

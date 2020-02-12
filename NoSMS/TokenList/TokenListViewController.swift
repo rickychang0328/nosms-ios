@@ -618,9 +618,31 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.setupView(isInSearch: isInSearch)
             }).disposed(by: disposedBag)
+        self.callVersionAPI()
         
     }
-    
+    private func callVersionAPI(){
+        let repository = Repository(apiClient: APIClient())
+        
+        repository.postVersion {[weak self] (result) in
+            switch result {
+               case .success(let items):
+                DispatchQueue.main.async {
+                    self?.menuView.reloadTableViewData()
+                    if items.code == 1 {
+                        self?.updateRedView.isHidden = false
+                        
+                    }else {
+                        self?.updateRedView.isHidden = true
+                    }
+                }
+//                           print("\(self) retrive version: \(items)")
+               case .failure(let error):
+                print("\(String(describing: self)) retrive error on post versions: \(error)")
+                    self?.updateRedView.isHidden = true
+               }
+        }
+    }
     private func viewModelEventWorking(event: TokenListViewModelEvent) {
         
         switch event {
