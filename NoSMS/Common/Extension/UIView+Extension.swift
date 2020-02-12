@@ -166,6 +166,14 @@ extension UIView {
                 $0.secondAttribute == .notAnAttribute
         } ).forEach( {$0.constant = value })
     }
+    
+    func changeRight(to value: CGFloat) {
+
+       getAllConstraints().filter( {
+            $0.firstAttribute == .right &&
+                $0.firstItem as? UIView == self
+        }).forEach({$0.constant = value})
+    }
 
     // Example 3: Change leading constraints only where this view is
     // mentioned first. We could also filter leadingMargin, left, or leftMargin

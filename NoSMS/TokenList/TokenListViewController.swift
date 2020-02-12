@@ -15,8 +15,7 @@ protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     var eventResult: BehaviorSubject<TokenListViewModelEvent> { get }
     var deleteIsEnable: Observable<Bool> { get }
     var tokenIsEmpty: Bool { get }
-    var searchStatus: Observable<Bool> { get }
-    
+
     func deleteToken()
     func selectItem(index: Int) -> Observable<String>
     func swapToken(beforeIndex: Int, afterIndex: Int)
@@ -117,14 +116,7 @@ class TokenListSectionItem: TokenListSectionItemProtocol {
 }
 
 class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
-    
-    private let searchStatusBehavior: BehaviorSubject<Bool> = BehaviorSubject<Bool>.init(value: false)
-    
-    var searchStatus: Observable<Bool> {
         
-        return searchStatusBehavior.asObserver()
-    }
-    
     var tokenIsEmpty: Bool {
         
         return tokenStore.tokenIsEmpty
@@ -245,7 +237,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
         } else {
             
             sectionItems.setSearchString(input: input)
-            searchStatusBehavior.onNext(!input.isEmpty)
             eventResult.onNext(.reloadData)
         }
     }
@@ -326,7 +317,7 @@ class HomePageView: UIView {
     }
 }
 
-class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel> {
+class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate {
     
     private var lifeCycleDisposeBag: DisposeBag = .init()
     
@@ -463,6 +454,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 rightView.isHidden = true
                 self.cleanTextField()
             }).disposed(by: self.disposedBag)
+        textField.returnKeyType = .search
+        
+        textField.delegate = self
         return textField
     }()
     
@@ -472,6 +466,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.setTitle("取消", for: .normal)
         button.setTitleColor( .countColor, for: .normal)
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.isHidden = true
         return button
     }()
     
@@ -496,7 +491,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             $0.top.equalToSuperview().offset(ScaleWidth(at: 8))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 12))
-            $0.width.equalTo(ScaleWidth(at: 351))
+            $0.right.equalTo(ScaleWidth(at: -12))
             $0.height.equalTo(ScaleWidth(at: 40))
         }
         
@@ -603,7 +598,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         searchTextField.rx.text
             .orEmpty
-            .distinctUntilChanged()
+//            .distinctUntilChanged()
             .subscribe(onNext: viewModel.searchText)
             .disposed(by: disposedBag)
         
@@ -612,12 +607,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.resetSearch()
             }).disposed(by: disposedBag)
+        //TODO:明天問Levi
+//        viewModel.searchStatus
+//            .subscribe(onNext: { [weak self] isInSearch in
+//                guard let self = self else { return }
+//                self.setupView(isInSearch: isInSearch)
+//            }).disposed(by: disposedBag)
         
-        viewModel.searchStatus
-            .subscribe(onNext: { [weak self] isInSearch in
-                guard let self = self else { return }
-                self.setupView(isInSearch: isInSearch)
-            }).disposed(by: disposedBag)
         self.callVersionAPI()
         
     }
@@ -658,20 +654,50 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }
     }
     
-    private func setupView(isInSearch: Bool) {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
-        let textFieldWidth: CGFloat
+        if textField.isFirstResponder {
+            
+            textField.resignFirstResponder()
+            setupViewInSearchStatus()
+        }
+        return true
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
         
-        if isInSearch {
-                
-            textFieldWidth = ScaleWidth(at: 311)
+        setupViewInSearchStatus()
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        
+        setupViewInSearchStatus()
+        if textField.text?.isEmpty ?? true {
+            
+            
         } else {
             
-            textFieldWidth = ScaleWidth(at: 351)
+            searchTextField.layoutIfNeeded()
+        }
+    }
+    
+    private func setupViewInSearchStatus() {
+        
+        let textFieldWidth: CGFloat
+        let resetSearchButtonIsHidden: Bool
+        
+        if !(searchTextField.text?.isEmpty ?? true) || searchTextField.isFirstResponder {
+                
+            textFieldWidth = ScaleWidth(at: -52)
+            resetSearchButtonIsHidden = false
+        } else {
+            
+            textFieldWidth = ScaleWidth(at: -12)
+            resetSearchButtonIsHidden = true
         }
         
-        searchTextField.changeWidth(to: textFieldWidth)
-        resetSearchButton.isHidden = !isInSearch
+        searchTextField.changeRight(to: textFieldWidth)
+        resetSearchButton.isHidden = resetSearchButtonIsHidden
     }
     
     private func cleanTextField() {
@@ -687,6 +713,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             searchTextField.resignFirstResponder()
         }
+        setupViewInSearchStatus()
     }
     
     private func wantToShowHomePageOrNot() {
