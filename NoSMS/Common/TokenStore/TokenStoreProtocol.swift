@@ -5,6 +5,7 @@ import RxSwift
 
 protocol TokenStoreProtocol {
     
+    var tokenIsEmpty: Bool { get }
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
     var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
  
@@ -37,6 +38,7 @@ protocol AdapterTokenProtocol {
     
     func appDidEnterBackgroundReset()
     func resetTimer()
+    func changeNewToken(token: Token)
 }
 
 class AdapterToken: AdapterTokenProtocol {
@@ -178,6 +180,11 @@ class AdapterToken: AdapterTokenProtocol {
             break
         }
     }
+    
+    func changeNewToken(token: Token) {
+        
+        self.token = token
+    }
 }
 
 class KeychainTokenStore {
@@ -256,9 +263,11 @@ class KeychainTokenStore {
                         if self.persistentTokens[index].token.name != newName {
                             
                             let generator = tokenArray[index].token.generator
-                            
                             let issuer = tokenArray[index].token.issuer
-                            try? self.saveToken(Token(name: newName, issuer: issuer, generator: generator), toPersistentToken: tokenArray[index].persistentToken)
+                            let newToken = Token(name: newName, issuer: issuer, generator: generator)
+                            
+                            try? self.saveToken(newToken, toPersistentToken: tokenArray[index].persistentToken)
+                            tokenArray[index].changeNewToken(token: newToken)
                         }
                     }).disposed(by: self.disposeBag)
                 }
@@ -321,6 +330,11 @@ enum KeyChainTokenError: Error {
 }
 
 extension KeychainTokenStore: TokenStoreProtocol {
+    
+    var tokenIsEmpty: Bool {
+        
+        return adapterTokens.isEmpty
+    }
     
     func deleteToken(index: Int) throws {
         try deletePersistentToken(persistentTokens[index])

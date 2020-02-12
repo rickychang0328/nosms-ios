@@ -54,7 +54,7 @@ struct TableViewCellViewModelFactory {
         }
     }
     
-    static func getCellViewModel(type: Type) -> BaseTableViewCellViewModelProtocol {
+    static func getCellViewModel(type: Type) -> TokenListTableViewCellViewModelProtocol {
 
         switch type {
 

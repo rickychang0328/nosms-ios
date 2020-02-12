@@ -180,6 +180,8 @@ class PhotoCheckCollectionViewCell: UICollectionViewCell {
         
         layoutIfNeeded()
         viewModel.image(targetSize: .init(width: imageView.bounds.width * 4, height: imageView.bounds.height * 4))
+            .subscribeOn(CurrentThreadScheduler.instance)
+            .observeOn(MainScheduler.instance)
             .bind(to: imageView.rx.image)
             .disposed(by: disposeBag)
         
