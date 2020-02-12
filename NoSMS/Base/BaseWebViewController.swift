@@ -14,24 +14,37 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
     private lazy var webView: WKWebView = {
         
         let view = WKWebView()
-        view.load(viewModel.urlRequest)
         view.navigationDelegate = self
+        view.load(viewModel.urlRequest)
         return view
     }()
     
-    private let loadingIndicator: UIActivityIndicatorView = {
+    private let loadingEventImageView: UIImageView = {
         
-        let view = UIActivityIndicatorView()
-        view.color = .red
-        view.style = .whiteLarge
+        let view = UIImageView()
+        view.image = UIImage.gif(name: "loading_ps")
         return view
+    }()
+    
+    private let loadingTitleLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setTextColor(.nameColor)
+            .setTextAlignment(.center)
+        return label
     }()
     
     private let reloadButton: UIButton = {
        
         let button = UIButton()
-        button.setTitle("loading", for: .normal)
-        button.setTitleColor(.red, for: .normal)
+        button.setTitle("重新加载", for: .normal)
+        button.isHidden = true
+        button.backgroundColor = .clear
+        button.addCornerRadius(at: ScaleWidth(at: 6))
+            .addBorder(color: .sercetNormalColor, width: ScaleWidth(at: 0.5))
+        button.setTitleColor(.sercetNormalColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
         return button
     }()
     
@@ -39,7 +52,8 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
         super.viewDidLoad()
         
         view.addSubview(webView)
-        view.addSubview(loadingIndicator)
+        view.addSubview(loadingEventImageView)
+        view.addSubview(loadingTitleLabel)
         view.addSubview(reloadButton)
         
         webView.snp.makeConstraints {
@@ -47,16 +61,28 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
             $0.edges.equalToSuperview()
         }
         
-        loadingIndicator.snp.makeConstraints {
+        loadingEventImageView.snp.makeConstraints {
             
-            $0.center.equalToSuperview()
-            $0.width.height.equalTo(100)
+            $0.top.equalTo(ScaleHeight(at: 186.5))
+            $0.centerX.equalToSuperview()
+            $0.left.equalTo(ScaleWidth(at: 60))
+            $0.right.equalTo(ScaleWidth(at: -60))
+            $0.height.equalTo(ScaleWidth(at: 89))
+        }
+        
+        loadingTitleLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(loadingEventImageView.snp.bottom).offset(ScaleHeight(at: 33.5))
+            $0.left.right.centerX.equalToSuperview()
+            $0.height.equalTo(ScaleWidth(at: 21))
         }
         
         reloadButton.snp.makeConstraints {
             
-            $0.center.equalToSuperview()
-            $0.width.height.equalTo(150)
+            $0.top.equalTo(loadingTitleLabel.snp.bottom).offset(ScaleHeight(at: 25))
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(ScaleWidth(at: 140))
+            $0.height.equalTo(ScaleWidth(at: 42))
         }
         
         reloadButton.rx.tap
@@ -66,25 +92,32 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
             }).disposed(by: disposedBag)
     }
     
+    private func loadingDone() {
+        
+        loadingTitleLabel.isHidden = true
+        reloadButton.isHidden = true
+        loadingEventImageView.isHidden = true
+    }
+    
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         
-        loadingIndicator.startAnimating()
+        reloadButton.isHidden = true
+        loadingTitleLabel.setText("内容加载中…")
+        loadingEventImageView.image = UIImage.gif(name: "loading_ps")
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            
-            self.loadingIndicator.stopAnimating()
-
-        }
+        loadingDone()
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                   
-            self.loadingIndicator.stopAnimating()
+                    
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            
+            self.loadingEventImageView.image = .noSmsNoInternetConnection
+            self.loadingTitleLabel.setText("获取网络数据失败")
+            self.reloadButton.isHidden = false
         }
     }
 }

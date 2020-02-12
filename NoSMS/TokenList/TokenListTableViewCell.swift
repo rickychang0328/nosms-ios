@@ -349,12 +349,21 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     override func bindData(viewModel: ViewModel) {
         super.bindData(viewModel: viewModel)
         
-        let name = viewModel.name
-                    .asDriver(onErrorJustReturn: "")
+        //給空白讓 label 的 auto 高不會跑掉
+        let name = viewModel.name.map({
+          
+            if $0.isEmpty {
+                
+                return " "
+            } else {
+                
+                return $0
+            }
+        }).asDriver(onErrorJustReturn: "")
             
         name.drive(nameLabel.rx.text)
             .disposed(by: disposedBag)
-        name.drive(nameTextField.rx.text)
+        viewModel.name.bind(to:nameTextField.rx.text)
             .disposed(by: disposedBag)
 
         viewModel.issuer
