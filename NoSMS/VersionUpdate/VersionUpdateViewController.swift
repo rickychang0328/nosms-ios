@@ -51,12 +51,12 @@ class VersionUpdateView: UIView {
     let latestDescLabel: UILabel = {
         
         let label = UILabel()
-        
+        let whiteColor:UIColor = .white
         label.setText("已是最新版本")
             .setTextAlignment(.center)
             .setFont(.pingFangMediumFont(size: 15))
             .setNumberOfLine(0)
-            .setTextColor(.white)
+            .setTextColor(whiteColor.withAlphaComponent(0.6))
         return label
     }()
     var tapButtonEvent: ControlEvent<Void> {
