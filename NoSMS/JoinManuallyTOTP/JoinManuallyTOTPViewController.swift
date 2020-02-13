@@ -115,7 +115,7 @@ class JoinManuallySectionItems: JoinManuallySectionItemsProtocol {
          accountCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "账号",
                                                                                                  textfieldPlaceHolder: "hello@example.com"),
          issuerCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "issuer",
-                                                                                                    textfieldPlaceHolder: "small-chat-text"),
+                                                                                                    textfieldPlaceHolder: "small-chat-test"),
          keyTokenCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "密钥",
                                                                                                   textfieldPlaceHolder: "fwjf btrf"),
          baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol = JoinManuallyCellSwitchItems(title: "基于时间")) {

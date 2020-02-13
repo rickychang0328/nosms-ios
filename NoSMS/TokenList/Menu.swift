@@ -11,7 +11,7 @@ class MenuView: UIView {
         case privacy
         case service
         case helper
-        
+        case versionupdate
         fileprivate var image: UIImage {
 
             switch self {
@@ -22,6 +22,8 @@ class MenuView: UIView {
                 return .noSmsPrivacy
             case .service, .helper:
                 return .noSmsService
+            case .versionupdate:
+                return .noSmsVersionUpdate
             }
         }
         
@@ -37,6 +39,8 @@ class MenuView: UIView {
                 return "服务条款"
             case .helper:
                 return "帮助中心"
+            case .versionupdate:
+                return "关于"
             }
         }
         
@@ -52,6 +56,25 @@ class MenuView: UIView {
                 return UIViewController()
             case .helper:
                 return HelperViewController()
+            case .versionupdate:
+                return VersionUpdateViewController()
+            }
+        }
+        var isShowRedView:Bool {
+            switch self {
+                case .versionupdate:
+                    if let version = Repository.sharedInstance.version {
+                        if version.isNeedUpdate ?? false {
+                            return true
+                        }else{
+                           return false
+                        }
+                    }else {
+                        return false
+                    }
+//                    return true
+                default:
+                    return false
             }
         }
     }
@@ -71,8 +94,10 @@ class MenuView: UIView {
                            forCellReuseIdentifier: MenuViewTableViewCell.description())
         return tableView
     }()
-    
-    private let choseEvnets: [ChoseEvnet] = [.privacy, .helper]
+    func reloadTableViewData() {
+        self.tableView.reloadData()
+    }
+    private let choseEvnets: [ChoseEvnet] = [.privacy, .helper,.versionupdate]
     
     private let cellHeight: CGFloat = ScaleWidth(at: 63)
     
@@ -258,7 +283,7 @@ extension MenuView: UITableViewDelegate, UITableViewDataSource {
             underLineHide = false
         }
         
-        cell.setupCell(image: event.image, title: event.title, underLineHide: underLineHide)
+        cell.setupCell(image: event.image, title: event.title, underLineHide: underLineHide,isShowRedView: event.isShowRedView)
         return cell
     }
 }
@@ -285,15 +310,23 @@ class MenuViewTableViewCell: UITableViewCell {
         view.setBackgroundColor(.init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4))
         return view
     }()
-    
+    private let updateRedView: UIView = {
+           
+           let view = UIView()
+           view.frame = .init(x: 50, y: 0, width: 8, height: 8)
+           view.setBackgroundColor(.red)
+           .addCornerRadius(at: 4)
+           return view
+       }()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         selectionStyle = .none
         contentView.addSubview(titleImageView)
         contentView.addSubview(titleLabel)
+        contentView.addSubview(updateRedView)
         contentView.addSubview(underLineView)
-        
+
         titleImageView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 20))
@@ -306,7 +339,12 @@ class MenuViewTableViewCell: UITableViewCell {
             $0.centerY.equalTo(titleImageView)
             $0.left.equalTo(titleImageView.snp.right).offset(ScaleWidth(at: 15))
         }
-        
+        updateRedView.snp.makeConstraints{
+            $0.width.height.equalTo(8)
+            $0.centerY.equalTo(titleImageView)
+            $0.right.equalTo(ScaleWidth(at: -10))
+        }
+        updateRedView.isHidden = true
         underLineView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 12))
@@ -320,11 +358,12 @@ class MenuViewTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupCell(image: UIImage, title: String, underLineHide: Bool) {
+    func setupCell(image: UIImage, title: String, underLineHide: Bool,isShowRedView:Bool) {
         
         titleImageView.image = image
         titleLabel.text = title
         underLineView.isHidden = underLineHide
+        updateRedView.isHidden = !isShowRedView
     }
     
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {

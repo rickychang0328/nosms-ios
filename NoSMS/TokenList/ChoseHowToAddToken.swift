@@ -214,8 +214,6 @@ class ChoseHowToAddTokenView: UIView {
                    
             self.dissMissView.alpha = 0
             self.nowBottomY = self.bottomHeight + self.tableViewBaseHeight
-//            self.bottomCoverView.changeTop(to: self.bottomHeight)
-//            self.tableView.changeBottom(to: self.tableViewBaseHeight)
             self.layoutIfNeeded()
         }, completion: { _ in
                    

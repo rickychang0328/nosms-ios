@@ -15,9 +15,12 @@ protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProt
     var getTapPassword: () -> Void { get }
     var reFreshTime: Int { get }
     var passwordShow: Observable<Bool> { get }
+    var isInSearch: BehaviorSubject<Bool> { get }
 }
 
 class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
+    
+    let isInSearch: BehaviorSubject<Bool> = .init(value: false)
     
     let passwordShow: Observable<Bool>
     
@@ -165,6 +168,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         return imageView
     }()
+    
+    private var isInSearch: Bool = false
         
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -289,7 +294,6 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         UIView.animate(withDuration: 0.1, animations: {
             
             self.nameLabel.isHidden = self.isEditing
-            self.circleView.isHidden = self.isEditing
             self.passwordLabel.isHidden = self.isEditing
             self.nameTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
@@ -297,10 +301,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
 
             if self.isOnTime {
                 
+                self.circleView.isHidden = self.isEditing
                 self.tapGetPasswordButton.isHidden = true
                 self.digitsView.isHidden = !self.isEditing
             } else {
-                
+                self.circleView.isHidden = true
                 self.tapGetPasswordButton.isHidden = self.isEditing
                 
                 if !self.isEditing && !self.hotpShowPassword {
@@ -322,6 +327,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                     imageOfReorder?.image = nil
                     view.addSubview(moveImageView)
                     moveImageView.center = .init(x: ScaleWidth(at: 10), y: passwordLabel.center.y)
+                    
+                    view.isHidden = isInSearch
                 }
             }
             
@@ -342,12 +349,21 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     override func bindData(viewModel: ViewModel) {
         super.bindData(viewModel: viewModel)
         
-        let name = viewModel.name
-                    .asDriver(onErrorJustReturn: "")
+        //給空白讓 label 的 auto 高不會跑掉
+        let name = viewModel.name.map({
+          
+            if $0.isEmpty {
+                
+                return " "
+            } else {
+                
+                return $0
+            }
+        }).asDriver(onErrorJustReturn: "")
             
         name.drive(nameLabel.rx.text)
             .disposed(by: disposedBag)
-        name.drive(nameTextField.rx.text)
+        viewModel.name.bind(to:nameTextField.rx.text)
             .disposed(by: disposedBag)
 
         viewModel.issuer
@@ -439,6 +455,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         if isOnTime {
             
+            circleView.isHidden = false
             let reFreshTime = viewModel.reFreshTime
             viewModel.lastTime.subscribe(onNext: { [weak self] lastTimeString in
 
@@ -451,214 +468,18 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 }).disposed(by: disposedBag)
         } else {
             
-            circleView.remove()
+            circleView.isHidden = true
         }
         
         warningTime.map({ $0 ? UIColor.countWarningColor : UIColor.countColor })
             .bind(to: countTimeLabel.rx.textColor, circleView.loadingColorBinder)
             .disposed(by: disposedBag)
-    }
-}
-
-class DigitsView: UIView {
-    
-    private var counterViews: [UIView] = []
-    
-    func setColor(_ color: UIColor) {
         
-        counterViews.forEach({$0.backgroundColor = color})
-    }
-    
-    func setDigits(count: Int) {
-        
-        counterViews.forEach({$0.removeFromSuperview()})
-        
-        counterViews = []
-        for _ in 0 ..< count {
+        viewModel.isInSearch.subscribe(onNext: { [weak self] isInSearch in
+            guard let self = self else { return }
+            self.isInSearch = isInSearch
+            self.changeLayout()
             
-            let view = UIView()
-            view.setBackgroundColor(UIColor.black)
-            view.addCornerRadius(at: 7)
-            counterViews.append(view)
-        }
-        
-        let whichIndexSpace: Int
-        
-        if count <= 6 {
-            
-            whichIndexSpace = 3
-        } else {
-            
-            whichIndexSpace = 4
-        }
-        
-        for index in counterViews.indices {
-            
-            let view = counterViews[index]
-            addSubview(view)
-            
-            let leftOffset: CGFloat
-            
-            if index == whichIndexSpace {
-                
-                leftOffset = ScaleWidth(at: 30)
-                
-            } else {
-                
-                leftOffset = ScaleWidth(at: 15)
-            }
-            
-            view.snp.makeConstraints {
-                
-                $0.size.equalTo(14)
-                
-                if index == 0 {
-                    
-                    $0.left.equalToSuperview()
-                } else {
-                    
-                    $0.left.equalTo(counterViews[index - 1].snp.right).offset(leftOffset)
-                }
-                $0.centerY.equalToSuperview()
-            }
-        }
-    }
-}
-
-class CircleView: UIView {
-    
-    var lineWidth: CGFloat = 3
-    
-    var shapeLayer: CAShapeLayer = .init()
-    
-    var subLayer: CAShapeLayer = .init()
-    
-    var animation: CABasicAnimation = .init()
-    
-    
-    func getCircleSubLayer(circleLast: Double = 0) {
-        
-        layoutIfNeeded()
-        superview?.layoutIfNeeded()
-        subLayer.removeFromSuperlayer()
-        
-        let shapeLayer = CAShapeLayer()
-        self.subLayer = shapeLayer
-        shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
-        shapeLayer.fillColor = UIColor.clear.cgColor
-        shapeLayer.lineWidth = lineWidth
-        shapeLayer.strokeColor = UIColor.clear.cgColor
-        let arcCenter:CGPoint = shapeLayer.position // 設定圓心
-        let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
-        // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針
-        let path = UIBezierPath(arcCenter: arcCenter,
-                                radius: radius,
-                                startAngle: CGFloat(2 * Float.pi / 4 * 3),
-                                endAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleLast))), clockwise: true)
-        
-        shapeLayer.path = path.cgPath
-        shapeLayer.position = center
-        layer.addSublayer(shapeLayer)
-    }
-    
-    func getCircle(circleLast: Double = 1, circleTo: Double = 1) {
-        
-        layoutIfNeeded()
-        superview?.layoutIfNeeded()
-        shapeLayer.removeFromSuperlayer()
-        
-        let shapeLayer = CAShapeLayer()
-        self.shapeLayer = shapeLayer
-        shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
-        shapeLayer.fillColor = UIColor.clear.cgColor
-        shapeLayer.lineWidth = lineWidth
-        shapeLayer.strokeColor = UIColor.countColor.cgColor
-        let arcCenter:CGPoint = shapeLayer.position // 設定圓心
-        let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
-        // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針
-        let path = UIBezierPath(arcCenter: arcCenter,
-                                radius: radius,
-                                startAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleLast))),
-                                endAngle: CGFloat(2 * Float.pi / 4 * 3) + (CGFloat(2 * Float.pi) * (1 - CGFloat(circleTo))),
-                                clockwise: true)
-        
-        shapeLayer.path = path.cgPath
-        shapeLayer.position = center
-        layer.addSublayer(shapeLayer)
-    }
-    
-    func startAnimation(lastTime: Double, refreshTime: Double) {
-        
-        let last = lastTime / refreshTime
-        let toWhere = (lastTime - 1) / refreshTime
-        getCircleSubLayer(circleLast: last)
-        getCircle(circleLast: last, circleTo: toWhere)
-        
-        let animation = CABasicAnimation(keyPath: "strokeEnd")
-        animation.fromValue = 0
-        animation.toValue = 1
-        animation.duration = 1
-        self.animation = animation
-        shapeLayer.add(animation, forKey: nil)
-    }
-}
-
-class NoSMSCircleLoadView: UIView {
-    
-    private let loadingCricleView: CircleView = {
-        
-        let view = CircleView()
-        return view
-    }()
-    
-    private let baseCricleView: CircleView = {
-        
-        let view = CircleView()
-        return view
-    }()
-
-    var loadingColorBinder: Binder<UIColor> {
-        
-        return Binder<UIColor>.init(self) { (view, color) in
-            
-            view.baseCricleView.subLayer.strokeColor = color.cgColor
-        }
-    }
-    
-    private var disposeBag: DisposeBag = .init()
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        addSubview(baseCricleView)
-        addSubview(loadingCricleView)
-        
-        baseCricleView.snp.makeConstraints {
-            
-            $0.edges.equalToSuperview()
-        }
-        loadingCricleView.snp.makeConstraints {
-            
-            $0.edges.equalToSuperview()
-        }
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    func startAnimation(lastTime: Double, refreshTime: Double) {
-
-        baseCricleView.getCircleSubLayer()
-        loadingCricleView.startAnimation(lastTime: lastTime, refreshTime: refreshTime)
-        loadingCricleView.shapeLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
-        loadingCricleView.subLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
-    }
-    
-    func remove() {
-        
-        baseCricleView.subLayer.removeFromSuperlayer()
-        loadingCricleView.shapeLayer.removeFromSuperlayer()
-        loadingCricleView.subLayer.removeFromSuperlayer()
+            }).disposed(by: disposedBag)
     }
 }

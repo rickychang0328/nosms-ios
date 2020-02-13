@@ -29,6 +29,13 @@ extension UIColor {
     
     private static let _alertCancelButtonColor: UIColor = .init(red: 153/255, green: 153/255, blue: 153/255, alpha: 0.15)
     
+    private static let _serachTextfieldBackgroundColor: UIColor = .init(red: 153/255, green: 153/255, blue: 153/255, alpha: 0.1)
+    
+    static var serachTextfieldBackgroundColor: UIColor {
+        
+        return _serachTextfieldBackgroundColor
+    }
+    
     static var textBlackColor: UIColor {
         
         return _textBlackColor
