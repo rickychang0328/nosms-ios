@@ -151,8 +151,8 @@ class VersionUpdateViewController: VersionUpdateViewControllerType<VersionUpdate
             $0.top.equalTo(view.snp.topMargin)
             $0.left.right.bottomMargin.equalToSuperview()
         }
-        if let version = Repository.version {
-            if version.code == 1 {
+        if let version = Repository.sharedInstance.version {
+            if version.isNeedUpdate ?? false {
                 versionUpdateView.button.isHidden = false
                 versionUpdateView.latestDescLabel.isHidden = true
                 if let strVersion = version.version_info?.version {
@@ -165,7 +165,17 @@ class VersionUpdateViewController: VersionUpdateViewControllerType<VersionUpdate
             }
         }
         versionUpdateView.tapButtonEvent.subscribe(onNext: { [weak self] _ in
-            guard let self = self else { return }
+            guard self != nil else { return }
+            if let version = Repository.sharedInstance.version {
+                let strurl = version.version_info?.url ?? "https://apps.apple.com/cn/app/mustauth/id1492551929"
+                if let url = URL(string: strurl) {
+                    if #available(iOS 10.0, *) {
+                        UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    } else {
+                        UIApplication.shared.openURL(url)
+                    }
+                }
+            }
             
 //            self.choseHowToAddTokenView.showView()
         }).disposed(by: disposedBag)

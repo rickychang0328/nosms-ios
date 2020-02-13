@@ -60,6 +60,23 @@ class MenuView: UIView {
                 return VersionUpdateViewController()
             }
         }
+        var isShowRedView:Bool {
+            switch self {
+                case .versionupdate:
+                    if let version = Repository.sharedInstance.version {
+                        if version.isNeedUpdate ?? false {
+                            return true
+                        }else{
+                           return false
+                        }
+                    }else {
+                        return false
+                    }
+//                    return true
+                default:
+                    return false
+            }
+        }
     }
     
     let choseEvent: PublishSubject<ChoseEvnet> = .init()
@@ -266,7 +283,7 @@ extension MenuView: UITableViewDelegate, UITableViewDataSource {
             underLineHide = false
         }
         
-        cell.setupCell(image: event.image, title: event.title, underLineHide: underLineHide)
+        cell.setupCell(image: event.image, title: event.title, underLineHide: underLineHide,isShowRedView: event.isShowRedView)
         return cell
     }
 }
@@ -341,24 +358,12 @@ class MenuViewTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func setupCell(image: UIImage, title: String, underLineHide: Bool) {
+    func setupCell(image: UIImage, title: String, underLineHide: Bool,isShowRedView:Bool) {
         
         titleImageView.image = image
         titleLabel.text = title
         underLineView.isHidden = underLineHide
-        if title == "关于" {
-            if let version = Repository.version {
-                if version.code == 1 {
-                    updateRedView.isHidden = false
-                }else{
-                    updateRedView.isHidden = true
-                }
-            }else {
-                updateRedView.isHidden = true
-            }
-        }else{
-            updateRedView.isHidden = true
-        }
+        updateRedView.isHidden = !isShowRedView
     }
     
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {

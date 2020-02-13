@@ -380,14 +380,18 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             }).disposed(by: disposedBag)
         button.addSubview(self.updateRedView)
         let barBtn = UIBarButtonItem(customView: button)
-        
+        self.updateRedView.snp.makeConstraints{
+            $0.width.height.equalTo(8)
+            $0.top.equalTo(-2)
+            $0.right.equalTo(5)
+        }
         return barBtn
     }()
     
     private let updateRedView: UIView = {
         
         let view = UIView()
-        view.frame = .init(x: 18, y: 0, width: 8, height: 8)
+        view.frame = .init(x: 25, y: 0, width: 8, height: 8)
         view.setBackgroundColor(.red)
         .addCornerRadius(at: 4)
         return view
@@ -618,14 +622,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
     }
     private func callVersionAPI(){
-        let repository = Repository(apiClient: APIClient())
+//        let repository = Repository(apiClient: APIClient())
         
-        repository.postVersion {[weak self] (result) in
+        Repository.sharedInstance.postVersion {[weak self] (result) in
             switch result {
                case .success(let items):
                 DispatchQueue.main.async {
                     self?.menuView.reloadTableViewData()
-                    if items.code == 1 {
+                    if items.isNeedUpdate ?? false {
                         self?.updateRedView.isHidden = false
                         
                     }else {
@@ -635,7 +639,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 //                           print("\(self) retrive version: \(items)")
                case .failure(let error):
                 print("\(String(describing: self)) retrive error on post versions: \(error)")
+                 DispatchQueue.main.async {
                     self?.updateRedView.isHidden = true
+                    
+                }
                }
         }
     }
