@@ -120,6 +120,13 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
             self.reloadButton.isHidden = false
         }
     }
+    
+    deinit {
+        
+        let websiteDataTypes = NSSet(array: [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache])
+        let date = Date(timeIntervalSince1970: 0)
+        WKWebsiteDataStore.default().removeData(ofTypes: websiteDataTypes as! Set<String>, modifiedSince: date, completionHandler:{ })
+    }
 }
 
 
