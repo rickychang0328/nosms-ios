@@ -27,18 +27,26 @@ final class Repository {
     var version:Version?
     private let apiClient: APIClient = APIClient()
     static let sharedInstance = Repository()
+    private var currentWebAPI = ""
     private init() {
-        
+        currentWebAPI = getwebAPI()
     }
 //    init(apiClient: APIClient) {
 //        self.apiClient = apiClient
 //    }
-    
+    private func getwebAPI()->String{
+        if let webAPI = Bundle.main.object(forInfoDictionaryKey: "webAPI") as? String {
+            return webAPI
+        }else{
+            return "https://maapi-dev.azuredigitaltech.com.tw:18443/api/"
+        }
+    }
     
     func postVersion(_ completion: @escaping ((Result<Version>) -> Void)){
         if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+//            print("Build Version:\(build)")
             let parameters:[String:Any] = ["platform":"ios","version":build]
-            let resource = PostResource(url: URL(string: "https://maapi-dev.azuredigitaltech.com.tw:18443/api/version")!,parameters: parameters)
+            let resource = PostResource(url: URL(string: "\(currentWebAPI)version")!,parameters: parameters)
             apiClient.post(resource) { (result) in
                 switch result {
                 case .success(let data):
