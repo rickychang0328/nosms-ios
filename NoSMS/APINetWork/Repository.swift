@@ -7,7 +7,16 @@
 //
 
 import Foundation
-
+enum RESTAPIURL:String {
+    case VERSION =  "version"
+    
+    var urlString:String {
+        return Repository.sharedInstance.getCurrentAPI() + self.rawValue
+    }
+    var url:URL? {
+        return URL(string: urlString)!
+    }
+}
 // MARK: - Version
 struct Version: Codable {
     let code: Int
@@ -28,6 +37,7 @@ final class Repository {
     private let apiClient: APIClient = APIClient()
     static let sharedInstance = Repository()
     private var currentWebAPI = ""
+    let defaultWebAPI = "https://maapi-dev.azuredigitaltech.com.tw:18443/api/"
     private init() {
         currentWebAPI = getwebAPI()
     }
@@ -38,16 +48,19 @@ final class Repository {
         if let webAPI = Bundle.main.object(forInfoDictionaryKey: "webAPI") as? String {
             return webAPI
         }else{
-            return "https://maapi-dev.azuredigitaltech.com.tw:18443/api/"
+            return defaultWebAPI
         }
     }
-    
+    func getCurrentAPI()->String {
+        return currentWebAPI
+    }
     func postVersion(_ completion: @escaping ((Result<Version>) -> Void)){
-        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
 //            print("Build Version:\(build)")
             let parameters:[String:Any] = ["platform":"ios","version":build]
-            let resource = PostResource(url: URL(string: "\(currentWebAPI)version")!,parameters: parameters)
-            apiClient.post(resource) { (result) in
+            let postURL = RESTAPIURL.VERSION.url!
+            let resource = PostResource(url: postURL,parameters: parameters)
+            apiClient.post(resource) {[weak self] (result) in
                 switch result {
                 case .success(let data):
                     do {
@@ -57,6 +70,10 @@ final class Repository {
                         Repository.sharedInstance.version = items
                         items.isNeedUpdate = items.code == 1
                         Repository.sharedInstance.version?.isNeedUpdate = items.isNeedUpdate
+//                        if items.domain.count > 0 && !items.domain[0].isEmpty{
+//
+//                            self?.currentWebAPI = "https://api.\(items.domain[0])/api/"
+//                        }
                         completion(.success(items))
                     } catch {
                         completion(.failure(error))
