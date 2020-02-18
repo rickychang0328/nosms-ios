@@ -29,7 +29,7 @@ class VersionUpdateView: UIView {
     private let descriptionLabel: UILabel = {
         
         let label = UILabel()
-        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
            label.setText("MustAuth V\(build)")
         }
         label.setTextAlignment(.center)
