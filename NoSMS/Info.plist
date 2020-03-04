@@ -18,6 +18,18 @@
 	<string>1.0</string>
 	<key>webAPI</key>
 	<string>https://maapi-dev.azuredigitaltech.com.tw:18443/api/</string>
+    <key>apiDomainProtocol</key>
+    <string>https</string>
+    <key>webViewDomainProtocol</key>
+    <string>https</string>
+    <key>defaultFirstAPIDomain</key>
+    <string>maapi-dev</string>
+    <key>defaultFirstWebViewDomain</key>
+    <string>www</string>
+    <key>APIDomainPort</key>
+    <string>18443</string>
+    <key>WebViewDomainPort</key>
+    <string>18443</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
