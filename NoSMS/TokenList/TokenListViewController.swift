@@ -585,10 +585,48 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .map({ $0.row })
             .flatMapLatest(self.viewModel.selectItem)
             .subscribe(onNext: { [weak self] string in
-            
+                guard self != nil else { return }
                 NoSMSHUD.showToast(title: string)
             }).disposed(by: disposedBag)
 
+//        tableView.rx.didScroll.subscribe(onNext: {[weak self] in
+//
+//
+//        })
+        tableView.rx.didEndDragging.subscribe { [weak self] _ in
+            guard let self = self else { return }
+            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize),tableView height:\(self.tableView.frame.height)")
+            if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
+                if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 {
+                    UIView.animate(withDuration: 0.3, delay: 0.0,
+                                                      usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                                      animations: {
+                                                       self.searchTextField.snp.updateConstraints{item in
+                                                        item.top.equalTo(ScaleWidth(at: 0))
+                                                           item.height.equalTo(ScaleWidth(at: 0))
+                                                       }
+                                                       self.searchTextField.isHidden = true
+                                                       self.view.layoutIfNeeded()
+                                       },
+                                                      completion: nil
+                                       )
+                }else{
+                    UIView.animate(withDuration: 0.3, delay: 0.0,
+                                               usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                               animations: {
+                                                self.searchTextField.snp.updateConstraints{item in
+                                                     item.top.equalTo(ScaleWidth(at: 8))
+                                                    item.height.equalTo(ScaleWidth(at: 40))
+                                                }
+                                                self.searchTextField.isHidden = false
+                                                self.view.layoutIfNeeded()
+                                },
+                                               completion: nil
+                                )
+                }
+            }
+            
+        }
         tableView.backgroundColor = .backgroudColor
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
@@ -923,4 +961,5 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self?.viewModel.deleteToken()
         })
     }
+    
 }
