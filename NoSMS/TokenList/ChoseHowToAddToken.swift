@@ -29,11 +29,11 @@ class ChoseHowToAddTokenView: UIView {
             switch self {
             
             case .photo:
-                return "相册选取二维码"
+                return "相册选取"
             case .camera:
-                return "相机扫描二维码"
+                return "扫一扫"
             case .keyIn:
-                return "手动输入验证码"
+                return "手动输入"
             }
         }
     }
@@ -108,10 +108,9 @@ class ChoseHowToAddTokenView: UIView {
     private lazy var tableViewBaseHeight: CGFloat = cellHeight * CGFloat(integerLiteral: choseEvnets.count)
 
     private var bottomHeight: CGFloat = 0
-
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
-
         addSubview(dissMissView)
         addSubview(bottomCoverView)
         addSubview(tableView)

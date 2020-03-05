@@ -7,6 +7,7 @@ enum TokenListViewModelEvent {
     
     case reloadData
     case resetSearch
+    case scrollToIndex(Int)
     case error(Error)
 }
 
@@ -123,7 +124,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     }
     
     let deleteIsEnable: Observable<Bool>
-  
     let eventResult: BehaviorSubject<TokenListViewModelEvent> = .init(value: .reloadData)
 
     var tableViewStyle: UITableView.Style {
@@ -168,6 +168,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                   
                     self.eventResult.onNext(.resetSearch)
                     self.eventResult.onNext(.reloadData)
+                    self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
                 } else {
                                         
                     self.eventResult.onNext(.reloadData)
@@ -317,9 +318,10 @@ class HomePageView: UIView {
     }
 }
 
-class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate {
+class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
     
     private var lifeCycleDisposeBag: DisposeBag = .init()
+    let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private lazy var addTokenBarButton: UIBarButtonItem = {
 
@@ -329,7 +331,18 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.rx.tap.subscribe(onNext: { [weak self] _ in
                    
             guard let self = self else { return }
-            self.choseHowToAddTokenView.showView()
+//            self.choseHowToAddTokenView.showView()
+            // 设置弹出的尺寸
+            self.tokenListMenuVC.preferredContentSize = CGSize(width: 200,height: 170)
+            self.tokenListMenuVC.modalPresentationStyle = .popover
+            var popover = self.tokenListMenuVC.popoverPresentationController!
+            popover.delegate = self
+            popover.backgroundColor = .white
+            
+            popover.permittedArrowDirections = .up
+            popover.barButtonItem = self.addTokenBarButton
+           
+            self.present(self.tokenListMenuVC, animated: true)
             if self.searchTextField.isFirstResponder {
                               
                 self.searchTextField.resignFirstResponder()
@@ -649,13 +662,26 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.resetSearch()
             }).disposed(by: disposedBag)
-        //TODO:明天問Levi
+
 //        viewModel.searchStatus
 //            .subscribe(onNext: { [weak self] isInSearch in
 //                guard let self = self else { return }
 //                self.setupView(isInSearch: isInSearch)
 //            }).disposed(by: disposedBag)
-        
+        self.tokenListMenuVC.choseToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
+            guard let self = self else { return }
+            
+            switch event {
+                
+            case .photo:
+                self.showPhoto()
+            case .camera:
+                self.showTokenScannerVC()
+            case .keyIn:
+                self.showKeyinTokenVC()
+            }
+            self.dismiss(animated: false, completion: nil)
+        }).disposed(by: disposedBag)
         self.callVersionAPI()
         
     }
@@ -694,6 +720,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         case .resetSearch:
             
             resetSearch()
+        case .scrollToIndex(let rowIndex):
+            tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .top, animated: false)
+            if let view = tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
+                view.setBackCardAnimationColor()
+            }
         case .error(_):
             break
         }
@@ -961,5 +992,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self?.viewModel.deleteToken()
         })
     }
-    
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
+    }
 }

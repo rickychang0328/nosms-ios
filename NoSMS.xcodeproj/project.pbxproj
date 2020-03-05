@@ -52,6 +52,7 @@
 		BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8323F3FDCF00A08CD6 /* Repository.swift */; };
 		BB93FD8623F3FDCF00A08CD6 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */; };
 		BB93FD8823F3FF2C00A08CD6 /* VersionUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */; };
+		BBBA6C3D2410AD09003F4559 /* TokenListMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA6C3C2410AD09003F4559 /* TokenListMenuViewController.swift */; };
 		E5575E7C04B29979F3929C37 /* Pods_NoSMSUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -138,6 +139,7 @@
 		BB93FD8323F3FDCF00A08CD6 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionUpdateViewController.swift; sourceTree = "<group>"; };
+		BBBA6C3C2410AD09003F4559 /* TokenListMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListMenuViewController.swift; sourceTree = "<group>"; };
 		C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.debug.xcconfig"; sourceTree = "<group>"; };
 		CBD28FD7B7CA61CFE1125CDC /* Pods-NoSMSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSUITests.debug.xcconfig"; path = "Target Support Files/Pods-NoSMSUITests/Pods-NoSMSUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		D4C671FD27706F8398B17736 /* Pods-TWAzureAuthenticatorUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.release.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				2A91DFCD23ABB84400A630E9 /* Menu.swift */,
 				2A43D70823EA60E900E0E85C /* DigitsView.swift */,
 				2A43D70A23EA612F00E0E85C /* CircleView.swift */,
+				BBBA6C3C2410AD09003F4559 /* TokenListMenuViewController.swift */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
@@ -653,6 +656,7 @@
 			files = (
 				BB93FD8823F3FF2C00A08CD6 /* VersionUpdateViewController.swift in Sources */,
 				2A23621423A35154006DD184 /* UILabel+Extension+Rx.swift in Sources */,
+				BBBA6C3D2410AD09003F4559 /* TokenListMenuViewController.swift in Sources */,
 				2AE53BF623A249B000AB1319 /* JoinManuallyTOTPViewController.swift in Sources */,
 				2A91DFCE23ABB84400A630E9 /* Menu.swift in Sources */,
 				2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */,
