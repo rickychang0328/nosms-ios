@@ -333,16 +333,26 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             guard let self = self else { return }
 //            self.choseHowToAddTokenView.showView()
             // 设置弹出的尺寸
-            self.tokenListMenuVC.preferredContentSize = CGSize(width: 200,height: 170)
+//            self.tokenListMenuVC.providesPresentationContextTransitionStyle = true
+//            self.tokenListMenuVC.definesPresentationContext = true
+            self.tokenListMenuVC.preferredContentSize = CGSize(width: 170,height: 180)
             self.tokenListMenuVC.modalPresentationStyle = .popover
             var popover = self.tokenListMenuVC.popoverPresentationController!
             popover.delegate = self
-            popover.backgroundColor = .white
+            popover.popoverBackgroundViewClass = MyPopoverBackgroundView.self
+//            popover.backgroundColor = .white
+//            popover.backgroundColor = UIColor.init(white: 1, alpha: 1)
+//            let view:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 165))
+//            view.image = UIImage(named: "NoSMS_popBack")
             
-            popover.permittedArrowDirections = .up
+//            popover.permittedArrowDirections = UIPopoverArrowDirection.init(rawValue: 0)
+//            popover.permittedArrowDirections = .up
             popover.barButtonItem = self.addTokenBarButton
-           
             self.present(self.tokenListMenuVC, animated: true)
+//            self.present(self.tokenListMenuVC, animated: true, completion: {
+//                 self.tokenListMenuVC.view.superview?.layer.cornerRadius = 5
+////                self.tokenListMenuVC.view.superview?.clipsToBounds = false
+//            })
             if self.searchTextField.isFirstResponder {
                               
                 self.searchTextField.resignFirstResponder()
@@ -606,7 +616,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 //
 //
 //        })
-        tableView.rx.didEndDragging.subscribe { [weak self] _ in
+        tableView.rx.didScroll.subscribe { [weak self] _ in
             guard let self = self else { return }
             print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize),tableView height:\(self.tableView.frame.height)")
             if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
@@ -623,7 +633,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                                        },
                                                       completion: nil
                                        )
-                }else{
+                }else if self.tableView.contentOffset.y <= 5 {
                     UIView.animate(withDuration: 0.3, delay: 0.0,
                                                usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
                                                animations: {
