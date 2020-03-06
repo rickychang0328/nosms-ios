@@ -7,6 +7,7 @@ enum TokenListViewModelEvent {
     
     case reloadData
     case resetSearch
+    case scrollToIndex(Int)
     case error(Error)
 }
 
@@ -123,7 +124,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     }
     
     let deleteIsEnable: Observable<Bool>
-  
     let eventResult: BehaviorSubject<TokenListViewModelEvent> = .init(value: .reloadData)
 
     var tableViewStyle: UITableView.Style {
@@ -168,6 +168,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                   
                     self.eventResult.onNext(.resetSearch)
                     self.eventResult.onNext(.reloadData)
+                    self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
                 } else {
                                         
                     self.eventResult.onNext(.reloadData)
@@ -317,9 +318,10 @@ class HomePageView: UIView {
     }
 }
 
-class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate {
+class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
     
     private var lifeCycleDisposeBag: DisposeBag = .init()
+    let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private lazy var addTokenBarButton: UIBarButtonItem = {
 
@@ -329,7 +331,28 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.rx.tap.subscribe(onNext: { [weak self] _ in
                    
             guard let self = self else { return }
-            self.choseHowToAddTokenView.showView()
+//            self.choseHowToAddTokenView.showView()
+            // 设置弹出的尺寸
+//            self.tokenListMenuVC.providesPresentationContextTransitionStyle = true
+//            self.tokenListMenuVC.definesPresentationContext = true
+            self.tokenListMenuVC.preferredContentSize = CGSize(width: 170,height: 180)
+            self.tokenListMenuVC.modalPresentationStyle = .popover
+            var popover = self.tokenListMenuVC.popoverPresentationController!
+            popover.delegate = self
+            popover.popoverBackgroundViewClass = MyPopoverBackgroundView.self
+//            popover.backgroundColor = .white
+//            popover.backgroundColor = UIColor.init(white: 1, alpha: 1)
+//            let view:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 165))
+//            view.image = UIImage(named: "NoSMS_popBack")
+            
+//            popover.permittedArrowDirections = UIPopoverArrowDirection.init(rawValue: 0)
+//            popover.permittedArrowDirections = .up
+            popover.barButtonItem = self.addTokenBarButton
+            self.present(self.tokenListMenuVC, animated: true)
+//            self.present(self.tokenListMenuVC, animated: true, completion: {
+//                 self.tokenListMenuVC.view.superview?.layer.cornerRadius = 5
+////                self.tokenListMenuVC.view.superview?.clipsToBounds = false
+//            })
             if self.searchTextField.isFirstResponder {
                               
                 self.searchTextField.resignFirstResponder()
@@ -585,10 +608,48 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .map({ $0.row })
             .flatMapLatest(self.viewModel.selectItem)
             .subscribe(onNext: { [weak self] string in
-            
+                guard self != nil else { return }
                 NoSMSHUD.showToast(title: string)
             }).disposed(by: disposedBag)
 
+//        tableView.rx.didScroll.subscribe(onNext: {[weak self] in
+//
+//
+//        })
+        tableView.rx.didScroll.subscribe { [weak self] _ in
+            guard let self = self else { return }
+            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize),tableView height:\(self.tableView.frame.height)")
+            if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
+                if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 {
+                    UIView.animate(withDuration: 0.3, delay: 0.0,
+                                                      usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                                      animations: {
+                                                       self.searchTextField.snp.updateConstraints{item in
+                                                        item.top.equalTo(ScaleWidth(at: 0))
+                                                           item.height.equalTo(ScaleWidth(at: 0))
+                                                       }
+                                                       self.searchTextField.isHidden = true
+                                                       self.view.layoutIfNeeded()
+                                       },
+                                                      completion: nil
+                                       )
+                }else if self.tableView.contentOffset.y <= 5 {
+                    UIView.animate(withDuration: 0.3, delay: 0.0,
+                                               usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                               animations: {
+                                                self.searchTextField.snp.updateConstraints{item in
+                                                     item.top.equalTo(ScaleWidth(at: 8))
+                                                    item.height.equalTo(ScaleWidth(at: 40))
+                                                }
+                                                self.searchTextField.isHidden = false
+                                                self.view.layoutIfNeeded()
+                                },
+                                               completion: nil
+                                )
+                }
+            }
+            
+        }
         tableView.backgroundColor = .backgroudColor
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
@@ -611,13 +672,26 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.resetSearch()
             }).disposed(by: disposedBag)
-        //TODO:明天問Levi
+
 //        viewModel.searchStatus
 //            .subscribe(onNext: { [weak self] isInSearch in
 //                guard let self = self else { return }
 //                self.setupView(isInSearch: isInSearch)
 //            }).disposed(by: disposedBag)
-        
+        self.tokenListMenuVC.choseToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
+            guard let self = self else { return }
+            
+            switch event {
+                
+            case .photo:
+                self.showPhoto()
+            case .camera:
+                self.showTokenScannerVC()
+            case .keyIn:
+                self.showKeyinTokenVC()
+            }
+            self.dismiss(animated: false, completion: nil)
+        }).disposed(by: disposedBag)
         self.callVersionAPI()
         
     }
@@ -656,6 +730,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         case .resetSearch:
             
             resetSearch()
+        case .scrollToIndex(let rowIndex):
+            tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .top, animated: false)
+            if let view = tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
+                view.setBackCardAnimationColor()
+            }
         case .error(_):
             break
         }
@@ -922,5 +1001,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModel.deleteToken()
         })
+    }
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
     }
 }

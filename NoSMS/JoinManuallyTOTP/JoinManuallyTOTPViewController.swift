@@ -146,7 +146,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
     
     let buttonEnable: Observable<Bool>
     
-    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "手动输入验证码")),
+    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "手动输入")),
          joinManuallySectionItems: JoinManuallySectionItemsProtocol = JoinManuallySectionItems(),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
          pastedString: String? = nil) {
