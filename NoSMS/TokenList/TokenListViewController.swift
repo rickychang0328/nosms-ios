@@ -767,11 +767,16 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             tableView.reloadData()
             wantToShowHomePageOrNot()
             resetSearch()
-            tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .top, animated: true)
-            self.showSearchTextAction()
-            if let view = tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
-                view.setBackCardAnimationColor()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
+                 guard let self = self else { return }
+                self.tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .bottom, animated: true)
+                self.showSearchTextAction()
+                if let view = self.tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
+                    view.setBackCardAnimationColor()
+                }
             }
+//            tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
+            
         case .error(_):
             break
         case .empty:
