@@ -47,7 +47,8 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         super.init(frame:frame)
         let imageView = UIImageView(frame: CGRect(x:0,y:0,width:ScaleWidth(at: 144),height:ScaleHeight(at: 150)))
         imageView.image = UIImage(named: "NoSMS_popBack")!
-        
+        imageView.layer.cornerRadius = 5
+        imageView.clipsToBounds = true
         addSubview(imageView)
         imageView.snp.makeConstraints{
             $0.top.equalTo(MyPopoverBackgroundView.arrowHeight())
@@ -57,7 +58,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
 //        self.layer.shadowOpacity
         self.layer.shadowColor = shadowColor.cgColor
 //        self.layer.shadowOpacity = 0.5
-        self.layer.shadowOffset = CGSize(width: 0, height:0)
+        self.layer.shadowOffset = CGSize(width: -5, height:-5)
         self.layer.shadowRadius = 0
         self.backgroundColor = .clear
 //        self.isOpaque = false
@@ -264,6 +265,7 @@ class ChoseToAddTokenView: UIView {
         tableView.backgroundColor = .white
         tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
         tableView.layer.cornerRadius  = 5
+        tableView.clipsToBounds = true
         return tableView
     }()
     
@@ -489,5 +491,8 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
 //    }
     override func viewDidLayoutSubviews() {
         self.view.superview?.layer.cornerRadius  = 5
+        self.view.superview?.clipsToBounds = true
+        self.view.superview?.superview?.layer.cornerRadius  = 5
+               self.view.superview?.superview?.clipsToBounds = true
     }
 }

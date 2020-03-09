@@ -688,8 +688,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private func showSearchTextAction(){
        
         if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
-//            if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 || ( self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y) {
-            if  self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y {
+            if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 || ( self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y) {
+//            if  self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y {
                 UIView.animate(withDuration: 0.3, delay: 0.0,
                                                   usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
                                                   animations: {
