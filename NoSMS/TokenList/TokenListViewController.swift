@@ -141,6 +141,8 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     private let sectionItems: TokenListSectionItemProtocol
     
     private let tokenStore: TokenStoreProtocol
+    
+    private var isFirstOpen: Bool = true
             
     init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
@@ -167,14 +169,20 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     
                 // 當變多的時候就增加成功 所以重置搜索狀態
                 } else if count < viewModels.count {
+                    
                   
                     self.eventResult.onNext(.resetSearch)
                     self.eventResult.onNext(.reloadData)
                     //初始化時就不觸發新增效果
-                    if count > 0 {
-                        self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
-                        
+                    
+                    if self.isFirstOpen {
+                        self.isFirstOpen = false
+                        return
                     }
+//                    if count > 0 {
+                    self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
+                        
+//                    }
                 } else {
                                         
                     self.eventResult.onNext(.reloadData)
@@ -634,7 +642,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         tableView.rx.didScroll.subscribe { [weak self] _ in
             guard let self = self else { return }
             
-            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize.height),tableView height:\(self.tableView.frame.height),content offset y:\( self.tableView.contentOffset.y),\( self.tableView.panGestureRecognizer.translation(in: self.tableView).y)")
+//            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize.height),tableView height:\(self.tableView.frame.height),content offset y:\( self.tableView.contentOffset.y),\( self.tableView.panGestureRecognizer.translation(in: self.tableView).y)")
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.showSearchTextAction()
             }
