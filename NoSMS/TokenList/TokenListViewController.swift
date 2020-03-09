@@ -181,6 +181,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             
         do {
             try tokenStore.deleteSelectedToken()
+            
         } catch {
             
             eventResult.onNext(.error(error))
@@ -618,36 +619,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 //        })
         tableView.rx.didScroll.subscribe { [weak self] _ in
             guard let self = self else { return }
-            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize),tableView height:\(self.tableView.frame.height)")
-            if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
-                if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 {
-                    UIView.animate(withDuration: 0.3, delay: 0.0,
-                                                      usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
-                                                      animations: {
-                                                       self.searchTextField.snp.updateConstraints{item in
-                                                        item.top.equalTo(ScaleWidth(at: 0))
-                                                           item.height.equalTo(ScaleWidth(at: 0))
-                                                       }
-                                                       self.searchTextField.isHidden = true
-                                                       self.view.layoutIfNeeded()
-                                       },
-                                                      completion: nil
-                                       )
-                }else if self.tableView.contentOffset.y <= 5 {
-                    UIView.animate(withDuration: 0.3, delay: 0.0,
-                                               usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
-                                               animations: {
-                                                self.searchTextField.snp.updateConstraints{item in
-                                                     item.top.equalTo(ScaleWidth(at: 8))
-                                                    item.height.equalTo(ScaleWidth(at: 40))
-                                                }
-                                                self.searchTextField.isHidden = false
-                                                self.view.layoutIfNeeded()
-                                },
-                                               completion: nil
-                                )
-                }
-            }
+//            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize),tableView height:\(self.tableView.frame.height)")
+            self.showSearchTextAction()
             
         }
         tableView.backgroundColor = .backgroudColor
@@ -695,6 +668,52 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         self.callVersionAPI()
         
     }
+    private func showSearchTextAction(){
+        if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
+            if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 {
+                UIView.animate(withDuration: 0.3, delay: 0.0,
+                                                  usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                                  animations: {
+                                                   self.searchTextField.snp.updateConstraints{item in
+                                                    item.top.equalTo(ScaleWidth(at: 0))
+                                                       item.height.equalTo(ScaleWidth(at: 0))
+                                                   }
+                                                   self.searchTextField.isHidden = true
+                                                   self.view.layoutIfNeeded()
+                                   },
+                                                  completion: nil
+                                   )
+            }else if self.tableView.contentOffset.y <= 5 {
+                UIView.animate(withDuration: 0.3, delay: 0.0,
+                                           usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                           animations: {
+                                            self.searchTextField.snp.updateConstraints{item in
+                                                 item.top.equalTo(ScaleWidth(at: 8))
+                                                item.height.equalTo(ScaleWidth(at: 40))
+                                            }
+                                            self.searchTextField.isHidden = false
+                                            self.view.layoutIfNeeded()
+                            },
+                                           completion: nil
+                            )
+            }
+        }else {
+            if self.tableView.contentOffset.y <= 5 {
+                UIView.animate(withDuration: 0.3, delay: 0.0,
+                                           usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                           animations: {
+                                            self.searchTextField.snp.updateConstraints{item in
+                                                 item.top.equalTo(ScaleWidth(at: 8))
+                                                item.height.equalTo(ScaleWidth(at: 40))
+                                            }
+                                            self.searchTextField.isHidden = false
+                                            self.view.layoutIfNeeded()
+                            },
+                                           completion: nil
+                            )
+            }
+        }
+    }
     private func callVersionAPI(){
 //        let repository = Repository(apiClient: APIClient())
         
@@ -727,6 +746,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             tableView.reloadData()
             wantToShowHomePageOrNot()
+            self.showSearchTextAction()
         case .resetSearch:
             
             resetSearch()
