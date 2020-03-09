@@ -34,7 +34,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         get { return self.arrDir }
         set { self.arrDir = newValue }
     }
-   private var _arrowOffset: CGFloat = 7
+   private var _arrowOffset: CGFloat = 0
     override var arrowOffset: CGFloat {
         get { return _arrowOffset }
         set { _arrowOffset = newValue }
@@ -45,9 +45,10 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         self.arrDir = .any
         let shadowColor:UIColor = .clear
         super.init(frame:frame)
-        let imageView = UIImageView(frame: CGRect(x:0,y:0,width:100,height:160))
+        let imageView = UIImageView(frame: CGRect(x:0,y:0,width:ScaleWidth(at: 144),height:ScaleHeight(at: 150)))
         imageView.image = UIImage(named: "NoSMS_popBack")!
-        
+        imageView.layer.cornerRadius = 5
+        imageView.clipsToBounds = true
         addSubview(imageView)
         imageView.snp.makeConstraints{
             $0.top.equalTo(MyPopoverBackgroundView.arrowHeight())
@@ -57,7 +58,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
 //        self.layer.shadowOpacity
         self.layer.shadowColor = shadowColor.cgColor
 //        self.layer.shadowOpacity = 0.5
-        self.layer.shadowOffset = CGSize(width: 0, height:0)
+        self.layer.shadowOffset = CGSize(width: -5, height:-5)
         self.layer.shadowRadius = 0
         self.backgroundColor = .clear
 //        self.isOpaque = false
@@ -93,7 +94,9 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
             con.saveGState()
             // clamp offset
             var propX = self.arrowOffset
-            let limit : CGFloat = 22.0
+//            let limit : CGFloat = 25.0
+            //調整箭頭位置
+            let limit : CGFloat = 18.0
             let maxX = rect.size.width/2.0 - limit
             propX = min(max(propX, limit), maxX)
             // draw!
@@ -117,6 +120,72 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
 
 
 }
+class ChoseAddTableViewCell: UITableViewCell {
+    
+    private let titleImageView: UIImageView = {
+       
+        let imageView = UIImageView()
+        return imageView
+    }()
+    
+    private let titleLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setTextColor(.init(red: 51/255, green: 51/255, blue: 51/255, alpha: 1))
+        return label
+    }()
+    
+    private let underLineView: UIView = {
+        
+        let view = UIView()
+        view.setBackgroundColor(.init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4))
+        return view
+    }()
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        
+        selectionStyle = .none
+        contentView.addSubview(titleImageView)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(underLineView)
+        
+        titleImageView.snp.makeConstraints {
+            
+            $0.left.equalTo(ScaleWidth(at: 20))
+            $0.size.equalTo(ScaleWidth(at: 20))
+            $0.centerY.equalToSuperview()
+        }
+        
+        titleLabel.snp.makeConstraints {
+            
+            $0.centerY.equalTo(titleImageView)
+            $0.left.equalTo(titleImageView.snp.right).offset(ScaleWidth(at: 10))
+            $0.right.equalTo(ScaleWidth(at: -20))
+        }
+        
+        underLineView.snp.makeConstraints {
+            
+            $0.left.equalTo(ScaleWidth(at: 20))
+            $0.right.equalTo(ScaleWidth(at: -20))
+            $0.bottom.equalToSuperview()
+            $0.height.equalTo(0.5)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func setupCell(image: UIImage, title: String, underLineHide: Bool) {
+        
+        titleImageView.image = image
+        titleLabel.text = title
+        underLineView.isHidden = underLineHide
+    }
+}
+
 //class MyPopoverBackgroundView: UIPopoverBackgroundView {
 //
 //    // MARK: - UIPopoverBackgroundViewMethods
@@ -194,13 +263,15 @@ class ChoseToAddTokenView: UIView {
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .singleLineEtched
         tableView.backgroundColor = .white
-        tableView.register(ChoseTableViewCell.self, forCellReuseIdentifier: ChoseTableViewCell.description())
+        tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
+        tableView.layer.cornerRadius  = 5
+        tableView.clipsToBounds = true
         return tableView
     }()
     
     private let choseEvnets: [ChoseEvnet] = [.photo, .camera, .keyIn]
     
-    private let cellHeight: CGFloat = ScaleWidth(at: 55)
+    private let cellHeight: CGFloat = ScaleWidth(at: 50)
     
     private let disposeBag: DisposeBag = .init()
     
@@ -263,9 +334,9 @@ class ChoseToAddTokenView: UIView {
 //            $0.top.left.right.bottom.equalToSuperview()
 //        }
         tableView.snp.makeConstraints {
-//            $0.right.equalTo(-10)
-            $0.top.left.right.bottom.equalTo(self)
-//            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
+            $0.left.right.equalTo(self)
+//            $0.top.equalTo(10)
+            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
         tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
         tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
@@ -340,7 +411,7 @@ extension ChoseToAddTokenView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChoseTableViewCell.description(), for: indexPath) as? ChoseTableViewCell else {
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: ChoseAddTableViewCell.description(), for: indexPath) as? ChoseAddTableViewCell else {
             
             return UITableViewCell()
         }
@@ -420,5 +491,8 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
 //    }
     override func viewDidLayoutSubviews() {
         self.view.superview?.layer.cornerRadius  = 5
+        self.view.superview?.clipsToBounds = true
+        self.view.superview?.superview?.layer.cornerRadius  = 5
+        self.view.superview?.superview?.clipsToBounds = true
     }
 }
