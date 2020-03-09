@@ -769,7 +769,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             resetSearch()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
                  guard let self = self else { return }
-                self.tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .bottom, animated: true)
+                self.tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .bottom, animated: false)
                 self.showSearchTextAction()
                 if let view = self.tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
                     view.setBackCardAnimationColor()
