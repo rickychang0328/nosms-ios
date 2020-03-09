@@ -493,6 +493,6 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         self.view.superview?.layer.cornerRadius  = 5
         self.view.superview?.clipsToBounds = true
         self.view.superview?.superview?.layer.cornerRadius  = 5
-               self.view.superview?.superview?.clipsToBounds = true
+        self.view.superview?.superview?.clipsToBounds = true
     }
 }
