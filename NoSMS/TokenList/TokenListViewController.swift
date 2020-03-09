@@ -783,6 +783,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             wantToShowHomePageOrNot()
             resetSearch()
             tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .top, animated: true)
+            self.showSearchTextAction()
             if let view = tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
                 view.setBackCardAnimationColor()
             }

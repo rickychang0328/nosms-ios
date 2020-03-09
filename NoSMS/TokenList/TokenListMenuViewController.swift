@@ -45,7 +45,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         self.arrDir = .any
         let shadowColor:UIColor = .clear
         super.init(frame:frame)
-        let imageView = UIImageView(frame: CGRect(x:0,y:0,width:144,height:150))
+        let imageView = UIImageView(frame: CGRect(x:0,y:0,width:ScaleWidth(at: 144),height:ScaleHeight(at: 150)))
         imageView.image = UIImage(named: "NoSMS_popBack")!
         
         addSubview(imageView)
@@ -332,7 +332,7 @@ class ChoseToAddTokenView: UIView {
 //            $0.top.left.right.bottom.equalToSuperview()
 //        }
         tableView.snp.makeConstraints {
-            $0.left.right.top.bottom.equalTo(self)
+            $0.left.right.equalTo(self)
 //            $0.top.equalTo(10)
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
