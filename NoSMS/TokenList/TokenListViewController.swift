@@ -707,26 +707,11 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     showSearchTextAnimation()
                 }
             }
+        }else {
+            if self.tableView.contentOffset.y <= 5 {
+                showSearchTextAnimation()
+            }
         }
-//        else {
-//            if self.tableView.contentOffset.y <= 5 {
-//            let section =  self.viewModel.cellViewModels.count
-//            let cellCollection = self.viewModel.cellViewModels[section - 1]
-//            print("contentsize height:\(self.tableView.contentOffset.height) > frame height:\(self.tableView.frame.height),cellViewSize:\(cellCollection.numberOfRow),rowHeight:\(tableView.rowHeight)")
-//                UIView.animate(withDuration: 0.3, delay: 0.0,
-//                                           usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
-//                                           animations: {
-//                                            self.searchTextField.snp.updateConstraints{item in
-//                                                 item.top.equalTo(ScaleWidth(at: 8))
-//                                                item.height.equalTo(ScaleWidth(at: 40))
-//                                            }
-//                                            self.searchTextField.isHidden = false
-//                                            self.view.layoutIfNeeded()
-//                            },
-//                                           completion: nil
-//                            )
-//            }
-//        }
     }
     private func showSearchTextAnimation(){
         UIView.animate(withDuration: 0.3, delay: 0.0,
@@ -1018,7 +1003,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private func showPhoto() {
         
         let photoVC = UINavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
-        photoVC.modalPresentationStyle = .overFullScreen
+        photoVC.modalPresentationStyle = .fullScreen
         
         AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in
             
