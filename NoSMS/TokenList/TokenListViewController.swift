@@ -632,7 +632,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 
         tableView.rx.didScrollToTop.subscribe(onNext: {[weak self] in
             guard let self = self else { return }
-            self.showSearchTextAnimation()
+            if (self.searchTextField.text?.isEmpty ?? true){
+                self.showSearchTextAnimation()
+            }
         })
 //        tableView.rx.didEndDragging.subscribe{[weak self] _ in
 //            guard let self = self else { return }
@@ -643,9 +645,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             guard let self = self else { return }
             
 //            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize.height),tableView height:\(self.tableView.frame.height),content offset y:\( self.tableView.contentOffset.y),\( self.tableView.panGestureRecognizer.translation(in: self.tableView).y)")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.showSearchTextAction()
+            if (self.searchTextField.text?.isEmpty ?? true){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.showSearchTextAction()
+                }
             }
+            
             
         }
         tableView.backgroundColor = .backgroudColor
