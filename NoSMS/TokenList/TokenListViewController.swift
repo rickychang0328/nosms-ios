@@ -180,6 +180,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                         return
                     }
 //                    if count > 0 {
+                    print("viewModels Count:\(viewModels.count)")
                     self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
                         
 //                    }
@@ -777,15 +778,18 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             wantToShowHomePageOrNot()
             resetSearch()
         case .scrollToIndex(let rowIndex):
-            tableView.reloadData()
-            wantToShowHomePageOrNot()
-            resetSearch()
+            
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
                  guard let self = self else { return }
+                self.tableView.reloadData()
+                self.wantToShowHomePageOrNot()
+                self.resetSearch()
                 self.tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .bottom, animated: false)
-                self.showSearchTextAction()
-                if let view = self.tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
-                    view.setBackCardAnimationColor()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.showSearchTextAction()
+                    if let view = self.tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
+                        view.setBackCardAnimationColor()
+                    }
                 }
             }
 //            tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
