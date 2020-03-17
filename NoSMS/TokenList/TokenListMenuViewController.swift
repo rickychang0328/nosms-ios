@@ -97,7 +97,9 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
 //            let limit : CGFloat = 25.0
             //調整箭頭位置
 //            print("device name:\(UIDevice.current.name)")
-            let isChangeLimit = UIDevice.current.name == "iPhone SE"
+//            let isChangeLimit = UIDevice.current.name == "iPhone SE"
+//            print("device width:\(UIScreen.main.bounds.width)")
+            let isChangeLimit = UIScreen.main.bounds.width < 375
             let limit : CGFloat = isChangeLimit ? ScaleWidth(at:14.0) : ScaleWidth(at:18.0)
             let maxX = ScaleWidth(at:rect.size.width/2.0) - limit
             propX = min(max(propX, limit), maxX)
