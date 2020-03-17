@@ -548,7 +548,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }
         
         view.addSubview(bottomView)
-        view.bringSubviewToFront(tableView)
+
+        //TableView 在最下面有坑
+        if let tableViewIndex = view.subviews.firstIndex(of: tableView) {
+            
+            view.exchangeSubview(at: 1, withSubviewAt: tableViewIndex)
+        }
         bottomView.addSubview(deleteTokenButton)
         bottomViewSetup()
 
@@ -648,7 +653,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     self.showSearchTextAction()
                 }
             }
-        }
+        }.disposed(by: disposedBag)
         tableView.backgroundColor = .backgroudColor
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
@@ -1068,5 +1073,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     }
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return .none
+    }
+}
+
+extension UIDevice {
+    
+    var isIPhoneXUp: Bool {
+        
+        return UIScreen.main.bounds.height >= 812
     }
 }
