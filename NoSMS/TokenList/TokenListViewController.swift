@@ -710,12 +710,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     )
                 }
             }else {
-                if self.tableView.contentOffset.y <= 5 {
+                if self.tableView.contentOffset.y < 0 {
                     showSearchTextAnimation()
                 }
             }
         }else {
-            if self.tableView.contentOffset.y <= 5 {
+            if self.tableView.contentOffset.y < 0 {
                 showSearchTextAnimation()
             }
         }
