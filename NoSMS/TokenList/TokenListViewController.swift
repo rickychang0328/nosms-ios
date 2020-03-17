@@ -7,7 +7,9 @@ enum TokenListViewModelEvent {
     
     case reloadData
     case resetSearch
+    case scrollToIndex(Int)
     case error(Error)
+    case empty
 }
 
 protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
@@ -21,6 +23,7 @@ protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     func swapToken(beforeIndex: Int, afterIndex: Int)
     func tableViewEndEdit()
     func searchText(input: String)
+    func viewDidAppear()
 }
 
 protocol TokenListSectionItemProtocol: BaseTableViewSectionItemsProtocol {
@@ -123,7 +126,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     }
     
     let deleteIsEnable: Observable<Bool>
-  
     let eventResult: BehaviorSubject<TokenListViewModelEvent> = .init(value: .reloadData)
 
     var tableViewStyle: UITableView.Style {
@@ -139,6 +141,8 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     private let sectionItems: TokenListSectionItemProtocol
     
     private let tokenStore: TokenStoreProtocol
+    
+    private var isFirstOpen: Bool = true
             
     init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
@@ -165,9 +169,20 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     
                 // 當變多的時候就增加成功 所以重置搜索狀態
                 } else if count < viewModels.count {
+                    
                   
                     self.eventResult.onNext(.resetSearch)
                     self.eventResult.onNext(.reloadData)
+                    //初始化時就不觸發新增效果
+                    
+                    if self.isFirstOpen {
+                        self.isFirstOpen = false
+                        return
+                    }
+//                    if count > 0 {
+                    self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
+                        
+//                    }
                 } else {
                                         
                     self.eventResult.onNext(.reloadData)
@@ -180,6 +195,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             
         do {
             try tokenStore.deleteSelectedToken()
+            
         } catch {
             
             eventResult.onNext(.error(error))
@@ -239,6 +255,9 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             sectionItems.setSearchString(input: input)
             eventResult.onNext(.reloadData)
         }
+    }
+    func viewDidAppear() {
+        eventResult.onNext(.empty)
     }
 }
 
@@ -317,9 +336,10 @@ class HomePageView: UIView {
     }
 }
 
-class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate {
+class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
     
     private var lifeCycleDisposeBag: DisposeBag = .init()
+    let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private lazy var addTokenBarButton: UIBarButtonItem = {
 
@@ -329,7 +349,28 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.rx.tap.subscribe(onNext: { [weak self] _ in
                    
             guard let self = self else { return }
-            self.choseHowToAddTokenView.showView()
+//            self.choseHowToAddTokenView.showView()
+            // 设置弹出的尺寸
+//            self.tokenListMenuVC.providesPresentationContextTransitionStyle = true
+//            self.tokenListMenuVC.definesPresentationContext = true
+            self.tokenListMenuVC.preferredContentSize = CGSize(width: ScaleWidth(at: 144),height: ScaleHeight(at: 150))
+            self.tokenListMenuVC.modalPresentationStyle = .popover
+            var popover = self.tokenListMenuVC.popoverPresentationController!
+            popover.delegate = self
+            popover.popoverBackgroundViewClass = MyPopoverBackgroundView.self
+//            popover.backgroundColor = .white
+//            popover.backgroundColor = UIColor.init(white: 1, alpha: 1)
+//            let view:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 165))
+//            view.image = UIImage(named: "NoSMS_popBack")
+            
+//            popover.permittedArrowDirections = UIPopoverArrowDirection.init(rawValue: 0)
+//            popover.permittedArrowDirections = .up
+            popover.barButtonItem = self.addTokenBarButton
+            self.present(self.tokenListMenuVC, animated: true)
+//            self.present(self.tokenListMenuVC, animated: true, completion: {
+//                 self.tokenListMenuVC.view.superview?.layer.cornerRadius = 5
+////                self.tokenListMenuVC.view.superview?.clipsToBounds = false
+//            })
             if self.searchTextField.isFirstResponder {
                               
                 self.searchTextField.resignFirstResponder()
@@ -571,10 +612,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
         navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
         
-        viewModel.eventResult.subscribe(onNext: { [weak self] event in
-                
-            self?.viewModelEventWorking(event: event)
-        }).disposed(by: disposedBag)
+//        viewModel.eventResult.subscribe(onNext: { [weak self] event in
+//
+//            self?.viewModelEventWorking(event: event)
+//        }).disposed(by: disposedBag)
         
         tableView.rx.itemMoved
             .map({($0.sourceIndex.row, $0.destinationIndex.row)})
@@ -585,10 +626,33 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .map({ $0.row })
             .flatMapLatest(self.viewModel.selectItem)
             .subscribe(onNext: { [weak self] string in
-            
+                guard self != nil else { return }
                 NoSMSHUD.showToast(title: string)
             }).disposed(by: disposedBag)
 
+        tableView.rx.didScrollToTop.subscribe(onNext: {[weak self] in
+            guard let self = self else { return }
+            if (self.searchTextField.text?.isEmpty ?? true){
+                self.showSearchTextAnimation()
+            }
+        })
+//        tableView.rx.didEndDragging.subscribe{[weak self] _ in
+//            guard let self = self else { return }
+//            self.showSearchTextAction()
+//        }
+        
+        tableView.rx.didScroll.subscribe { [weak self] _ in
+            guard let self = self else { return }
+            
+//            print("search text isediting:\(self.searchTextField.isEditing)，tableview content size:\(self.tableView.contentSize.height),tableView height:\(self.tableView.frame.height),content offset y:\( self.tableView.contentOffset.y),\( self.tableView.panGestureRecognizer.translation(in: self.tableView).y)")
+            if (self.searchTextField.text?.isEmpty ?? true){
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    self.showSearchTextAction()
+                }
+            }
+            
+            
+        }
         tableView.backgroundColor = .backgroudColor
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
@@ -611,15 +675,70 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.resetSearch()
             }).disposed(by: disposedBag)
-        //TODO:明天問Levi
+
 //        viewModel.searchStatus
 //            .subscribe(onNext: { [weak self] isInSearch in
 //                guard let self = self else { return }
 //                self.setupView(isInSearch: isInSearch)
 //            }).disposed(by: disposedBag)
-        
+        self.tokenListMenuVC.choseToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
+            guard let self = self else { return }
+            
+            switch event {
+                
+            case .photo:
+                self.showPhoto()
+            case .camera:
+                self.showTokenScannerVC()
+            case .keyIn:
+                self.showKeyinTokenVC()
+            }
+            self.dismiss(animated: false, completion: nil)
+        }).disposed(by: disposedBag)
         self.callVersionAPI()
         
+    }
+    private func showSearchTextAction(){
+       
+        if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
+            if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 || ( self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y) {
+//            if  self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y {
+                UIView.animate(withDuration: 0.3, delay: 0.0,
+                                                  usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                                                  animations: {
+                                                   self.searchTextField.snp.updateConstraints{item in
+                                                    item.top.equalTo(ScaleWidth(at: 0))
+                                                       item.height.equalTo(ScaleWidth(at: 0))
+                                                   }
+                                                   self.searchTextField.isHidden = true
+                                                   self.view.layoutIfNeeded()
+                                   },
+                                                  completion: nil
+                                   )
+            }else {
+                if self.tableView.contentOffset.y <= 5 {
+                    showSearchTextAnimation()
+                }
+            }
+        }else {
+            if self.tableView.contentOffset.y <= 5 {
+                showSearchTextAnimation()
+            }
+        }
+    }
+    private func showSearchTextAnimation(){
+        UIView.animate(withDuration: 0.3, delay: 0.0,
+                       usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
+                       animations: {
+                        self.searchTextField.snp.updateConstraints{item in
+                             item.top.equalTo(ScaleWidth(at: 8))
+                            item.height.equalTo(ScaleWidth(at: 40))
+                        }
+                        self.searchTextField.isHidden = false
+                        self.view.layoutIfNeeded()
+        },
+                       completion: nil
+        )
     }
     private func callVersionAPI(){
 //        let repository = Repository(apiClient: APIClient())
@@ -654,9 +773,26 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             tableView.reloadData()
             wantToShowHomePageOrNot()
         case .resetSearch:
-            
+            tableView.reloadData()
+            wantToShowHomePageOrNot()
             resetSearch()
+        case .scrollToIndex(let rowIndex):
+            tableView.reloadData()
+            wantToShowHomePageOrNot()
+            resetSearch()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
+                 guard let self = self else { return }
+                self.tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .bottom, animated: false)
+                self.showSearchTextAction()
+                if let view = self.tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
+                    view.setBackCardAnimationColor()
+                }
+            }
+//            tableView.setContentOffset(CGPoint(x: 0, y: CGFloat.greatestFiniteMagnitude), animated: false)
+            
         case .error(_):
+            break
+        case .empty:
             break
         }
     }
@@ -796,8 +932,15 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 
                 }
           }).disposed(by: lifeCycleDisposeBag)
+        viewModel.eventResult.subscribe(onNext: { [weak self] event in
+                
+            self?.viewModelEventWorking(event: event)
+        }).disposed(by: lifeCycleDisposeBag)
     }
-    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        viewModel.viewDidAppear()
+    }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -878,7 +1021,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private func showPhoto() {
         
         let photoVC = UINavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
-        photoVC.modalPresentationStyle = .overFullScreen
+        photoVC.modalPresentationStyle = .fullScreen
         
         AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in
             
@@ -922,5 +1065,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModel.deleteToken()
         })
+    }
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        return .none
     }
 }

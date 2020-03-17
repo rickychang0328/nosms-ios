@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 enum RESTAPIURL:String {
     case VERSION =  "version"
     
@@ -18,8 +17,6 @@ enum RESTAPIURL:String {
         return URL(string: urlString)!
     }
 }
-
-
 // MARK: - Version
 struct Version: Codable {
     let code: Int
@@ -42,6 +39,7 @@ final class Repository {
     private var currentWebAPI = ""
     private var currentWebViewDomain = ""
     private let defaultAPI = "https://maapi-dev.azuredigitaltech.com.tw:18443/api/"
+    let defaultWebAPI = "https://maapi-dev.azuredigitaltech.com.tw:18443/api/"
     private init() {
         currentWebAPI = getDefaultwebAPI()
     }
@@ -79,11 +77,12 @@ final class Repository {
             }
             
         }else{
-            return "https://www.azuredigitaltech.com.tw:18443/"
+            return defaultWebAPI
         }
     }
+   
     func postVersion(_ completion: @escaping ((Result<Version>) -> Void)){
-        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
 //            print("Build Version:\(build)")
             let parameters:[String : Any] = ["platform":"ios","version":String(describing:build)]
             let postURL = RESTAPIURL.VERSION.url!
@@ -104,6 +103,11 @@ final class Repository {
 
                         items.isNeedUpdate = items.code == 1
                         self?.version?.isNeedUpdate = items.isNeedUpdate
+                        Repository.sharedInstance.version?.isNeedUpdate = items.isNeedUpdate
+//                        if items.domain.count > 0 && !items.domain[0].isEmpty{
+//
+//                            self?.currentWebAPI = "https://api.\(items.domain[0])/api/"
+//                        }
                         completion(.success(items))
                     } catch {
                         completion(.failure(error))

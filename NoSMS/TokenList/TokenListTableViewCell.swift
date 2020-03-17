@@ -277,7 +277,33 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         nameTextField.delegate = self
     }
-    
+    func runBackCardAnimation() {
+        UIView.animate(withDuration: 0.3, animations: {
+            //animation 1
+            self.backCardView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 255/255, alpha: 1)
+//            self.backCardView.backgroundColor = .red
+        }, completion: { (value: Bool) in
+            UIView.animate(withDuration: 0.1, animations: {
+                //animation 2
+                self.backCardView.backgroundColor = .white
+            })
+        })
+    }
+    func setBackCardAnimationColor(){
+        
+        for i in 1...3 {
+//            if i == 1 {
+//                runBackCardAnimation()
+//            }else {
+            let asyncTime:Double = Double(i) * 0.4
+                DispatchQueue.main.asyncAfter(deadline: .now() + asyncTime) { [weak self] in
+                    self?.runBackCardAnimation()
+                }
+//            }
+            
+        }
+        
+    }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
         textField.resignFirstResponder()
