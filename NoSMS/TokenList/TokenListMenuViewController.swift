@@ -96,8 +96,10 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
             var propX = self.arrowOffset
 //            let limit : CGFloat = 25.0
             //調整箭頭位置
-            let limit : CGFloat = 18.0
-            let maxX = rect.size.width/2.0 - limit
+//            print("device name:\(UIDevice.current.name)")
+            let isChangeLimit = UIDevice.current.name == "iPhone SE"
+            let limit : CGFloat = isChangeLimit ? ScaleWidth(at:14.0) : ScaleWidth(at:18.0)
+            let maxX = ScaleWidth(at:rect.size.width/2.0) - limit
             propX = min(max(propX, limit), maxX)
             // draw!
             con.translateBy(x: rect.size.width/2.0 + propX - arrowBase/2.0, y: 0)
@@ -153,7 +155,7 @@ class ChoseAddTableViewCell: UITableViewCell {
         
         titleImageView.snp.makeConstraints {
             
-            $0.left.equalTo(ScaleWidth(at: 20))
+            $0.left.equalTo(ScaleWidth(at: 24))
             $0.size.equalTo(ScaleWidth(at: 20))
             $0.centerY.equalToSuperview()
         }
@@ -167,8 +169,8 @@ class ChoseAddTableViewCell: UITableViewCell {
         
         underLineView.snp.makeConstraints {
             
-            $0.left.equalTo(ScaleWidth(at: 20))
-            $0.right.equalTo(ScaleWidth(at: -20))
+            $0.left.equalTo(ScaleWidth(at: 10))
+            $0.right.equalTo(ScaleWidth(at: -10))
             $0.bottom.equalToSuperview()
             $0.height.equalTo(0.5)
         }
@@ -261,7 +263,7 @@ class ChoseToAddTokenView: UIView {
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isScrollEnabled = false
-        tableView.separatorStyle = .singleLineEtched
+        tableView.separatorStyle = .none
         tableView.backgroundColor = .white
         tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
         tableView.layer.cornerRadius  = 5
