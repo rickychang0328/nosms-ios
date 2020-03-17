@@ -2,12 +2,12 @@ PODS:
   - Base32 (1.1.2)
   - OneTimePassword (3.2.0):
     - Base32 (~> 1.1.2)
-  - RxCocoa (5.0.1):
+  - RxCocoa (5.1.0):
     - RxRelay (~> 5)
     - RxSwift (~> 5)
-  - RxRelay (5.0.1):
+  - RxRelay (5.1.0):
     - RxSwift (~> 5)
-  - RxSwift (5.0.1)
+  - RxSwift (5.1.0)
   - SnapKit (4.2.0)
 
 DEPENDENCIES:
@@ -17,7 +17,7 @@ DEPENDENCIES:
   - SnapKit (= 4.2.0)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/specs.git:
     - Base32
     - OneTimePassword
     - RxCocoa
@@ -28,11 +28,11 @@ SPEC REPOS:
 SPEC CHECKSUMS:
   Base32: 163c298644d184e89ca4e00a996bad6bf5166390
   OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
-  RxCocoa: e741b9749968e8a143e2b787f1dfbff2b63d0a5c
-  RxRelay: 89d54507f4fd4d969e6ec1d4bd7f3673640b4640
-  RxSwift: e2dc62b366a3adf6a0be44ba9f405efd4c94e0c4
+  RxCocoa: 13d2a4d7546a34b8ececae8c281e4ea1dbb94f2b
+  RxRelay: a168bd6caf712d00c676ac344e9295afc93b418e
+  RxSwift: ad5874f24bb0dbffd1e9bb8443604e3578796c7a
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
 PODFILE CHECKSUM: 3a2ab6100dbc1f8cb5f89c786308c0b7a0adadb0
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.7.5
