@@ -10,7 +10,14 @@ import RxSwift
 import RxCocoa
 class MyPopoverBackgroundView : UIPopoverBackgroundView {
 
-    override class func arrowBase() -> CGFloat { return 22 }
+    override class func arrowBase() -> CGFloat {
+        if #available(iOS 12.0, *) {
+            return 22
+        }else{
+            return 16
+        }
+        
+    }
     override class func arrowHeight() -> CGFloat { return 12 }
     override class var wantsDefaultContentAppearance: Bool {
         get {
@@ -20,7 +27,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
     override class func contentViewInsets() -> UIEdgeInsets {
 //        return UIEdgeInsets(top: 20,left: 20,bottom: 20,right: 20)
 //        return UIEdgeInsets(top: 10,left: -12,bottom: -10,right: -12)
-        return UIEdgeInsets(top: -5,left: 0,bottom: 0,right: 0)
+        return UIEdgeInsets(top: 0,left: 0,bottom: 0,right: 0)
     }
 
     // inherits:
@@ -45,19 +52,19 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         self.arrDir = .any
         let shadowColor:UIColor = .clear
         super.init(frame:frame)
-        let imageView = UIImageView(frame: CGRect(x:0,y:0,width:ScaleWidth(at: 144),height:ScaleHeight(at: 150)))
-        imageView.image = UIImage(named: "NoSMS_popBack")!
-        imageView.layer.cornerRadius = 5
-        imageView.clipsToBounds = true
-        addSubview(imageView)
-        imageView.snp.makeConstraints{
-            $0.top.equalTo(MyPopoverBackgroundView.arrowHeight())
-            $0.left.right.bottom.equalToSuperview()
-        }
+//        let imageView = UIImageView(frame: CGRect(x:0,y:0,width:ScaleWidth(at: 144),height:ScaleHeight(at: 150)))
+//        imageView.image = UIImage(named: "NoSMS_popBack")!
+//        imageView.layer.cornerRadius = 5
+//        imageView.clipsToBounds = true
+//        addSubview(imageView)
+//        imageView.snp.makeConstraints{
+//            $0.top.equalTo(MyPopoverBackgroundView.arrowHeight())
+//            $0.left.right.bottom.equalToSuperview()
+//        }
        
 //        self.layer.shadowOpacity
         self.layer.shadowColor = shadowColor.cgColor
-//        self.layer.shadowOpacity = 0.5
+        self.layer.shadowOpacity = 0
         self.layer.shadowOffset = CGSize(width: -5, height:-5)
         self.layer.shadowRadius = 0
         self.backgroundColor = .clear
@@ -93,22 +100,42 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
             let con = UIGraphicsGetCurrentContext()!
             con.saveGState()
             // clamp offset
-            var propX = self.arrowOffset
-//            let limit : CGFloat = 25.0
+            let propX =  self.arrowOffset
+//            var propX:CGFloat = UIScreen.main.bounds.width > 375 ? 26.0  :13.0
+//            let propX:CGFloat = 0.0
+//            print("arrow offset:\(propX)")
+//            let limit : CGFloat = arrowBase
             //調整箭頭位置
 //            print("device name:\(UIDevice.current.name)")
 //            let isChangeLimit = UIDevice.current.name == "iPhone SE"
 //            print("device width:\(UIScreen.main.bounds.width)")
-            let isChangeLimit = UIScreen.main.bounds.width < 375
-            let limit : CGFloat = isChangeLimit ? ScaleWidth(at:14.0) : ScaleWidth(at:18.0)
-            let maxX = ScaleWidth(at:rect.size.width/2.0) - limit
-            propX = min(max(propX, limit), maxX)
+//            let isChangeLimit = UIScreen.main.bounds.width < 375
+//            let limit : CGFloat = isChangeLimit ? 14 : 18
+//            let limit:CGFloat = 25
+//            propX = min(max(propX, limit), maxX)
+//            propX = min(propX,limit)
+//            propX = limit
             // draw!
-            con.translateBy(x: rect.size.width/2.0 + propX - arrowBase/2.0, y: 0)
+            var x:CGFloat = 0
+            var y:CGFloat = 0
+            
+            if #available(iOS 12.0, *) {
+                x = CGFloat(roundf(Float(rect.size.width/2.0 + propX - arrowBase/2.0)))
+            }
+            else {
+                let otherOffset:CGFloat = 3.0
+                x = CGFloat(roundf(Float(rect.size.width/2.0 + propX - arrowBase/2.0 - otherOffset)))
+                y = 2.0
+            }
+            
+//            let x:CGFloat = 74
+            print("arrow offset:\(self.arrowOffset),arrow x:\(x),rect x:\(rect.origin.x),rect width:\(rect.size.width)")
+            con.translateBy(x: x, y: y)
             con.move(to:CGPoint(x: 0, y: arrowHeight))
-            con.addLine(to:CGPoint(x: arrowBase / 2.0, y: 0))
+            con.addLine(to:CGPoint(x: arrowBase / 2.0, y: y))
             con.addLine(to:CGPoint(x: arrowBase, y: arrowHeight))
             con.closePath()
+//            con.addRect(CGRect(x: 0,y: arrowHeight,width: arrowBase,height: 15))
             con.addRect(CGRect(x: 0,y: arrowHeight,width: arrowBase,height: 15))
             con.clip()
             lin.draw(at:CGPoint(x: -40,y: -40))
@@ -256,7 +283,7 @@ class ChoseToAddTokenView: UIView {
     }
     
     let chosePhoto: PublishSubject<ChoseEvnet> = .init()
-//    private var backgroundView:UIImageView = UIImageView(frame: .zero)
+    private var backgroundView:UIImageView = UIImageView(frame: .zero)
         
     private lazy var tableView: UITableView = {
         
@@ -331,12 +358,14 @@ class ChoseToAddTokenView: UIView {
     var isDismissView:Bool = true
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        addSubview(backgroundView)
+        addSubview(backgroundView)
         addSubview(tableView)
-//        backgroundView.image = UIImage(named:"NoSMS_popBack")
-//        backgroundView.snp.makeConstraints {
-//            $0.top.left.right.bottom.equalToSuperview()
-//        }
+        backgroundView.image = UIImage(named:"NoSMS_popBack")
+        backgroundView.snp.makeConstraints {
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
+        }
+        
         tableView.snp.makeConstraints {
             $0.left.right.equalTo(self)
 //            $0.top.equalTo(10)
@@ -476,9 +505,9 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         choseToAddTokenView.snp.makeConstraints {
             $0.top.bottom.left.right.equalTo(0)
         }
-        self.view.backgroundColor = .clear
+        self.view.backgroundColor = .white
         self.view.isOpaque = false
-        choseToAddTokenView.backgroundColor = .clear
+        choseToAddTokenView.backgroundColor = .white
         choseToAddTokenView.isOpaque = false
 //        self.view.superview?.layer.cornerRadius = 5
 //        self.choseToAddTokenView.showView()
@@ -494,6 +523,20 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
 //         super.viewDidAppear(animated)
 //    }
     override func viewDidLayoutSubviews() {
+        if #available(iOS 12.0, *) {
+            self.view.superview?.snp.makeConstraints{
+                $0.top.equalTo(5)
+                $0.left.right.bottom.equalToSuperview()
+            }
+            
+        }else{
+            self.view.superview?.snp.makeConstraints{
+                $0.top.equalTo(10)
+                $0.left.right.bottom.equalToSuperview()
+            }
+        }
+        
+        
         self.view.superview?.layer.cornerRadius  = 5
         self.view.superview?.clipsToBounds = true
         self.view.superview?.superview?.layer.cornerRadius  = 5
