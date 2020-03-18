@@ -548,17 +548,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }
         
         view.addSubview(bottomView)
-
-        //MARK: iOS 13 TableView 在最下面有坑, 12 以下全都是坑
-
-        if let tableViewIndex = view.subviews.firstIndex(of: tableView) {
-
-            view.exchangeSubview(at: 1, withSubviewAt: tableViewIndex)
-        }
+        
         bottomView.addSubview(deleteTokenButton)
         bottomViewSetup()
 
-        
         tableView.snp.remakeConstraints {
             
             $0.top.equalTo(searchTextField.snp.bottom).offset(ScaleWidth(at: 8))
@@ -630,6 +623,15 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             .map({($0.sourceIndex.row, $0.destinationIndex.row)})
             .subscribe(onNext: self.viewModel.swapToken)
             .disposed(by: disposedBag)
+        tableView.rx.itemMoved.subscribe(onNext: { [weak self] _ in
+            guard let self = self else { return }
+            
+            if self.tableView.contentOffset.y < 0 {
+                
+                self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+                self.tableView.reloadData()
+            }
+        }).disposed(by: disposedBag)
         
         tableView.rx.itemSelected
             .map({ $0.row })
