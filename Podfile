@@ -6,8 +6,8 @@ target 'NoSMS' do
   use_frameworks!
 
   pod 'OneTimePassword', '~> 3.2'
-  pod 'RxSwift', '~> 5'
-  pod 'RxCocoa', '~> 5'
+  pod 'RxSwift', '~> 5.1'
+  pod 'RxCocoa', '~> 5.1'
   pod 'SnapKit', '4.2.0'
 
 
