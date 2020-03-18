@@ -549,9 +549,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         view.addSubview(bottomView)
 
-        //TableView 在最下面有坑
+        //MARK: iOS 13 TableView 在最下面有坑, 12 以下全都是坑
+
         if let tableViewIndex = view.subviews.firstIndex(of: tableView) {
-            
+
             view.exchangeSubview(at: 1, withSubviewAt: tableViewIndex)
         }
         bottomView.addSubview(deleteTokenButton)
@@ -919,7 +920,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 if UIApplication.shared.applicationState == .active  {
                     UIView.animate(withDuration: 0.1) {
                                       
-                        self.tableView.changeBottom(to: -height)
+                        self.bottomView.changeBottom(to: -height)
                         self.view.layoutIfNeeded()
                     }
                 }
@@ -932,7 +933,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
               
                 UIView.animate(withDuration: 0.1) {
                   
-                    self.tableView.changeBottom(to: 0)
+                    self.bottomView.changeBottom(to: 0)
                     self.view.layoutIfNeeded()
 
                 }

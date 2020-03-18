@@ -1,8 +1,24 @@
 import UIKit
 
+//MARK: iOS 12 以下拖移時會莫名其妙不知道從哪改變到 view 的顏色找不到
+class NeverClearColorView: UIView {
+    
+    override var backgroundColor: UIColor? {
+     
+        didSet {
+            
+            if self.backgroundColor == .clear {
+                
+                self.backgroundColor = oldValue
+            }
+        }
+    }
+
+}
+
 class DigitsView: UIView {
     
-    private var counterViews: [UIView] = []
+    private var counterViews: [NeverClearColorView] = []
     
     func setColor(_ color: UIColor) {
         
@@ -14,9 +30,10 @@ class DigitsView: UIView {
         counterViews.forEach({$0.removeFromSuperview()})
         
         counterViews = []
+      
         for _ in 0 ..< count {
             
-            let view = UIView()
+            let view = NeverClearColorView()
             view.setBackgroundColor(UIColor.black)
             view.addCornerRadius(at: 7)
             counterViews.append(view)

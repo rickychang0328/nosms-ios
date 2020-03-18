@@ -140,7 +140,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     private let backCardView: UIView = {
        
-        let view = UIView()
+        let view = NeverClearColorView()
         view.setBackgroundColor(.white)
         return view
     }()
