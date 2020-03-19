@@ -12,12 +12,12 @@ PODS:
 
 DEPENDENCIES:
   - OneTimePassword (~> 3.2)
-  - RxCocoa
-  - RxSwift
+  - RxCocoa (~> 5.1)
+  - RxSwift (~> 5.1)
   - SnapKit (= 4.2.0)
 
 SPEC REPOS:
-  https://github.com/cocoapods/specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - Base32
     - OneTimePassword
     - RxCocoa
@@ -33,6 +33,6 @@ SPEC CHECKSUMS:
   RxSwift: ad5874f24bb0dbffd1e9bb8443604e3578796c7a
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: b0b24f99aeb07d8ea94640375e43ce90a0d0b3d1
+PODFILE CHECKSUM: e9f6448c19dbd617d424e53133647ddd01e32f5e
 
-COCOAPODS: 1.7.5
+COCOAPODS: 1.8.4
