@@ -317,13 +317,27 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         tableViewButtonInNavigationBar.rx.tap.subscribe(onNext: { [weak self] _ in
             
             guard let self = self else { return }
-            
-            self.tableViewButtonInNavigationBar.isSelected = !self.tableViewButtonInNavigationBar.isSelected
-            self.tableView.isHidden = !self.tableViewButtonInNavigationBar.isSelected
-    
+            self.choicePhotoAlbumAction()
         }).disposed(by: disposedBag)
         
         viewModel.getAlbum()
+        
+        let tapGestureRecognizer = UITapGestureRecognizer()
+        tapGestureRecognizer.rx
+            .event
+            .subscribe(onNext: { [weak self] _ in
+                
+                guard let self = self else { return }
+                self.choicePhotoAlbumAction()
+            }).disposed(by: disposedBag)
+        
+        navigationBarView.addGestureRecognizer(tapGestureRecognizer)
+    }
+    
+    private func choicePhotoAlbumAction() {
+        
+        tableViewButtonInNavigationBar.isSelected = !tableViewButtonInNavigationBar.isSelected
+        tableView.isHidden = !tableViewButtonInNavigationBar.isSelected
     }
     
     private func resetAlbumSelectView() {

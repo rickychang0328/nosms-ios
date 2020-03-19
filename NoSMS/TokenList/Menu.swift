@@ -247,7 +247,18 @@ extension MenuView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         
-        return ScaleWidth(at: 50.5)
+        let height: CGFloat
+        let baseHeight: CGFloat = 50.5
+        
+        if UIDevice.isIPhoneXUp {
+            
+            height = baseHeight
+        } else {
+            
+            height = baseHeight - 20
+        }
+        
+        return height
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -312,12 +323,12 @@ class MenuViewTableViewCell: UITableViewCell {
     }()
     private let updateRedView: UIView = {
            
-           let view = UIView()
-           view.frame = .init(x: 50, y: 0, width: 8, height: 8)
-           view.setBackgroundColor(.red)
-           .addCornerRadius(at: 4)
-           return view
-       }()
+        let view = UIView()
+        view.frame = .init(x: 50, y: 0, width: 8, height: 8)
+        view.setBackgroundColor(.red)
+            .addCornerRadius(at: 4)
+        return view
+    }()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -375,6 +386,16 @@ class MenuViewTableViewCell: UITableViewCell {
         } else {
            
             contentView.backgroundColor = .white
+            
         }
     }
+}
+
+extension UIDevice {
+    
+    static var isIPhoneXUp: Bool {
+        
+        return UIScreen.main.bounds.height >= 812
+    }
+    
 }
