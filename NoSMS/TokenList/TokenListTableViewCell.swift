@@ -508,4 +508,17 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             
             }).disposed(by: disposedBag)
     }
+    
+    override var frame: CGRect {
+        
+        didSet {
+            //MARK: 在 cell 被拖曳的時候改變的邏輯讓鍵盤都收起來
+            let moveY = abs(frame.origin.y - oldValue.origin.y)
+            
+            if moveY < ScaleWidth(at: 100), moveY > 0.001 {
+                
+                self.superview?.endEditing(true)
+            }
+        }
+    }
 }

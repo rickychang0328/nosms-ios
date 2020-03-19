@@ -577,7 +577,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         choseHowToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
             guard let self = self else { return }
-            
             switch event {
                 
             case .photo:
@@ -626,10 +625,23 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         tableView.rx.itemMoved.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             
+            //MARK: tableview 拖曳的各種坑盡量 reloadData 保持正常
+            if self.tableView.visibleCells.count != self.tableView.indexPathsForVisibleRows?.count {
+                
+                self.tableView.reloadData()
+                return
+            }
+            
             if self.tableView.contentOffset.y < 0 {
                 
                 self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
                 self.tableView.reloadData()
+            } else {
+
+                if self.tableView.contentOffset.y > self.tableView.contentSize.height - self.tableView.frame.height {
+                    
+                    self.tableView.reloadData()
+                }
             }
         }).disposed(by: disposedBag)
         
@@ -682,6 +694,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
 
         self.tokenListMenuVC.choseToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
             guard let self = self else { return }
+            self.tokenListMenuVC.dismiss(animated: false, completion: nil)
             
             switch event {
                 
@@ -692,7 +705,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             case .keyIn:
                 self.showKeyinTokenVC()
             }
-            self.dismiss(animated: false, completion: nil)
         }).disposed(by: disposedBag)
         self.callVersionAPI()
         
@@ -882,9 +894,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
                 self.deleteTokenButton.isEnabled = false
                 self.bottomView.isHidden = true
-                self.bottomView.snp.remakeConstraints {
+                self.bottomView.snp.updateConstraints {
                                        
-                    $0.bottom.left.right.equalToSuperview()
                     $0.height.equalTo(0)
                 }
             }
@@ -972,6 +983,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             $0.height.equalTo(ScaleWidth(at: 42))
         }
         
+        bottomView.snp.remakeConstraints {
+    
+            $0.bottom.left.right.equalToSuperview()
+            $0.height.equalTo(0)
+        }
+        
         viewModel.deleteIsEnable.subscribe(onNext: { [weak self] canDelete in
             
             guard let self = self else { return }
@@ -980,16 +997,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self.bottomView.isHidden = !canDelete
             if canDelete {
                     
-                self.bottomView.snp.remakeConstraints {
+                self.bottomView.snp.updateConstraints {
                         
-                    $0.bottom.left.right.equalToSuperview()
                     $0.height.equalTo(ScaleWidth(at: 87))
                 }
             } else {
                     
-                self.bottomView.snp.remakeConstraints {
+                self.bottomView.snp.updateConstraints {
                         
-                    $0.bottom.left.right.equalToSuperview()
                     $0.height.equalTo(0)
                 }
             }
