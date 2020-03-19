@@ -895,6 +895,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 homePageView.isHidden = true
             }
         }
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {

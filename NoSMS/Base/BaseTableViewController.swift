@@ -32,7 +32,7 @@ struct TableViewCellViewModelFactory {
             switch self {
             case .tokenList:
                  
-                return UITableView.automaticDimension
+                return ScaleWidth(at: 148)
             }
         }
         
