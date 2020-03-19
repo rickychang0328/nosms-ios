@@ -626,23 +626,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             guard let self = self else { return }
             
             //MARK: tableview 拖曳的各種坑盡量 reloadData 保持正常
-            if self.tableView.visibleCells.count != self.tableView.indexPathsForVisibleRows?.count {
-                
-                self.tableView.reloadData()
-                return
-            }
-            
-            if self.tableView.contentOffset.y < 0 {
-                
-                self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
-                self.tableView.reloadData()
-            } else {
-
-                if self.tableView.contentOffset.y > self.tableView.contentSize.height - self.tableView.frame.height {
-                    
-                    self.tableView.reloadData()
-                }
-            }
+            self.tableView.reloadData()
         }).disposed(by: disposedBag)
         
         tableView.rx.itemSelected
