@@ -80,7 +80,8 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         // I should be checking self.arrowDirection and changing what I do depending on that...
         // but instead I am just *assuming* that the arrowDirection is UIPopoverArrowDirectionUp
 
-        let linOrig = UIImage(named: "NoSMS_popBack")!
+        var linOrig = UIImage(named: "NoSMS_popBack")!
+        
         let capw = linOrig.size.width / 2.0 - 1
         let caph = linOrig.size.height / 2.0 - 1
         let lin = linOrig.resizableImage(
@@ -163,14 +164,14 @@ class ChoseAddTableViewCell: UITableViewCell {
         
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.init(red: 51/255, green: 51/255, blue: 51/255, alpha: 1))
+            .setTextColor(.choseToAddLabelTitleTextColor)
         return label
     }()
     
     private let underLineView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4))
+        view.setBackgroundColor(.choseToAddTokenLineColor)
         return view
     }()
     
@@ -293,7 +294,7 @@ class ChoseToAddTokenView: UIView {
         tableView.dataSource = self
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .choseToAddTokenViewBackgroundColor
         tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
         tableView.layer.cornerRadius  = 5
         tableView.clipsToBounds = true
@@ -360,7 +361,10 @@ class ChoseToAddTokenView: UIView {
         super.init(frame: frame)
         addSubview(backgroundView)
         addSubview(tableView)
-        backgroundView.image = UIImage(named:"NoSMS_popBack")
+                // User Interface is Dark
+                backgroundView.image = UIImage(named:"NoSMS_popBack")
+       
+        
         backgroundView.snp.makeConstraints {
             $0.left.right.equalToSuperview()
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
@@ -371,7 +375,7 @@ class ChoseToAddTokenView: UIView {
 //            $0.top.equalTo(10)
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
-        tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
+//        tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
         tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
         //Do your will display logic
             cell.separatorInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
@@ -503,11 +507,12 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         
         self.view.addSubview(self.choseToAddTokenView)
         choseToAddTokenView.snp.makeConstraints {
-            $0.top.bottom.left.right.equalTo(0)
+            $0.top.left.right.equalTo(0)
+            $0.bottom.equalTo(-10)
         }
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = .choseToAddTokenViewBackgroundColor
         self.view.isOpaque = false
-        choseToAddTokenView.backgroundColor = .white
+        choseToAddTokenView.backgroundColor = .choseToAddTokenViewBackgroundColor
         choseToAddTokenView.isOpaque = false
 //        self.view.superview?.layer.cornerRadius = 5
 //        self.choseToAddTokenView.showView()

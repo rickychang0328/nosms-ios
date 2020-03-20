@@ -115,8 +115,8 @@ extension UIColor {
         
         return _textFieldUnderLine
     }
-    
-    
+    private static let color_043_043_045:UIColor = .getColor(red: 43, green: 43, blue: 45, alpha: 1)
+    private static let color_046_046_050:UIColor = .getColor(red: 46, green: 46, blue: 50, alpha: 1)
     private static let color_051_051_051: UIColor = .getColor(red: 51, green: 51, blue: 51, alpha: 1)
     private static let color_098_112_255: UIColor = .getColor(red: 98, green: 112, blue: 255, alpha: 1)
     private static let color_081_095_242: UIColor = .getColor(red: 81, green: 95, blue: 242, alpha: 1)
@@ -125,7 +125,8 @@ extension UIColor {
     private static let color_216_216_216: UIColor = .getColor(red: 216, green: 216, blue: 216, alpha: 1)
     private static let color_000_000_000_01: UIColor = .getColor(red: 0, green: 0, blue: 0, alpha: 0.1)
     private static let color_153_153_153_05: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.5)
-    
+    private static let color_190_192_201_02: UIColor = .getColor(red: 190, green: 192, blue: 201, alpha: 0.2)
+    private static let color_190_192_201_04: UIColor = .getColor(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
     private static let color_033_033_033_056: UIColor = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
     private static let color_028_028_030: UIColor = .getColor(red: 28, green: 28, blue: 30, alpha: 1)
     private static let color_083_097_250: UIColor = .getColor(red: 83, green: 97, blue: 250, alpha: 1)
@@ -148,8 +149,16 @@ extension UIColor {
     static let tokenListTimerColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_081_095_242)
     static let tokenListBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black, lightColor: .white)
 
-
+    static let manuallyTOTPBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black, lightColor: .white)
+    static let manuallyTOTPTitleColor:UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .textBlackColor)
+    static let manuallyTOTPTextFieldColor:UIColor = .createUIColorForDarkModeDynmic(darkColor:.color_255_255_255_04,lightColor:.textBlackColor)
+    //textFieldUnderLineColor
+    static let manuallyTOTPTextFieldUnderLineColor:UIColor = .createUIColorForDarkModeDynmic(darkColor:.color_043_043_045,lightColor:.textFieldUnderLineColor)
+    static let photoCheckViewBackgroundColor:UIColor = .createUIColorForDarkModeDynmic(darkColor: .black, lightColor: _backgroudColor)
+    static let choseToAddTokenViewBackgroundColor:UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_046_046_050, lightColor: .white)
+    static let choseToAddTokenLineColor:UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_190_192_201_02, lightColor: .color_190_192_201_04)
     
+    static let choseToAddLabelTitleTextColor:UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .color_051_051_051)
     static func createUIColorForDarkModeDynmic(darkColor: UIColor, lightColor: UIColor) -> UIColor {
         
         let result: UIColor

@@ -9,7 +9,7 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         
         let label = UILabel()
         label.setFont(.pingFangSemiBoldFont(size: 14))
-            .setTextColor(.textBlackColor)
+            .setTextColor(.manuallyTOTPTitleColor)
         
         return label
     }()
@@ -19,7 +19,7 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         let textField = UITextField()
         
         textField.font = .pingFangMediumFont(size: 15)
-        textField.textColor = .textBlackColor
+        textField.textColor = .manuallyTOTPTitleColor
         return textField
     }()
     
@@ -27,7 +27,8 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         
         let view = UIView()
 
-        view.setBackgroundColor(.textFieldUnderLineColor)
+//        view.setBackgroundColor(.textFieldUnderLineColor)
+        view.setBackgroundColor(.manuallyTOTPTextFieldUnderLineColor)
         return view
     }()
     
