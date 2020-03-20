@@ -94,7 +94,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
        
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.nameColor)
+            .setTextColor(.tokenListAccountColor)
         return label
     }()
     
@@ -110,14 +110,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
           
         let label = UILabel()
         label.setFont(.arialMTFont(size: 45))
-            .setTextColor(.sercetNormalColor)
+            .setTextColor(.tokenListPasswordColor)
         return label
     }()
     
     private let issuerLabel: UILabel = {
           
         let label = UILabel()
-        label.setTextColor(.issuerColor)
+        label.setTextColor(.tokenListIssuerColor)
             .setFont(.pingFangMediumFont(size: 15))
         return label
     }()
@@ -126,7 +126,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         let label = UILabel()
         label.setFont(.avenirHeavyFont(size: 11))
-            .setTextColor(.countColor)
+            .setTextColor(.tokenListTimerColor)
             .setTextAlignment(.center)
         return label
     }()
@@ -141,7 +141,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let backCardView: UIView = {
        
         let view = NeverClearColorView()
-        view.setBackgroundColor(.white)
+        view.setBackgroundColor(.tokenListBackCardColor)
         return view
     }()
     
@@ -176,6 +176,10 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         layoutView()
     }
+    
+//    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+//        super.traitCollectionDidChange(previousTraitCollection)
+//    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

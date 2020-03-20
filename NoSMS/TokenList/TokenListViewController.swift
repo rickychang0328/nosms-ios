@@ -146,7 +146,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             
     init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
-         backgroundColor: UIColor = .white,
+         backgroundColor: UIColor = .clear,
          sectionItems: TokenListSectionItemProtocol = TokenListSectionItem()) {
         
         self.tokenStore = tokenStore
@@ -653,7 +653,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
             }
         }.disposed(by: disposedBag)
-        tableView.backgroundColor = .backgroudColor
+        tableView.backgroundColor = .tokenListBackgroundColor
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
             
