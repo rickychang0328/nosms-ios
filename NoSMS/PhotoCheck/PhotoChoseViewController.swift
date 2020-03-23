@@ -114,7 +114,7 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
     private let coverView: UIView = {
        
         let view = UIView()
-        view.setBackgroundColor(.backCoverColor)
+        view.setBackgroundColor(.photoChoseCoverColor)
         return view
     }()
     

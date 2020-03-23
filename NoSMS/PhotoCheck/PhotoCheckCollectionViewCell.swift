@@ -33,7 +33,7 @@ struct PhotoCheckCollectionViewCellViewModel: PhotoCheckCollectionViewCellViewMo
 
 class PhotoCheckTableViewCellViewModel: BaseTableViewCellViewModelProtocol {
     
-    let baseCellItem: BaseTableViewCellViewModelItemProtocol = BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none), cellHeight: UITableView.automaticDimension, cellBackgroundColor: .init(value: .clear), cellContentViewBGColor: .init(value: .photoTableViewCellBGColor))
+    let baseCellItem: BaseTableViewCellViewModelItemProtocol = BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none), cellHeight: UITableView.automaticDimension, cellBackgroundColor: .init(value: .clear), cellContentViewBGColor: .init(value: .photoCheckTableViewCellBackgroundColor))
     
     var cellFactoryType: TableViewCellFactoryType { return .photoCheckTableViewCell(viewModel: self)}
         
@@ -81,7 +81,7 @@ class PhotoCheckTableViewCell: BaseTableViewCell<PhotoCheckTableViewCellViewMode
     private let countLabel: UILabel = {
         let label: UILabel = .init()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.homePageBorderColor)
+            .setTextColor(.photoCheckCountLabelColor)
         return label
     }()
     
