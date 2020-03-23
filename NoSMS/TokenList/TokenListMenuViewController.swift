@@ -201,8 +201,8 @@ class ChoseAddTableViewCell: UITableViewCell {
             
             $0.left.equalTo(ScaleWidth(at: 10))
             $0.right.equalTo(ScaleWidth(at: -10))
-            $0.bottom.equalToSuperview()
-            $0.height.equalTo(0.5)
+            $0.bottom.equalTo(0)
+            $0.height.equalTo(ScaleWidth(at: 0.5))
         }
     }
     
@@ -375,12 +375,13 @@ class ChoseToAddTokenView: UIView {
 //            $0.top.equalTo(10)
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
+        tableView.separatorStyle = .none
 //        tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
-        tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
-        //Do your will display logic
-            cell.separatorInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-        })
-             .disposed(by: disposeBag)
+//        tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
+//        //Do your will display logic
+//            cell.separatorInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
+//        })
+//             .disposed(by: disposeBag)
         layoutIfNeeded()
         superview?.layoutIfNeeded()
 //        bottomHeight = bottomCoverView.frame.height
