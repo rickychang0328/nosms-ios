@@ -44,7 +44,7 @@ class VersionUpdateView: UIView {
         let button = UIButton()
         
         button.setTitle("升级到 V1.2.1", for: .normal)
-        button.addCornerAndBorder(backgroundColor: .clear, cornerRadius: ScaleWidth(at: 6), masksToBounds: false, borderColor: .homePageBorderColor, borderWidth: 0.5)
+        button.addCornerAndBorder(backgroundColor: .clear, cornerRadius: ScaleWidth(at: 6), masksToBounds: false, borderColor: .versionUpdateButtonBorderColor, borderWidth: 0.5)
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
         return button
     }()

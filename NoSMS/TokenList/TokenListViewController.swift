@@ -519,7 +519,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         let button = UIButton()
         button.setTitle("取消", for: .normal)
-        button.setTitleColor( .countColor, for: .normal)
+        button.setTitleColor( .tokenListResetSearchButton, for: .normal)
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
         button.isHidden = true
         return button

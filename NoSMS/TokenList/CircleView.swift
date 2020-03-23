@@ -50,7 +50,7 @@ class CircleView: UIView {
         shapeLayer.frame = CGRect(x: 0, y: 0, width: frame.width / 2, height: frame.width / 2)
         shapeLayer.fillColor = UIColor.clear.cgColor
         shapeLayer.lineWidth = lineWidth
-        shapeLayer.strokeColor = UIColor.countColor.cgColor
+        shapeLayer.strokeColor = UIColor.tokenListTimerColor.cgColor
         let arcCenter:CGPoint = shapeLayer.position // 設定圓心
         let radius:CGFloat = frame.width / 2 - lineWidth // 設定半徑
         // 剩下沒設置到的參數就為起始角度跟結束角度，最後為是否順時針

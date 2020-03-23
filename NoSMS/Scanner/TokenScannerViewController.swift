@@ -179,7 +179,7 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
     private let coverView: UIView = {
        
         let view = UIView()
-        view.setBackgroundColor(.backCoverColor)
+        view.setBackgroundColor(.screenCoverColor)
         return view
     }()
     
@@ -204,7 +204,7 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
         path.append(tempPath)
         path.usesEvenOddFillRule = true
         maskLayer.path = path.cgPath
-        maskLayer.fillColor = UIColor.backCoverColor.cgColor
+        maskLayer.fillColor = UIColor.screenCoverColor.cgColor
         maskLayer.fillRule = .evenOdd
         let view = UIView(frame: UIScreen.main.bounds)
         view.setBackgroundColor(.black)

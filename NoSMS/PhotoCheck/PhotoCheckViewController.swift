@@ -257,7 +257,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         
         tableView.isHidden = true
         tableView.bounces = false
-        tableView.backgroundColor = .backCoverColor
+        tableView.backgroundColor = .photoChoseCoverColor
         tableView.rx.itemSelected.map({$0.row})
             .subscribe(onNext: { [weak self] index in
             

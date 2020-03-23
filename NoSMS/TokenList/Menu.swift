@@ -106,7 +106,7 @@ class MenuView: UIView {
     private let dissMissView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.backCoverColor)
+        view.setBackgroundColor(.dissmissCoverColor)
         return view
     }()
     

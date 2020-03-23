@@ -10,14 +10,12 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         let label = UILabel()
         label.setFont(.pingFangSemiBoldFont(size: 14))
             .setTextColor(.manuallyTOTPTitleColor)
-        
         return label
     }()
     
     private let textField: UITextField = {
         
         let textField = UITextField()
-        
         textField.font = .pingFangMediumFont(size: 15)
         textField.textColor = .manuallyTOTPTextFieldColor
         return textField
@@ -26,8 +24,6 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
     private let textFieldUnderLine: UIView = {
         
         let view = UIView()
-
-//        view.setBackgroundColor(.textFieldUnderLineColor)
         view.setBackgroundColor(.manuallyTOTPTextFieldUnderLineColor)
         return view
     }()
@@ -60,7 +56,6 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 14))
             $0.left.right.equalTo(titleLabel)
             $0.bottom.equalTo(ScaleWidth(at: -16))
-//            $0.height.equalTo(ScaleWidth(at: 21))
         }
         
         textFieldUnderLine.snp.makeConstraints {
@@ -104,7 +99,7 @@ class JoinManuallyTOTPSwitchTableViewCell<ViewModel: JoinManuallyCellSwitchItems
     private let switchView: UISwitch = {
         
         let switchView = UISwitch()
-        switchView.onTintColor = UIColor(red: 36/255, green: 205/255, blue: 132/255, alpha: 1)
+        switchView.onTintColor = .manuallyTOTPSwitchColor
         return switchView
     }()
     

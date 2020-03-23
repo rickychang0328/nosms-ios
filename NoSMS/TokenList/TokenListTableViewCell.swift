@@ -110,7 +110,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         let textField = UITextField()
         textField.font = .pingFangMediumFont(size: 15)
-        textField.textColor = .nameColor
+        textField.textColor = .tokenListCellTextFieldColor
         return textField
     }()
     
@@ -185,10 +185,6 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         layoutView()
     }
     
-//    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-//        super.traitCollectionDidChange(previousTraitCollection)
-//    }
-    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -249,7 +245,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         
         let textFieldUnderLine = UIView()
-        textFieldUnderLine.setBackgroundColor(.textFieldUnderLineColor)
+        textFieldUnderLine.setBackgroundColor(.tokenListCellTextFieldUnderLineColor)
         nameTextField.addSubview(textFieldUnderLine)
         textFieldUnderLine.snp.makeConstraints {
             
@@ -321,6 +317,20 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     override func prepareForReuse() {
         super.prepareForReuse()
         moveImageView.removeFromSuperview()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        //MARK: 在編輯狀態時切換模式的時候原生的圖片又跑出來了把它拿掉
+        for view in self.subviews {
+            
+            if view.description.contains("UITableViewCellReorderControl") {
+
+                let imageOfReorder = view.subviews[0] as? UIImageView
+                imageOfReorder?.image = nil
+            }
+        }
     }
     
     private func changeLayout() {
@@ -451,15 +461,15 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let warningTime = viewModel.lastTime.compactMap({Int($0)}).map({$0 < 6})
         
         let isOnTime = viewModel.isOnTime
-        passwordLabel.setTextColor(.sercetNormalColor)
+        passwordLabel.setTextColor(.tokenListPasswordColor)
         
         warningTime.map({ if isOnTime {
             
-                    return $0 ? UIColor.sercetWarninglColor : UIColor.sercetNormalColor
+                    return $0 ? UIColor.tokenListWarningPasswordColor : UIColor.tokenListPasswordColor
 
                 } else {
                     
-                    return UIColor.sercetNormalColor
+                    return UIColor.tokenListPasswordColor
                 }
             }).bind(to: passwordLabel.rx.textColor)
             .disposed(by: disposedBag)

@@ -81,7 +81,7 @@ class PhotoCheckTableViewCell: BaseTableViewCell<PhotoCheckTableViewCellViewMode
     private let countLabel: UILabel = {
         let label: UILabel = .init()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.homePageBorderColor)
+            .setTextColor(.photoCheckCountLabelColor)
         return label
     }()
     
