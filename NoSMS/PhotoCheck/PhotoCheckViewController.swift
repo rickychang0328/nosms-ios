@@ -229,7 +229,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(PhotoCheckCollectionViewCell.self, forCellWithReuseIdentifier: "PhotoCheckCollectionViewCell.self")
-        collectionView.backgroundColor = .backgroudColor
+        collectionView.backgroundColor = .photoCheckViewBackgroundColor
         view.addSubview(collectionView)
         view.sendSubviewToBack(collectionView)
         collectionView.snp.makeConstraints {
