@@ -33,7 +33,7 @@ struct PhotoCheckCollectionViewCellViewModel: PhotoCheckCollectionViewCellViewMo
 
 class PhotoCheckTableViewCellViewModel: BaseTableViewCellViewModelProtocol {
     
-    let baseCellItem: BaseTableViewCellViewModelItemProtocol = BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none), cellHeight: UITableView.automaticDimension, cellBackgroundColor: .init(value: .clear), cellContentViewBGColor: .init(value: .photoTableViewCellBGColor))
+    let baseCellItem: BaseTableViewCellViewModelItemProtocol = BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none), cellHeight: UITableView.automaticDimension, cellBackgroundColor: .init(value: .clear), cellContentViewBGColor: .init(value: .photoCheckTableViewCellBackgroundColor))
     
     var cellFactoryType: TableViewCellFactoryType { return .photoCheckTableViewCell(viewModel: self)}
         

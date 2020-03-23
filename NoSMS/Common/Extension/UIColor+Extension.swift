@@ -115,8 +115,7 @@ extension UIColor {
         
         return _textFieldUnderLine
     }
-    private static let color_043_043_045:UIColor = .getColor(red: 43, green: 43, blue: 45, alpha: 1)
-    private static let color_046_046_050:UIColor = .getColor(red: 46, green: 46, blue: 50, alpha: 1)
+  
     private static let color_051_051_051: UIColor = .getColor(red: 51, green: 51, blue: 51, alpha: 1)
     private static let color_098_112_255: UIColor = .getColor(red: 98, green: 112, blue: 255, alpha: 1)
     private static let color_081_095_242: UIColor = .getColor(red: 81, green: 95, blue: 242, alpha: 1)
@@ -185,7 +184,6 @@ extension UIColor {
     private static let color_250_250_250: UIColor = .getColor(red: 250, green: 250, blue: 250, alpha: 1)
     private static let color_153_153_153_01: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.1)
     private static let color_043_043_045: UIColor = .getColor(red: 43, green: 43, blue: 45, alpha: 1)
-    private static let color_190_192_201_04: UIColor = .getColor(red: 190, green: 192, blue: 201, alpha: 0.4)
     private static let color_046_046_050: UIColor = .getColor(red: 46, green: 46, blue: 50, alpha: 1)
     private static let color_038_038_038: UIColor = .getColor(red: 38, green: 38, blue: 38, alpha: 1)
     private static let color_153_153_153_015: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.15)
@@ -196,12 +194,13 @@ extension UIColor {
     private static let color_239_239_255: UIColor = .getColor(red: 239, green: 239, blue: 255, alpha: 1)
     private static let color_255_255_255_07: UIColor = .getColor(red: 255, green: 255, blue: 255, alpha: 0.7)
     private static let color_255_255_255_05: UIColor = .getColor(red: 255, green: 255, blue: 255, alpha: 0.5)
+    private static let color_020_018_044: UIColor = .getColor(red: 20, green: 18, blue: 44, alpha: 1)
 
     
     static let tokenListHidePasswordInEditColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06, lightColor: .color_000_000_000_01)
     static let tokenListTableViewBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black, lightColor: .color_250_250_250)
     
-    static let navColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .navColorDark, lightColor: .navColorLight)
+    static let navigationColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .navColorDark, lightColor: .navColorLight)
     static let navColorDark: UIColor = .getColor(red: 16.85, green: 16.85, blue: 16.85, alpha: 1)
     static let navColorLight: UIColor = .color_098_112_255
     static let tokenListSearchTextFieldTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06, lightColor: .color_102_102_102)
@@ -246,4 +245,6 @@ extension UIColor {
     static let circleViewBackColorLight: UIColor = .color_216_216_216
     static let circleViewBackColorDark: UIColor = .color_063_063_063
     static let tokenListBackcardAnimationColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_012_012_012, lightColor: .color_239_239_255)
+    static let versionUpdateBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black, lightColor: .color_098_112_255)
+    static let photoCheckTableViewCellBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .color_020_018_044)
 }

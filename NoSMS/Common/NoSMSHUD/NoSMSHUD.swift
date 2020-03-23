@@ -93,7 +93,7 @@ class NoSMSAlertViewController: UIViewController {
     let alertView: NoSMSAlertView = {
         
         let view = NoSMSAlertView(frame: .zero)
-        view.setBackgroundColor(.alertBackgroundColor)
+        view.setBackgroundColor(.alertsBackgroundColor)
             .addCornerRadius(at: ScaleWidth(at: 6))
         return view
     }()

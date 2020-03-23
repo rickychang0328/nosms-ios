@@ -203,7 +203,6 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
     private let navigationBarView: UIView = {
        
         let view = UIView()
-        view.setBackgroundColor(.countColor)
         return view
     }()
     
@@ -380,5 +379,24 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         
         let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image, placeHolderImage: placeHolderImage))
         navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
+    private func setupNavigationViewColor() {
+        
+        let color: UIColor
+        
+        if UIDevice.isOniOS13UpDarkMode {
+            
+            color = .navColorDark
+        } else {
+            
+            color = .navColorLight
+        }
+        navigationBarView.setBackgroundColor(color)
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setupNavigationViewColor()
     }
 }

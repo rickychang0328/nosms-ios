@@ -23,7 +23,6 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
     private let loadingEventImageView: UIImageView = {
         
         let view = UIImageView()
-        view.image = UIImage.gif(name: "loading_ps")
         return view
     }()
     
@@ -48,9 +47,14 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
         return button
     }()
+    
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
         setCGColor()
+        
+        if webView.isLoading {
+            setupGifImage()
+        }
     }
     
     private func setCGColor() {
@@ -60,7 +64,7 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        setupGifImage()
         view.backgroundColor = .webViewBackgroundColor
         view.addSubview(webView)
         view.addSubview(loadingEventImageView)
@@ -102,6 +106,17 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
             }).disposed(by: disposedBag)
     }
     
+    private func setupGifImage() {
+        
+        if UIDevice.isOniOS13UpDarkMode {
+            
+            loadingEventImageView.image = UIImage.gif(name: "loading_dark_2")
+        } else {
+            
+            loadingEventImageView.image = UIImage.gif(name: "loading_ps")
+        }
+    }
+    
     private func loadingDone() {
         
         loadingTitleLabel.isHidden = true
@@ -113,7 +128,7 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
         
         reloadButton.isHidden = true
         loadingTitleLabel.setText("内容加载中…")
-        loadingEventImageView.image = UIImage.gif(name: "loading_ps")
+        setupGifImage()
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
