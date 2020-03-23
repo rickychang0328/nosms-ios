@@ -158,7 +158,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                                                      joinManuallySectionItems.keyTokenCellViewModel.inputString)
                                                     .map({$0.0.count > 0 && $0.1.count > 0})
         
-        super.init(navigationItem: navigationItemViewModel, backgroundColor: .white)
+        super.init(navigationItem: navigationItemViewModel, backgroundColor: .manuallyTOTPBackgroundColor)
         
         if let wantPastedString = pastedString {
             

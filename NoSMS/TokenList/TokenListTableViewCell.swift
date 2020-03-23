@@ -79,7 +79,15 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
             string.insert(" ", at: index)
             return string
         })
-        self.issuer = issuer
+        self.issuer = issuer.map({
+            if $0.isEmpty {
+                
+                return " "
+            } else {
+                
+                return $0
+            }
+        })
         self.lastTime = lastTime
         self.haveSelectToDelete = haveSelectToDelete
         self.passwordCount = passwordCount
@@ -94,7 +102,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
        
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.nameColor)
+            .setTextColor(.tokenListAccountColor)
         return label
     }()
     
@@ -102,7 +110,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         let textField = UITextField()
         textField.font = .pingFangMediumFont(size: 15)
-        textField.textColor = .nameColor
+        textField.textColor = .tokenListCellTextFieldColor
         return textField
     }()
     
@@ -110,14 +118,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
           
         let label = UILabel()
         label.setFont(.arialMTFont(size: 45))
-            .setTextColor(.sercetNormalColor)
+            .setTextColor(.tokenListPasswordColor)
         return label
     }()
     
     private let issuerLabel: UILabel = {
           
         let label = UILabel()
-        label.setTextColor(.issuerColor)
+        label.setTextColor(.tokenListIssuerColor)
             .setFont(.pingFangMediumFont(size: 15))
         return label
     }()
@@ -126,7 +134,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         let label = UILabel()
         label.setFont(.avenirHeavyFont(size: 11))
-            .setTextColor(.countColor)
+            .setTextColor(.tokenListTimerColor)
             .setTextAlignment(.center)
         return label
     }()
@@ -141,7 +149,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let backCardView: UIView = {
        
         let view = NeverClearColorView()
-        view.setBackgroundColor(.white)
+        view.setBackgroundColor(.tokenListBackCardColor)
         return view
     }()
     
@@ -237,7 +245,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         
         let textFieldUnderLine = UIView()
-        textFieldUnderLine.setBackgroundColor(.textFieldUnderLineColor)
+        textFieldUnderLine.setBackgroundColor(.tokenListCellTextFieldUnderLineColor)
         nameTextField.addSubview(textFieldUnderLine)
         textFieldUnderLine.snp.makeConstraints {
             
@@ -279,30 +287,26 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     func runBackCardAnimation() {
         UIView.animate(withDuration: 0.3, animations: {
-            //animation 1
-            self.backCardView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 255/255, alpha: 1)
-//            self.backCardView.backgroundColor = .red
+
+            self.backCardView.backgroundColor = .tokenListBackcardAnimationColor
+            
         }, completion: { (value: Bool) in
             UIView.animate(withDuration: 0.1, animations: {
-                //animation 2
-                self.backCardView.backgroundColor = .white
+
+                self.backCardView.backgroundColor = .tokenListBackCardColor
             })
         })
     }
     func setBackCardAnimationColor(){
         
         for i in 1...3 {
-//            if i == 1 {
-//                runBackCardAnimation()
-//            }else {
+
             let asyncTime:Double = Double(i) * 0.4
-                DispatchQueue.main.asyncAfter(deadline: .now() + asyncTime) { [weak self] in
-                    self?.runBackCardAnimation()
-                }
-//            }
-            
+            DispatchQueue.main.asyncAfter(deadline: .now() + asyncTime) { [weak self] in
+                
+                self?.runBackCardAnimation()
+            }
         }
-        
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
@@ -313,6 +317,20 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     override func prepareForReuse() {
         super.prepareForReuse()
         moveImageView.removeFromSuperview()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        //MARK: 在編輯狀態時切換模式的時候原生的圖片又跑出來了把它拿掉
+        for view in self.subviews {
+            
+            if view.description.contains("UITableViewCellReorderControl") {
+
+                let imageOfReorder = view.subviews[0] as? UIImageView
+                imageOfReorder?.image = nil
+            }
+        }
     }
     
     private func changeLayout() {
@@ -358,11 +376,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 }
             }
             
-            digitsView.setColor(UIColor.black.withAlphaComponent(0.1))
+            digitsView.setColor(.tokenListHidePasswordInEditColor)
         } else {
             
             moveImageView.removeFromSuperview()
-            digitsView.setColor(.black)
+            digitsView.setColor(.tokenListHidePasswordColor)
         }
     }
     
@@ -443,15 +461,15 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let warningTime = viewModel.lastTime.compactMap({Int($0)}).map({$0 < 6})
         
         let isOnTime = viewModel.isOnTime
-        passwordLabel.setTextColor(.sercetNormalColor)
+        passwordLabel.setTextColor(.tokenListPasswordColor)
         
         warningTime.map({ if isOnTime {
             
-                    return $0 ? UIColor.sercetWarninglColor : UIColor.sercetNormalColor
+                    return $0 ? UIColor.tokenListWarningPasswordColor : UIColor.tokenListPasswordColor
 
                 } else {
                     
-                    return UIColor.sercetNormalColor
+                    return UIColor.tokenListPasswordColor
                 }
             }).bind(to: passwordLabel.rx.textColor)
             .disposed(by: disposedBag)
@@ -497,7 +515,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             circleView.isHidden = true
         }
         
-        warningTime.map({ $0 ? UIColor.countWarningColor : UIColor.countColor })
+        warningTime.map({ $0 ? UIColor.circleViewWarningColor : UIColor.circleViewNormalColor })
             .bind(to: countTimeLabel.rx.textColor, circleView.loadingColorBinder)
             .disposed(by: disposedBag)
         
