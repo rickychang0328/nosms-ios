@@ -15,6 +15,7 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
         
         let view = WKWebView()
         view.navigationDelegate = self
+        view.isHidden = true
         view.load(viewModel.urlRequest)
         return view
     }()
@@ -30,7 +31,7 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
         
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.nameColor)
+            .setTextColor(.webViewTextColor)
             .setTextAlignment(.center)
         return label
     }()
@@ -42,15 +43,25 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
         button.isHidden = true
         button.backgroundColor = .clear
         button.addCornerRadius(at: ScaleWidth(at: 6))
-            .addBorder(color: .sercetNormalColor, width: ScaleWidth(at: 0.5))
-        button.setTitleColor(.sercetNormalColor, for: .normal)
+            .addBorder(color: .webViewReloadButtonColor, width: ScaleWidth(at: 0.5))
+        button.setTitleColor(.webViewReloadButtonColor, for: .normal)
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
         return button
     }()
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setCGColor()
+    }
+    
+    private func setCGColor() {
+        
+        reloadButton.layer.borderColor = UIColor.webViewReloadButtonColor.cgColor
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .webViewBackgroundColor
         view.addSubview(webView)
         view.addSubview(loadingEventImageView)
         view.addSubview(loadingTitleLabel)
@@ -60,7 +71,6 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
             
             $0.edges.equalToSuperview()
         }
-        
         loadingEventImageView.snp.makeConstraints {
             
             $0.top.equalTo(ScaleHeight(at: 186.5))
@@ -109,6 +119,7 @@ class BaseWebViewController<ViewModel: BaseWebVCViewModelProtocol>: BaseViewCont
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         
         loadingDone()
+        webView.isHidden = false
     }
     
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {

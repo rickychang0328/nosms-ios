@@ -236,10 +236,10 @@
 		2A75E659238BB82E00E8CAB9 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				2AE53BE923A2499600AB1319 /* TOTPURL */,
 				2A3A846623AB1323002D4482 /* NoSMSHUD */,
 				2A21B08123A9C14A00922FBB /* AuthorizationManager */,
 				2AE53BED23A2499600AB1319 /* PastedAction */,
-				2AE53BE923A2499600AB1319 /* TOTPURL */,
 				2AE53BEB23A2499600AB1319 /* UserDefault */,
 				2AE3DC4B238CC773009AC8EE /* TokenStore */,
 				2A75E65A238BB8A100E8CAB9 /* Extension */,
@@ -257,8 +257,8 @@
 				2A75E65F238BBAC500E8CAB9 /* UIFont+Extension.swift */,
 				2A2AF08B238FA39100BCC143 /* UIViewController+Extension.swift */,
 				2A23621023A340D1006DD184 /* UIColor+Extension.swift */,
-				2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */,
 				2A55BA9A23A727A300142382 /* UIImage+AppImageExtension.swift */,
+				2A23621323A35154006DD184 /* UILabel+Extension+Rx.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";

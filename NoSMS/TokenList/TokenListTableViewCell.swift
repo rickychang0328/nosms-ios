@@ -79,7 +79,15 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
             string.insert(" ", at: index)
             return string
         })
-        self.issuer = issuer
+        self.issuer = issuer.map({
+            if $0.isEmpty {
+                
+                return " "
+            } else {
+                
+                return $0
+            }
+        })
         self.lastTime = lastTime
         self.haveSelectToDelete = haveSelectToDelete
         self.passwordCount = passwordCount
@@ -283,30 +291,26 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     func runBackCardAnimation() {
         UIView.animate(withDuration: 0.3, animations: {
-            //animation 1
-            self.backCardView.backgroundColor = UIColor(red: 239/255, green: 239/255, blue: 255/255, alpha: 1)
-//            self.backCardView.backgroundColor = .red
+
+            self.backCardView.backgroundColor = .tokenListBackcardAnimationColor
+            
         }, completion: { (value: Bool) in
             UIView.animate(withDuration: 0.1, animations: {
-                //animation 2
-                self.backCardView.backgroundColor = .white
+
+                self.backCardView.backgroundColor = .tokenListBackCardColor
             })
         })
     }
     func setBackCardAnimationColor(){
         
         for i in 1...3 {
-//            if i == 1 {
-//                runBackCardAnimation()
-//            }else {
+
             let asyncTime:Double = Double(i) * 0.4
-                DispatchQueue.main.asyncAfter(deadline: .now() + asyncTime) { [weak self] in
-                    self?.runBackCardAnimation()
-                }
-//            }
-            
+            DispatchQueue.main.asyncAfter(deadline: .now() + asyncTime) { [weak self] in
+                
+                self?.runBackCardAnimation()
+            }
         }
-        
     }
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         
@@ -362,11 +366,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 }
             }
             
-            digitsView.setColor(UIColor.black.withAlphaComponent(0.1))
+            digitsView.setColor(.tokenListHidePasswordInEditColor)
         } else {
             
             moveImageView.removeFromSuperview()
-            digitsView.setColor(.black)
+            digitsView.setColor(.tokenListHidePasswordColor)
         }
     }
     
@@ -501,7 +505,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             circleView.isHidden = true
         }
         
-        warningTime.map({ $0 ? UIColor.countWarningColor : UIColor.countColor })
+        warningTime.map({ $0 ? UIColor.circleViewWarningColor : UIColor.circleViewNormalColor })
             .bind(to: countTimeLabel.rx.textColor, circleView.loadingColorBinder)
             .disposed(by: disposedBag)
         

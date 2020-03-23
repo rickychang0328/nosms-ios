@@ -89,7 +89,7 @@ class MenuView: UIView {
         tableView.dataSource = self
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .menuBackgroundColor
         tableView.register(MenuViewTableViewCell.self,
                            forCellReuseIdentifier: MenuViewTableViewCell.description())
         return tableView
@@ -134,7 +134,6 @@ class MenuView: UIView {
 
         addSubview(dissMissView)
         addSubview(tableView)
-        
         let panGestureRecognizer = UIPanGestureRecognizer()
         
         addGestureRecognizer(panGestureRecognizer)
@@ -311,21 +310,21 @@ class MenuViewTableViewCell: UITableViewCell {
         
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.init(red: 51/255, green: 51/255, blue: 51/255, alpha: 1))
+            .setTextColor(.menuTextColor)
         return label
     }()
     
     private let underLineView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4))
+        view.setBackgroundColor(.menuUnderLineColor)
         return view
     }()
     private let updateRedView: UIView = {
            
         let view = UIView()
         view.frame = .init(x: 50, y: 0, width: 8, height: 8)
-        view.setBackgroundColor(.red)
+        view.setBackgroundColor(.mustAuthRedColor)
             .addCornerRadius(at: 4)
         return view
     }()
@@ -382,10 +381,10 @@ class MenuViewTableViewCell: UITableViewCell {
         
         if highlighted {
            
-            contentView.backgroundColor = .alertCancelButtonColor
+            contentView.backgroundColor = .menuSelectColor
         } else {
            
-            contentView.backgroundColor = .white
+            contentView.backgroundColor = .menuBackgroundColor
             
         }
     }

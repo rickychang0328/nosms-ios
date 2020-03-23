@@ -146,7 +146,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             
     init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
-         backgroundColor: UIColor = .clear,
+         backgroundColor: UIColor = .tokenListBackgroundColor,
          sectionItems: TokenListSectionItemProtocol = TokenListSectionItem()) {
         
         self.tokenStore = tokenStore
@@ -179,11 +179,8 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                         self.isFirstOpen = false
                         return
                     }
-//                    if count > 0 {
-                    print("viewModels Count:\(viewModels.count)")
                     self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
                         
-//                    }
                 } else {
                                         
                     self.eventResult.onNext(.reloadData)
@@ -280,7 +277,7 @@ class HomePageView: UIView {
             .setTextAlignment(.center)
             .setFont(.pingFangMediumFont(size: 15))
             .setNumberOfLine(0)
-            .setTextColor(.white)
+            .setTextColor(.homePageTextColor)
         return label
     }()
     
@@ -288,8 +285,10 @@ class HomePageView: UIView {
        
         let button = UIButton()
         button.setTitle("开始设置", for: .normal)
-        button.addCornerAndBorder(backgroundColor: .clear, cornerRadius: ScaleWidth(at: 6), masksToBounds: false, borderColor: .homePageBorderColor, borderWidth: 1)
+        button.addCornerAndBorder(backgroundColor: .clear, cornerRadius: ScaleWidth(at: 6), masksToBounds: false, borderColor: .homePageButtonBroderColor, borderWidth: 1)
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.backgroundColor = .homePageButtonBackgroundColor
+        
         return button
     }()
     
@@ -298,10 +297,20 @@ class HomePageView: UIView {
         return button.rx.tap
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setCGColor()
+    }
+    
+    private func setCGColor() {
+  
+        button.layer.borderColor = UIColor.homePageButtonBroderColor.cgColor
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .countColor
+        backgroundColor = .homePageBackgroundColor
         addSubview(logoImageView)
         addSubview(descriptionLabel)
         addSubview(button)
@@ -434,7 +443,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         let view = UIView()
         view.frame = .init(x: 25, y: 0, width: 8, height: 8)
-        view.setBackgroundColor(.red)
+        view.setBackgroundColor(.mustAuthRedColor)
         .addCornerRadius(at: 4)
         return view
     }()
@@ -442,7 +451,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private let bottomView: UIView = {
        
         let view = UIView()
-        view.setBackgroundColor(.white)
+        view.setBackgroundColor(.tokenListBottomViewBackgroundColor)
         return view
     }()
     
@@ -450,7 +459,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
        
         let button = UIButton()
         button.setTitle("删除", for: .normal)
-        button.backgroundColor = .warninglColor
+        button.backgroundColor = .mustAuthRedColor
         button.setTitleColor(.white, for: .normal)
         button.addCornerRadius(at: ScaleWidth(at: 6))
         return button
@@ -465,8 +474,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private lazy var searchTextField: UITextField = {
        
         let textField = UITextField()
-        textField.textColor = .nameColor
-        textField.backgroundColor = .serachTextfieldBackgroundColor
+        textField.textColor = .tokenListSearchTextFieldTextColor
+        textField.backgroundColor = .tokenListSearchTextFieldBackgroundColor
         textField.placeholder = "搜索"
         textField.font = .pingFangMediumFont(size: 15)
         textField.addCornerRadius(at: ScaleWidth(at: 6))
@@ -653,7 +662,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
             }
         }.disposed(by: disposedBag)
-        tableView.backgroundColor = .tokenListBackgroundColor
+        tableView.backgroundColor = .tokenListTableViewBackgroundColor
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
             

@@ -99,11 +99,15 @@ class NoSMSCircleLoadView: UIView {
         
         return Binder<UIColor>.init(self) { (view, color) in
             
+            view.bindingUIColor = color
             view.baseCricleView.subLayer.strokeColor = color.cgColor
         }
     }
     
+    //MARK: 紀錄重新生成 layer 需要的值
+    private var bindingUIColor: UIColor = .clear
     private var lastTime: Double = 0
+    private var reFreshTime: Double = 0
     
     private var disposeBag: DisposeBag = .init()
     
@@ -129,6 +133,7 @@ class NoSMSCircleLoadView: UIView {
     
     func startAnimation(lastTime: Double, refreshTime: Double) {
         
+        self.reFreshTime = refreshTime
         defer {
             self.lastTime = lastTime
         }
@@ -139,8 +144,30 @@ class NoSMSCircleLoadView: UIView {
         }
         baseCricleView.getCircleSubLayer()
         loadingCricleView.startAnimation(lastTime: lastTime, refreshTime: refreshTime)
-        loadingCricleView.shapeLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
-        loadingCricleView.subLayer.strokeColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1).cgColor
+        setupCGColor()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        resetInDarkModeChange()
+        setupCGColor()
+        layoutIfNeeded()
+    }
+    
+    
+    //MARK: CAShapeLayer 用 Path 沒辦法在知道後直接更換顏色有點怪 直接重新生成一個 shapeLayer
+    private func resetInDarkModeChange() {
+        
+        baseCricleView.getCircleSubLayer()
+        let last = lastTime / reFreshTime
+        loadingCricleView.getCircleSubLayer(circleLast: last)
+    }
+    
+    private func setupCGColor() {
+        
+        baseCricleView.subLayer.strokeColor = bindingUIColor.cgColor
+        loadingCricleView.shapeLayer.strokeColor = UIColor.circleViewBackColor.cgColor
+        loadingCricleView.subLayer.strokeColor = UIColor.circleViewBackColor.cgColor
     }
     
     func remove() {
