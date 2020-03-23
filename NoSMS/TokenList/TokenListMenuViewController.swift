@@ -171,7 +171,8 @@ class ChoseAddTableViewCell: UITableViewCell {
     private let underLineView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.choseToAddTokenLineColor)
+        view.backgroundColor = .choseToAddTokenLineColor
+//        view.backgroundColor = .black
         return view
     }()
     
@@ -198,12 +199,12 @@ class ChoseAddTableViewCell: UITableViewCell {
         }
         
         underLineView.snp.makeConstraints {
-            
             $0.left.equalTo(ScaleWidth(at: 10))
             $0.right.equalTo(ScaleWidth(at: -10))
             $0.bottom.equalTo(0)
             $0.height.equalTo(ScaleWidth(at: 0.5))
         }
+//        underLineView.isHidden = true
     }
     
     required init?(coder: NSCoder) {
@@ -294,6 +295,7 @@ class ChoseToAddTokenView: UIView {
         tableView.dataSource = self
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
+        
         tableView.backgroundColor = .choseToAddTokenViewBackgroundColor
         tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
         tableView.layer.cornerRadius  = 5
@@ -375,7 +377,7 @@ class ChoseToAddTokenView: UIView {
 //            $0.top.equalTo(10)
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
-        tableView.separatorStyle = .none
+        tableView.separatorColor = .clear
 //        tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
 //        tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
 //        //Do your will display logic
@@ -458,13 +460,10 @@ extension ChoseToAddTokenView: UITableViewDelegate, UITableViewDataSource {
         let underLineHide: Bool
         
         if indexPath.row == (choseEvnets.count - 1) {
-            
             underLineHide = true
         } else {
-            
             underLineHide = false
         }
-        
         cell.setupCell(image: event.image, title: event.title, underLineHide: underLineHide)
         return cell
     }
@@ -500,12 +499,11 @@ class TokenListMenuVCViewModel: BaseVCViewModel, TokenListMenuVCViewModelProtoco
     
     
 }
-class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>: BaseTableViewController<VCViewModel>{
+class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>: BaseViewController<VCViewModel>{
     let choseToAddTokenView: ChoseToAddTokenView = .init(frame: .zero)
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         self.view.addSubview(self.choseToAddTokenView)
         choseToAddTokenView.snp.makeConstraints {
             $0.top.left.right.equalTo(0)
@@ -515,19 +513,8 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         self.view.isOpaque = false
         choseToAddTokenView.backgroundColor = .choseToAddTokenViewBackgroundColor
         choseToAddTokenView.isOpaque = false
-//        self.view.superview?.layer.cornerRadius = 5
-//        self.choseToAddTokenView.showView()
     }
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        // Do any additional setup after loading the view, typically from a nib.
-//        self.view.superview?.layer.cornerRadius = 5
-//        self.view.superview?.clipsToBounds = false
-//    }
-//    override func viewDidAppear(_ animated: Bool) {
-//        self.view.superview?.layer.cornerRadius  = 5
-//         super.viewDidAppear(animated)
-//    }
+
     override func viewDidLayoutSubviews() {
         if #available(iOS 12.0, *) {
             self.view.superview?.snp.makeConstraints{
@@ -545,7 +532,7 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         
         self.view.superview?.layer.cornerRadius  = 5
         self.view.superview?.clipsToBounds = true
-        self.view.superview?.superview?.layer.cornerRadius  = 5
-        self.view.superview?.superview?.clipsToBounds = true
+//        self.view.superview?.superview?.layer.cornerRadius  = 5
+//        self.view.superview?.superview?.clipsToBounds = true
     }
 }
