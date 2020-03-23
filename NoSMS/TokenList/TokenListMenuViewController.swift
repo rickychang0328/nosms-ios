@@ -202,7 +202,8 @@ class ChoseAddTableViewCell: UITableViewCell {
             $0.left.equalTo(ScaleWidth(at: 10))
             $0.right.equalTo(ScaleWidth(at: -10))
             $0.bottom.equalTo(0)
-            $0.height.equalTo(ScaleWidth(at: 0.5))
+//            $0.height.equalTo(ScaleWidth(at: 1))
+            $0.height.equalTo(1)
         }
 //        underLineView.isHidden = true
     }
@@ -219,36 +220,6 @@ class ChoseAddTableViewCell: UITableViewCell {
     }
 }
 
-//class MyPopoverBackgroundView: UIPopoverBackgroundView {
-//
-//    // MARK: - UIPopoverBackgroundViewMethods
-//
-//    override static func arrowBase() -> CGFloat {
-//        return 10
-//    }
-//
-//    override static func arrowHeight() -> CGFloat {
-//        return 10
-//    }
-//
-//    override static func contentViewInsets() -> UIEdgeInsets {
-//        return .zero
-//    }
-//
-//    // MARK: - UIPopoverBackgroundView properties
-//
-//    private var _arrowOffset: CGFloat = 10
-//    override var arrowOffset: CGFloat {
-//        get { return _arrowOffset }
-//        set { _arrowOffset = newValue }
-//    }
-//
-//    private var _arrowDirection: UIPopoverArrowDirection = .up
-//    override var arrowDirection: UIPopoverArrowDirection {
-//        get { return _arrowDirection }
-//        set { _arrowDirection = newValue }
-//    }
-//}
 class ChoseToAddTokenView: UIView {
     
     enum ChoseEvnet {
@@ -295,7 +266,6 @@ class ChoseToAddTokenView: UIView {
         tableView.dataSource = self
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
-        
         tableView.backgroundColor = .choseToAddTokenViewBackgroundColor
         tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
         tableView.layer.cornerRadius  = 5
@@ -377,10 +347,11 @@ class ChoseToAddTokenView: UIView {
 //            $0.top.equalTo(10)
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
+        tableView.separatorStyle = .none
         tableView.separatorColor = .clear
 //        tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
 //        tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
-//        //Do your will display logic
+        //Do your will display logic
 //            cell.separatorInset = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
 //        })
 //             .disposed(by: disposeBag)
