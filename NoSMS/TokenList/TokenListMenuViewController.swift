@@ -481,7 +481,7 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
             $0.bottom.equalTo(0)
         }
         self.view.backgroundColor = .choseToAddTokenViewBackgroundColor
-        self.view.isOpaque = false
+        self.view.isOpaque = true
         choseToAddTokenView.backgroundColor = .choseToAddTokenViewBackgroundColor
         choseToAddTokenView.isOpaque = false
     }
