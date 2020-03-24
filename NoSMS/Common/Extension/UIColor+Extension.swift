@@ -36,7 +36,7 @@ extension UIColor {
     private static let color_000_000_000_04: UIColor = .getColor(red: 0, green: 0, blue: 0, alpha: 0.4)
     private static let color_153_153_153_05: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.5)
     private static let color_190_192_201_02: UIColor = .getColor(red: 190, green: 192, blue: 201, alpha: 0.2)
-    private static let color_190_192_201_04: UIColor = .getColor(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
+    private static let color_190_192_201_04: UIColor = .getColor(red: 190, green: 192, blue: 201, alpha: 0.4)
     private static let color_033_033_033_056: UIColor = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
     private static let color_028_028_030: UIColor = .getColor(red: 28, green: 28, blue: 30, alpha: 1)
     private static let color_083_097_250: UIColor = .getColor(red: 83, green: 97, blue: 250, alpha: 1)
