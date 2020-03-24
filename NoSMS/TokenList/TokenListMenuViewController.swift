@@ -478,7 +478,7 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         self.view.addSubview(self.choseToAddTokenView)
         choseToAddTokenView.snp.makeConstraints {
             $0.top.left.right.equalTo(0)
-            $0.bottom.equalTo(-10)
+            $0.bottom.equalTo(-5)
         }
         self.view.backgroundColor = .choseToAddTokenViewBackgroundColor
         self.view.isOpaque = false
@@ -503,7 +503,7 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         
         self.view.superview?.layer.cornerRadius  = 5
         self.view.superview?.clipsToBounds = true
-//        self.view.superview?.superview?.layer.cornerRadius  = 5
-//        self.view.superview?.superview?.clipsToBounds = true
+        self.view.superview?.superview?.layer.cornerRadius  = 5
+        self.view.superview?.superview?.clipsToBounds = true
     }
 }
