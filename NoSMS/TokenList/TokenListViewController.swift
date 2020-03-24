@@ -707,8 +707,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
             if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 || ( self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y) {
 
-                DispatchQueue.main.async {
-                    
+                DispatchQueue.main.async {[weak self] in
+                    guard let self = self else {return}
                     UIView.animate(withDuration: 0.3, delay: 0.0,
                                    usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
                                    animations: {
@@ -721,6 +721,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     },
                                    completion: nil
                     )
+                    self.tableView.snp.updateConstraints {
+                        $0.top.equalTo(self.searchTextField.snp.bottom).offset(ScaleWidth(at: 0))
+                    }
                 }
             }else {
                 if self.tableView.contentOffset.y < 0 {
@@ -735,8 +738,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     }
     private func showSearchTextAnimation(){
         
-        DispatchQueue.main.async {
-            
+        DispatchQueue.main.async {[weak self] in
+            guard let self = self else{return}
             UIView.animate(withDuration: 0.3, delay: 0.0,
                            usingSpringWithDamping: 1.0, initialSpringVelocity: 5.0,
                            animations: {
@@ -749,6 +752,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             },
                            completion: nil
             )
+            self.tableView.snp.updateConstraints {
+                $0.top.equalTo(self.searchTextField.snp.bottom).offset(ScaleWidth(at: 8))
+            }
         }
     }
     private func callVersionAPI(){
