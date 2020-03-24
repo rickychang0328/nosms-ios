@@ -63,6 +63,9 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
 //        }
        
 //        self.layer.shadowOpacity
+        self.backgroundColor = .clear
+//        self.superview?.backgroundColor = .choseToAddTokenViewBackgroundColor
+        self.superview?.backgroundColor = .clear
         self.layer.shadowColor = shadowColor.cgColor
         self.layer.shadowOpacity = 0
         self.layer.shadowOffset = CGSize(width: -5, height:-5)
@@ -79,7 +82,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         // WARNING: this code is sort of a cheat:
         // I should be checking self.arrowDirection and changing what I do depending on that...
         // but instead I am just *assuming* that the arrowDirection is UIPopoverArrowDirectionUp
-
+        super.draw(rect)
         var linOrig = UIImage(named: "NoSMS_popBack")!
         
         let capw = linOrig.size.width / 2.0 - 1
@@ -87,7 +90,7 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         let lin = linOrig.resizableImage(
             withCapInsets:UIEdgeInsets(top: caph, left: capw, bottom: caph, right: capw),
             resizingMode:.tile)
-
+        
         let arrowHeight = Self.arrowHeight()
         let arrowBase = Self.arrowBase()
 
@@ -129,14 +132,11 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
                 y = 2.0
             }
             
-//            let x:CGFloat = 74
-            print("arrow offset:\(self.arrowOffset),arrow x:\(x),rect x:\(rect.origin.x),rect width:\(rect.size.width)")
             con.translateBy(x: x, y: y)
             con.move(to:CGPoint(x: 0, y: arrowHeight))
             con.addLine(to:CGPoint(x: arrowBase / 2.0, y: y))
             con.addLine(to:CGPoint(x: arrowBase, y: arrowHeight))
             con.closePath()
-//            con.addRect(CGRect(x: 0,y: arrowHeight,width: arrowBase,height: 15))
             con.addRect(CGRect(x: 0,y: arrowHeight,width: arrowBase,height: 15))
             con.clip()
             lin.draw(at:CGPoint(x: -40,y: -40))
@@ -147,7 +147,6 @@ class MyPopoverBackgroundView : UIPopoverBackgroundView {
         // draw the body, to go behind the view part of our rectangle (i.e. rect minus arrow)
         let (_,body) = rect.divided(atDistance: arrowHeight, from: .minYEdge)
         lin.draw(in:body)
-
     }
 
 
@@ -183,7 +182,7 @@ class ChoseAddTableViewCell: UITableViewCell {
         contentView.addSubview(titleImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(underLineView)
-        
+        backgroundColor = .clear
         titleImageView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 24))
@@ -256,21 +255,23 @@ class ChoseToAddTokenView: UIView {
     }
     
     let chosePhoto: PublishSubject<ChoseEvnet> = .init()
-    private var backgroundView:UIImageView = UIImageView(frame: .zero)
+//    private var backgroundView:UIImageView = UIImageView(frame: .zero)
         
-    private lazy var tableView: UITableView = {
+    private lazy var optionTableView: UITableView = {
         
-        let tableView = UITableView(frame: .zero, style: .plain)
-        tableView.bounces = false
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.isScrollEnabled = false
-        tableView.separatorStyle = .none
-        tableView.backgroundColor = .choseToAddTokenViewBackgroundColor
-        tableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
-        tableView.layer.cornerRadius  = 5
-        tableView.clipsToBounds = true
-        return tableView
+        let subTableView = UITableView(frame: .zero, style: .plain)
+        subTableView.bounces = false
+        subTableView.delegate = self
+        subTableView.dataSource = self
+        subTableView.isScrollEnabled = false
+        subTableView.separatorStyle = .none
+        subTableView.backgroundColor = .choseToAddTokenViewBackgroundColor
+//        subTableView.backgroundColor = .clear
+        subTableView.isOpaque = false
+        subTableView.register(ChoseAddTableViewCell.self, forCellReuseIdentifier: ChoseAddTableViewCell.description())
+        subTableView.layer.cornerRadius  = 5
+        subTableView.clipsToBounds = true
+        return subTableView
     }()
     
     private let choseEvnets: [ChoseEvnet] = [.photo, .camera, .keyIn]
@@ -331,24 +332,24 @@ class ChoseToAddTokenView: UIView {
     var isDismissView:Bool = true
     override init(frame: CGRect) {
         super.init(frame: frame)
-        addSubview(backgroundView)
-        addSubview(tableView)
+//        addSubview(backgroundView)
+        addSubview(optionTableView)
                 // User Interface is Dark
-                backgroundView.image = UIImage(named:"NoSMS_popBack")
+//        backgroundView.image = UIImage(named:"NoSMS_popBack")
        
         
-        backgroundView.snp.makeConstraints {
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
-        }
+//        backgroundView.snp.makeConstraints {
+//            $0.left.right.equalTo(self)
+//            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
+//        }
         
-        tableView.snp.makeConstraints {
+        optionTableView.snp.makeConstraints {
             $0.left.right.equalTo(self)
 //            $0.top.equalTo(10)
             $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
         }
-        tableView.separatorStyle = .none
-        tableView.separatorColor = .clear
+        optionTableView.separatorStyle = .none
+        optionTableView.separatorColor = .clear
 //        tableView.separatorColor = .init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4)
 //        tableView.rx.willDisplayCell.subscribe(onNext: { cell, indexPath in
         //Do your will display logic
@@ -367,7 +368,7 @@ class ChoseToAddTokenView: UIView {
 //            self?.dismissView()
 //        }).disposed(by: disposeBag)
         
-        tableView.rx.itemSelected.subscribe(onNext: { [weak self] indexPath in
+        optionTableView.rx.itemSelected.subscribe(onNext: { [weak self] indexPath in
             
             guard let self = self else { return }
 //            if self.isDismissView {
@@ -481,12 +482,15 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
             $0.bottom.equalTo(0)
         }
         self.view.backgroundColor = .choseToAddTokenViewBackgroundColor
-        self.view.isOpaque = true
+        self.view.superview?.backgroundColor = .choseToAddTokenViewBackgroundColor
+        self.view.superview?.superview?.backgroundColor = .choseToAddTokenViewBackgroundColor
+        self.view.isOpaque = false
         choseToAddTokenView.backgroundColor = .choseToAddTokenViewBackgroundColor
         choseToAddTokenView.isOpaque = false
     }
 
     override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
         if #available(iOS 12.0, *) {
             self.view.superview?.snp.makeConstraints{
                 $0.top.equalTo(5)

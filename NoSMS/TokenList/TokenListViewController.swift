@@ -363,7 +363,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             // 设置弹出的尺寸
 //            self.tokenListMenuVC.providesPresentationContextTransitionStyle = true
 //            self.tokenListMenuVC.definesPresentationContext = true
-            self.tokenListMenuVC.preferredContentSize = CGSize(width: ScaleWidth(at: 144),height: ScaleWidth(at: 145))
+            self.tokenListMenuVC.preferredContentSize = CGSize(width: ScaleWidth(at: 144),height: ScaleWidth(at: 144))
             self.tokenListMenuVC.modalPresentationStyle = .popover
             var popover = self.tokenListMenuVC.popoverPresentationController!
             popover.delegate = self
