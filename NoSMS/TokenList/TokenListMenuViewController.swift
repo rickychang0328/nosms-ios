@@ -478,7 +478,7 @@ class TokenListMenuViewController<VCViewModel: TokenListMenuVCViewModelProtocol>
         self.view.addSubview(self.choseToAddTokenView)
         choseToAddTokenView.snp.makeConstraints {
             $0.top.left.right.equalTo(0)
-            $0.bottom.equalTo(-5)
+            $0.bottom.equalTo(0)
         }
         self.view.backgroundColor = .choseToAddTokenViewBackgroundColor
         self.view.isOpaque = false
