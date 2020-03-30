@@ -166,7 +166,10 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                 let count = self.sectionItems.rowItems.count
                 self.sectionItems.rowItems = viewModels
                 if count == viewModels.count {
-                    
+                   if self.isFirstOpen {
+                        self.isFirstOpen = false
+                        return
+                    }
                 // 當變多的時候就增加成功 所以重置搜索狀態
                 } else if count < viewModels.count {
                     
@@ -182,7 +185,9 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
                         
                 } else {
-                                        
+                    if self.isFirstOpen {
+                        self.isFirstOpen = false
+                    }
                     self.eventResult.onNext(.reloadData)
                 }
             })
