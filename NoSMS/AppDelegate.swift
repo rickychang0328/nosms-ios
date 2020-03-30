@@ -12,7 +12,10 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         let firstVC = UINavigationController(rootViewController: rootVC)
         self.window?.rootViewController = firstVC
         self.window?.makeKeyAndVisible()
-
+        
+        //MARK: LaunchScreen 坑
+        
+        clearLaunchScreenCache()
         return true
     }
     
@@ -158,6 +161,15 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         return true
+    }
+    
+    func clearLaunchScreenCache() {
+        
+        do {
+            try FileManager.default.removeItem(atPath: NSHomeDirectory()+"/Library/SplashBoard")
+        } catch {
+            print("Failed to delete launch screen cache: \(error)")
+        }
     }
 }
 
