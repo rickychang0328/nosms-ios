@@ -448,7 +448,24 @@ extension Token {
             return nil
         }
 
-        let algorithm = (try? queryItems.value(for: kQueryAlgorithmKey).map(algorithmFromString)) ?? defaultAlgorithm
+        let algorithm: Generator.Algorithm
+            
+        if let shaString = try? queryItems.value(for: kQueryAlgorithmKey) {
+            
+            //MARK: 為了判斷 sha 裡面是否符合三種雜湊方式。如果非這三種為不給過。
+            if let algorithms = try? algorithmFromString(shaString) {
+                
+                algorithm = algorithms
+            } else {
+                
+                return nil
+            }
+        } else {
+            
+            algorithm = .sha1
+        }
+        
+        
         let digits = (try? queryItems.value(for: kQueryDigitsKey).map(parseDigits)) ?? defaultDigits
         guard let secret = try? queryItems.value(for: kQuerySecretKey).map(parseSecret) else {
             return nil
