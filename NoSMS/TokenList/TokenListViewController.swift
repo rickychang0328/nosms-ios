@@ -450,6 +450,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         view.frame = .init(x: 25, y: 0, width: 8, height: 8)
         view.setBackgroundColor(.mustAuthRedColor)
         .addCornerRadius(at: 4)
+        view.isHidden = true
         return view
     }()
     
