@@ -13,9 +13,9 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         self.window?.rootViewController = firstVC
         self.window?.makeKeyAndVisible()
         
-        if #available(iOS 13, *) {
-            self.window?.overrideUserInterfaceStyle = .light
-        }
+        //MARK: LaunchScreen 坑
+        
+        clearLaunchScreenCache()
         return true
     }
     
@@ -161,6 +161,15 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         return true
+    }
+    
+    func clearLaunchScreenCache() {
+        
+        do {
+            try FileManager.default.removeItem(atPath: NSHomeDirectory()+"/Library/SplashBoard")
+        } catch {
+            print("Failed to delete launch screen cache: \(error)")
+        }
     }
 }
 

@@ -29,7 +29,7 @@ before_script:
 - export LC_CTYPE=en_US.UTF-8
 - rm -rf build
 - mkdir build
-- cd $IOS_TARGET_NAME && ifconfig && pod install && cd ..
+- cd $IOS_TARGET_NAME && ifconfig && pod repo update && pod install && cd ..
 - rm -rf Payload
 - mkdir Payload
 stages:

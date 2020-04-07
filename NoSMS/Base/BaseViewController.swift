@@ -51,12 +51,37 @@ class BaseViewController<ViewModel: BaseVCViewModelProtocol>: UIViewController {
         super.init(nibName: nil, bundle: nil)
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setupNavColor()
+    }
     
+    private func setupNavColor() {
+        
+        let color: UIColor
+            
+        if #available(iOS 13.0, *) {
+            
+            if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
+                    
+                color = .navColorDark
+            } else {
+                    
+                color = .navColorLight
+            }
+        } else {
+            color = .navColorLight
+                // Fallback on earlier versions
+        }
+        
+        navigationController?.navigationBar.barTintColor = color
+    }
+        
     override func viewDidLoad() {
         super.viewDidLoad()
         
         navigationController?.navigationBar.tintColor = .white
-        navigationController?.navigationBar.barTintColor = .countColor
+        setupNavColor()
         navigationController?.navigationBar.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
         navigationController?.navigationBar.barStyle = .black
         navigationController?.navigationBar.isTranslucent = false

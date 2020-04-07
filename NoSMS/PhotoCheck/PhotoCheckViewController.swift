@@ -203,7 +203,6 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
     private let navigationBarView: UIView = {
        
         let view = UIView()
-        view.setBackgroundColor(.countColor)
         return view
     }()
     
@@ -226,10 +225,14 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+        navigationController?.navigationBar.shadowImage = UIImage()
+
+        
         collectionView.delegate = self
         collectionView.dataSource = self
         collectionView.register(PhotoCheckCollectionViewCell.self, forCellWithReuseIdentifier: "PhotoCheckCollectionViewCell.self")
-        collectionView.backgroundColor = .backgroudColor
+        collectionView.backgroundColor = .photoCheckViewBackgroundColor
         view.addSubview(collectionView)
         view.sendSubviewToBack(collectionView)
         collectionView.snp.makeConstraints {
@@ -258,7 +261,7 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         
         tableView.isHidden = true
         tableView.bounces = false
-        tableView.backgroundColor = .backCoverColor
+        tableView.backgroundColor = .photoChoseCoverColor
         tableView.rx.itemSelected.map({$0.row})
             .subscribe(onNext: { [weak self] index in
             
@@ -317,13 +320,27 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         tableViewButtonInNavigationBar.rx.tap.subscribe(onNext: { [weak self] _ in
             
             guard let self = self else { return }
-            
-            self.tableViewButtonInNavigationBar.isSelected = !self.tableViewButtonInNavigationBar.isSelected
-            self.tableView.isHidden = !self.tableViewButtonInNavigationBar.isSelected
-    
+            self.choicePhotoAlbumAction()
         }).disposed(by: disposedBag)
         
         viewModel.getAlbum()
+        
+        let tapGestureRecognizer = UITapGestureRecognizer()
+        tapGestureRecognizer.rx
+            .event
+            .subscribe(onNext: { [weak self] _ in
+                
+                guard let self = self else { return }
+                self.choicePhotoAlbumAction()
+            }).disposed(by: disposedBag)
+        
+        navigationBarView.addGestureRecognizer(tapGestureRecognizer)
+    }
+    
+    private func choicePhotoAlbumAction() {
+        
+        tableViewButtonInNavigationBar.isSelected = !tableViewButtonInNavigationBar.isSelected
+        tableView.isHidden = !tableViewButtonInNavigationBar.isSelected
     }
     
     private func resetAlbumSelectView() {
@@ -366,5 +383,24 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         
         let nextVC = PhotoChoseViewController(viewModel: PhotoChoseVCViewModel(choseImage: image, placeHolderImage: placeHolderImage))
         navigationController?.pushViewController(nextVC, animated: true)
+    }
+    
+    private func setupNavigationViewColor() {
+        
+        let color: UIColor
+        
+        if UIDevice.isOniOS13UpDarkMode {
+            
+            color = .navColorDark
+        } else {
+            
+            color = .navColorLight
+        }
+        navigationBarView.setBackgroundColor(color)
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setupNavigationViewColor()
     }
 }

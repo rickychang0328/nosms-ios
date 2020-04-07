@@ -8,8 +8,8 @@ class NoSMSAlertView: UIView {
     let cancelButton: UIButton = {
         
         let button = UIButton()
-        button.setBackgroundColor(.alertCancelButtonColor)
-        button.setTitleColor(UIColor.white.withAlphaComponent(0.5), for: .normal)
+        button.setBackgroundColor(.alertCancelButtonBackgroundColor)
+        button.setTitleColor(.alertCancelButtonTextColor, for: .normal)
         button.titleLabel?.font = .pingFangMediumFont(size: 14)
         button.addCornerRadius(at: ScaleWidth(at: 4))
         return button
@@ -18,8 +18,8 @@ class NoSMSAlertView: UIView {
     let confirmButton: UIButton = {
         
         let button = UIButton()
-        button.setBackgroundColor(.alertConfirmButtonColor)
-        button.setTitleColor(.white, for: .normal)
+        button.setBackgroundColor(.alertActionButtonBackgroundColor)
+        button.setTitleColor(.alertActionButtonTextColor, for: .normal)
         button.titleLabel?.font = .pingFangMediumFont(size: 14)
         button.addCornerRadius(at: ScaleWidth(at: 4))
         return button
@@ -29,7 +29,7 @@ class NoSMSAlertView: UIView {
         
         let label = UILabel()
         label.setFont(.pingFangSemiBoldFont(size: 15))
-            .setTextColor(.white)
+            .setTextColor(.alertTextColor)
             .setNumberOfLine(0)
             .setTextAlignment(.left)
         return label
@@ -39,7 +39,7 @@ class NoSMSAlertView: UIView {
            
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 14))
-            .setTextColor(.white)
+            .setTextColor(.alertTextColor)
             .setNumberOfLine(0)
             .setTextAlignment(.left)
         return label
@@ -48,7 +48,7 @@ class NoSMSAlertView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .alertBackgroundColor
+        backgroundColor = .alertsBackgroundColor
         addSubview(titleLabel)
         addSubview(messageLabel)
         addSubview(cancelButton)
@@ -93,7 +93,7 @@ class NoSMSAlertViewController: UIViewController {
     let alertView: NoSMSAlertView = {
         
         let view = NoSMSAlertView(frame: .zero)
-        view.setBackgroundColor(.alertBackgroundColor)
+        view.setBackgroundColor(.alertsBackgroundColor)
             .addCornerRadius(at: ScaleWidth(at: 6))
         return view
     }()
@@ -146,7 +146,7 @@ class NoSMSHUD {
     static var toastView: UIView {
         
         let view = UIView()
-        view.setBackgroundColor(UIColor.black.withAlphaComponent(0.5))
+        view.setBackgroundColor(.toastBackgroundColor)
             .addCornerRadius(at: ScaleWidth(at: 6))
         return view
     }
@@ -155,7 +155,7 @@ class NoSMSHUD {
        
         let label = UILabel()
         label.setFont(.pingFangSemiBoldFont(size: 15))
-            .setTextColor(.white)
+            .setTextColor(.toastTextColor)
             .setNumberOfLine(20)
             .setTextAlignment(.center)
         label.preferredMaxLayoutWidth = ScaleWidth(at: 240)

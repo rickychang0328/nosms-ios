@@ -89,7 +89,7 @@ class MenuView: UIView {
         tableView.dataSource = self
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .menuBackgroundColor
         tableView.register(MenuViewTableViewCell.self,
                            forCellReuseIdentifier: MenuViewTableViewCell.description())
         return tableView
@@ -106,7 +106,7 @@ class MenuView: UIView {
     private let dissMissView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.backCoverColor)
+        view.setBackgroundColor(.dissmissCoverColor)
         return view
     }()
     
@@ -134,7 +134,6 @@ class MenuView: UIView {
 
         addSubview(dissMissView)
         addSubview(tableView)
-        
         let panGestureRecognizer = UIPanGestureRecognizer()
         
         addGestureRecognizer(panGestureRecognizer)
@@ -247,7 +246,18 @@ extension MenuView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         
-        return ScaleWidth(at: 50.5)
+        let height: CGFloat
+        let baseHeight: CGFloat = 50.5
+        
+        if UIDevice.isIPhoneXUp {
+            
+            height = baseHeight
+        } else {
+            
+            height = baseHeight - 20
+        }
+        
+        return height
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -257,7 +267,7 @@ extension MenuView: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         
-        return 0.001
+        return 0.0000000001
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -300,24 +310,24 @@ class MenuViewTableViewCell: UITableViewCell {
         
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.init(red: 51/255, green: 51/255, blue: 51/255, alpha: 1))
+            .setTextColor(.menuTextColor)
         return label
     }()
     
     private let underLineView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4))
+        view.setBackgroundColor(.menuUnderLineColor)
         return view
     }()
     private let updateRedView: UIView = {
            
-           let view = UIView()
-           view.frame = .init(x: 50, y: 0, width: 8, height: 8)
-           view.setBackgroundColor(.red)
-           .addCornerRadius(at: 4)
-           return view
-       }()
+        let view = UIView()
+        view.frame = .init(x: 50, y: 0, width: 8, height: 8)
+        view.setBackgroundColor(.mustAuthRedColor)
+            .addCornerRadius(at: 4)
+        return view
+    }()
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -371,10 +381,20 @@ class MenuViewTableViewCell: UITableViewCell {
         
         if highlighted {
            
-            contentView.backgroundColor = .alertCancelButtonColor
+            contentView.backgroundColor = .menuSelectColor
         } else {
            
-            contentView.backgroundColor = .white
+            contentView.backgroundColor = .menuBackgroundColor
+            
         }
     }
+}
+
+extension UIDevice {
+    
+    static var isIPhoneXUp: Bool {
+        
+        return UIScreen.main.bounds.height >= 812
+    }
+    
 }

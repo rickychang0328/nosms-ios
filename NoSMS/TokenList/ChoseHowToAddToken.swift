@@ -48,7 +48,7 @@ class ChoseHowToAddTokenView: UIView {
         tableView.dataSource = self
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .none
-        tableView.backgroundColor = .white
+        tableView.backgroundColor = .menuBackgroundColor
         tableView.register(ChoseTableViewCell.self, forCellReuseIdentifier: ChoseTableViewCell.description())
         return tableView
     }()
@@ -62,14 +62,14 @@ class ChoseHowToAddTokenView: UIView {
     private let dissMissView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.backCoverColor)
+        view.setBackgroundColor(.dissmissCoverColor)
         return view
     }()
     
     private let bottomCoverView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.white)
+        view.setBackgroundColor(.menuBackgroundColor)
         return view
     }()
     
@@ -288,14 +288,14 @@ class ChoseTableViewCell: UITableViewCell {
         
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.init(red: 51/255, green: 51/255, blue: 51/255, alpha: 1))
+            .setTextColor(.menuTextColor)
         return label
     }()
     
     private let underLineView: UIView = {
         
         let view = UIView()
-        view.setBackgroundColor(.init(red: 190/255, green: 192/255, blue: 201/255, alpha: 0.4))
+        view.setBackgroundColor(.menuUnderLineColor)
         return view
     }()
     
@@ -306,7 +306,7 @@ class ChoseTableViewCell: UITableViewCell {
         contentView.addSubview(titleImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(underLineView)
-        
+        contentView.backgroundColor = .menuBackgroundColor
         titleImageView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 20))
