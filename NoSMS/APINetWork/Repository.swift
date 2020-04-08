@@ -60,6 +60,22 @@ final class Repository {
     func getCurrentAPI()->String {
         return currentWebAPI
     }
+    
+    fileprivate func composeURL(_ APIDomainPort: String, _ webViewDomainProtocol: String, _ defaultFirstAPIDomain: String, _ items: Version) {
+        if APIDomainPort.isEmpty {
+            self.currentWebAPI = "\(webViewDomainProtocol)://\(defaultFirstAPIDomain).\(items.domain[0])/api/"
+        }else{
+            self.currentWebAPI = "\(String(describing: webViewDomainProtocol))://\(defaultFirstAPIDomain).\(items.domain[0]):\(APIDomainPort)/api/"
+        }
+        
+        if items.domain.count > 1 {
+            self.webViewURL = "\(webViewDomainProtocol)://\(items.domain[1].replacingOccurrences(of: "“", with: "").replacingOccurrences(of: "”", with: ""))/"
+        }else if items.domain.count == 1{
+            self.webViewURL = "\(webViewDomainProtocol)://\(items.domain[0].replacingOccurrences(of: "“", with: "").replacingOccurrences(of: "”", with: ""))/"
+        }
+//        print("current url:\(self.currentWebAPI),webview url:\(self.webViewURL)")
+    }
+    
     func postVersion(_ completion: @escaping ((Result<Version>) -> Void)){
         if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
 //            print("Build Version:\(build)")
@@ -72,6 +88,9 @@ final class Repository {
                 switch result {
                 case .success(let data):
                     do {
+                        let webViewDomainProtocol = Bundle.main.object(forInfoDictionaryKey: "webViewDomainProtocol") as? String ?? ""
+                        let defaultFirstAPIDomain = Bundle.main.object(forInfoDictionaryKey: "defaultFirstAPIDomain") as? String ?? ""
+                        let APIDomainPort = Bundle.main.object(forInfoDictionaryKey: "APIDomainPort") as? String ?? ""
                         let str = String(decoding: data, as: UTF8.self)
                         print("jsonData:\(str)")
                         var items = try JSONDecoder().decode(Version.self, from: data)
@@ -79,13 +98,7 @@ final class Repository {
                         items.isNeedUpdate = items.code == 1
                         Repository.sharedInstance.version?.isNeedUpdate = items.isNeedUpdate
                         if items.domain.count > 0 && !items.domain[0].isEmpty{
-
-                            self.currentWebAPI = "https://api.\(items.domain[0])/api/"
-                            if items.domain.count > 1 {
-                                self.webViewURL = "https://\(items.domain[1].replacingOccurrences(of: "“", with: "").replacingOccurrences(of: "”", with: ""))/"
-                            }else{
-                                self.webViewURL = "https://\(items.domain[0].replacingOccurrences(of: "“", with: "").replacingOccurrences(of: "”", with: ""))/"
-                            }
+                            self.composeURL(APIDomainPort, webViewDomainProtocol, defaultFirstAPIDomain, items)
                         }
                         completion(.success(items))
                     } catch {
