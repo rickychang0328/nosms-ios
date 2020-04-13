@@ -43,7 +43,15 @@ extension UIImage {
         
         return UIImage(named: "NoSMS_privacy") ?? UIImage()
     }
-    
+    static var noSmsLock:UIImage{
+        return UIImage(named: "NoSMS_lock") ?? UIImage()
+    }
+    static var noSmsFaceID:UIImage{
+        return UIImage(named:"NoSMS_faceID") ?? UIImage()
+    }
+    static var noSmsFingerPrint:UIImage {
+        return UIImage(named:"NoSMS_fingerprint") ?? UIImage()
+    }
     static var noSmsService: UIImage {
         
         return UIImage(named: "NoSMS_service") ?? UIImage()

@@ -2,6 +2,8 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import DynamicBlurView
+import BiometricAuthentication
 
 enum TokenListViewModelEvent {
     
@@ -352,10 +354,10 @@ class HomePageView: UIView {
 }
 
 class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
-    
+    private var isFirstOpen:Bool = true
     private var lifeCycleDisposeBag: DisposeBag = .init()
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
-    
+    let blurView = DynamicBlurView(frame: .zero)
     private lazy var addTokenBarButton: UIBarButtonItem = {
 
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -545,6 +547,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         view.addSubview(searchTextField)
         view.addSubview(resetSearchButton)
         view.addSubview(homePageView)
+        
         navigationController?.view.addSubview(choseHowToAddTokenView)
         navigationController?.view.addSubview(menuView)
         
@@ -705,6 +708,21 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 self.showKeyinTokenVC()
             }
         }).disposed(by: disposedBag)
+        
+        view.addSubview(blurView)
+        blurView.snp.makeConstraints {
+            $0.top.left.right.bottom.equalToSuperview()
+        }
+//        blurView.trackingMode = .tracking
+//        blurView.blendMode = .hardLight
+        blurView.blurRadius = 15
+        blurView.isDeepRendering = true
+        blurView.iterations = 10
+        blurView.blurRatio = 0.6
+        blurView.isHidden = true
+//        blurView.blendMode = .difference
+//        blurView.alpha = 0.8
+//        blurView.backgroundColor = .white
         self.callVersionAPI()
         
     }
@@ -928,7 +946,59 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                    
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
-        
+        NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
+                    guard let self = self else { return }
+            self.blurView.isHidden = false
+                    }).disposed(by: lifeCycleDisposeBag)
+        NotificationCenter.default.rx.notification(UIApplication.didBecomeActiveNotification).subscribe({[weak self] _ in
+                guard let self = self else { return }
+            if self.isFirstOpen {
+                self.isFirstOpen = false
+                return
+            }
+//        self.blurView.isHidden = false
+            BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { (result) in
+                                            
+                                        switch result {
+                                        case .success( _):
+                                            if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.faceIDString) {
+                                                UserDefaults.standard.set(true, forKey: UserDefaults.Key.faceIDString.faceIDString)
+                                            }
+                                            // authentication successful
+            //                                self?.showLoginSucessAlert()
+                                           self.blurView.isHidden = true
+                                        case .failure(let error):
+                                            
+                                            switch error {
+                                                
+                                            // device does not support biometric (face id or touch id) authentication
+                                            case .biometryNotAvailable:
+                                                self.showErrorAlert(message: error.message())
+                                                
+                                            // No biometry enrolled in this device, ask user to register fingerprint or face
+                                            case .biometryNotEnrolled:
+            //                                    self?.showGotoSettingsAlert(message: error.message())
+                                                break
+                                            // show alternatives on fallback button clicked
+                                            case .fallback:
+            //                                    self?.txtUsername.becomeFirstResponder() // enter username password manually
+                                                break
+                                                // Biometry is locked out now, because there were too many failed attempts.
+                                            // Need to enter device passcode to unlock.
+                                            case .biometryLockedout:
+                                                self.showPasscodeAuthentication(message: error.message())
+                                                
+                                            // do nothing on canceled by system or user
+                                            case .canceledBySystem, .canceledByUser:
+                                                break
+                                                
+                                            // show error for any other reason
+                                            default:
+                                                self.showErrorAlert(message: error.message())
+                                            }
+                                        }
+                                    }
+                }).disposed(by: lifeCycleDisposeBag)
        NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification).subscribe({[weak self] _ in
                 guard let self = self else { return }
     //            if self.tokenListMenuVC.isViewLoaded {
@@ -1105,6 +1175,18 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return .none
     }
+    func showPasscodeAuthentication(message: String) {
+               
+               BioMetricAuthenticator.authenticateWithPasscode(reason: message) { [weak self] (result) in
+                   switch result {
+                   case .success( _):
+       //                self?.showLoginSucessAlert() // passcode authentication success
+                       break
+                   case .failure(let error):
+                       print(error.message())
+                   }
+               }
+           }
 }
 
 extension UIDevice {

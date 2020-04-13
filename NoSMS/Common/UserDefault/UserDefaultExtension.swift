@@ -6,10 +6,13 @@ extension UserDefaults {
     enum Key {
     
         case pastedString
-        
+        case faceIDString
         var string: String {
             
             return "pastedString"
+        }
+        var faceIDString:String {
+            return "faceIDString"
         }
     }
     

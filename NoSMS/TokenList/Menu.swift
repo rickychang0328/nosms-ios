@@ -12,10 +12,12 @@ class MenuView: UIView {
         case service
         case helper
         case versionupdate
+        case lock
         fileprivate var image: UIImage {
 
             switch self {
-            
+            case .lock:
+                return .noSmsLock
             case .legal:
                 return .noSmsLegal
             case .privacy:
@@ -30,7 +32,8 @@ class MenuView: UIView {
         fileprivate var title: String {
             
             switch self {
-            
+            case .lock:
+                return "安全设置"
             case .legal:
                 return "法律声明"
             case .privacy:
@@ -47,7 +50,8 @@ class MenuView: UIView {
         var nextVC: UIViewController {
             
             switch self {
-
+            case .lock:
+                return FaceIDSettingViewController()
             case .legal:
                 return UIViewController()
             case .privacy:
@@ -72,6 +76,13 @@ class MenuView: UIView {
                     }else {
                         return false
                     }
+            case .lock:
+                
+                if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.faceIDString) {
+                    return true
+                }else {
+                    return false
+                }
 //                    return true
                 default:
                     return false
@@ -97,7 +108,7 @@ class MenuView: UIView {
     func reloadTableViewData() {
         self.tableView.reloadData()
     }
-    private let choseEvnets: [ChoseEvnet] = [.privacy, .helper,.versionupdate]
+    private let choseEvnets: [ChoseEvnet] = [.lock, .privacy, .helper,.versionupdate]
     
     private let cellHeight: CGFloat = ScaleWidth(at: 63)
     

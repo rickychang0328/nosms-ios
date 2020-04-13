@@ -35,7 +35,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
-        
+         print("applicationDidEnterBackground")
         KeychainTokenStore.shared.appDidEnterBackgroundResetting()
     }
     

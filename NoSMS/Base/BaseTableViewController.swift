@@ -81,6 +81,8 @@ enum TableViewCellFactoryType {
     case joinManuallyTextIn(viewModel: JoinManuallyCellTextInItems)
     case joinManuallySwither(viewModel: JoinManuallyCellSwitchItems)
     case photoCheckTableViewCell(viewModel: PhotoCheckTableViewCellViewModel)
+    case faceIDSettingTableViewCell(viewModel: FaceIDSettingTableViewCellViewModel)
+    case faceIDSwitcherTableViewCell(viewModel:FaceIDSettingCellSwitchItems)
 }
 
 enum TableViewHeaderFooterFactoryType {
@@ -286,6 +288,10 @@ private extension TableViewCellFactoryType {
 
         case .photoCheckTableViewCell:
             return String(describing: PhotoCheckTableViewCell.self)
+        case .faceIDSettingTableViewCell:
+            return String(describing: FaceIDSettingTableViewCell.self)
+        case .faceIDSwitcherTableViewCell:
+            return String(describing: FaceIDSettingSwitchTableViewCell<FaceIDSettingCellSwitchItems>.self)
         }
     }
     
@@ -352,6 +358,30 @@ private extension TableViewCellFactoryType {
                 cell = PhotoCheckTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
             }
                 
+            cell.bindData(viewModel: viewModel)
+            return cell
+        case .faceIDSettingTableViewCell(let viewModel):
+            let cell: FaceIDSettingTableViewCell
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? FaceIDSettingTableViewCell {
+                
+                cell = reuseCell
+            } else {
+                
+                cell = FaceIDSettingTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
+            
+            cell.bindData(viewModel: viewModel)
+            return cell
+        case .faceIDSwitcherTableViewCell(let viewModel):
+            let cell: FaceIDSettingSwitchTableViewCell<FaceIDSettingCellSwitchItems>
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? FaceIDSettingSwitchTableViewCell<FaceIDSettingCellSwitchItems> {
+                
+                cell = reuseCell
+            } else {
+                
+                cell = FaceIDSettingSwitchTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
+            
             cell.bindData(viewModel: viewModel)
             return cell
         }

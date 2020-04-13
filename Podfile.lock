@@ -1,5 +1,7 @@
 PODS:
   - Base32 (1.1.2)
+  - BiometricAuthentication (3.1.2)
+  - DynamicBlurView (4.0.0)
   - OneTimePassword (3.2.0):
     - Base32 (~> 1.1.2)
   - RxCocoa (5.1.0):
@@ -11,6 +13,8 @@ PODS:
   - SnapKit (4.2.0)
 
 DEPENDENCIES:
+  - BiometricAuthentication
+  - DynamicBlurView
   - OneTimePassword (~> 3.2)
   - RxCocoa (~> 5.1)
   - RxSwift (~> 5.1)
@@ -24,15 +28,20 @@ SPEC REPOS:
     - RxRelay
     - RxSwift
     - SnapKit
+  trunk:
+    - BiometricAuthentication
+    - DynamicBlurView
 
 SPEC CHECKSUMS:
   Base32: 163c298644d184e89ca4e00a996bad6bf5166390
+  BiometricAuthentication: 36445f3ab77699489f91995bed887be89890afac
+  DynamicBlurView: ccf9acd2b20c883cc2c72e3524a04d8d3ee20533
   OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
   RxCocoa: 13d2a4d7546a34b8ececae8c281e4ea1dbb94f2b
   RxRelay: a168bd6caf712d00c676ac344e9295afc93b418e
   RxSwift: ad5874f24bb0dbffd1e9bb8443604e3578796c7a
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: e9f6448c19dbd617d424e53133647ddd01e32f5e
+PODFILE CHECKSUM: f0bd96dd88ed50275697e7b11f01f64d8b73bdf6
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.8.4
