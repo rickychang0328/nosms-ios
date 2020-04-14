@@ -60,6 +60,11 @@ extension UIColor {
     private static let color_020_018_044: UIColor = .getColor(red: 20, green: 18, blue: 44, alpha: 1)
     private static let color_036_205_132: UIColor = .getColor(red: 36, green: 205, blue: 132, alpha: 1)
     private static let color_050_230_152: UIColor = .getColor(red: 50, green: 230, blue: 152, alpha: 1)
+    private static let color_136_136_136: UIColor = .getColor(red: 136, green: 136, blue: 136, alpha: 1)
+    private static let color_249_249_249: UIColor = .getColor(red: 249, green: 249, blue: 249, alpha: 1)
+    private static let color_057_060_080: UIColor = .getColor(red: 57, green: 60, blue: 80, alpha: 1)
+    private static let color_153_153_153_002: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.02)
+    private static let color_153_153_153_003: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.03)
 
     
     static let mustAuthRedColor: UIColor = .color_237_085_085
@@ -79,7 +84,7 @@ extension UIColor {
     static let tokenListTimerColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250,
                                                                               lightColor: .color_098_112_255)
     static let tokenListBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_033_033_033_056,
-                                                                                   lightColor: .white)
+                                                                                   lightColor: .color_249_249_249)
     static let tokenListHidePasswordInEditColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06,
                                                                                            lightColor: .color_000_000_000_01)
     static let tokenListTableViewBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
@@ -108,6 +113,7 @@ extension UIColor {
                                                                                       lightColor: .color_102_102_102)
     static let tokenListCellTextFieldUnderLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_043_043_045,
                                                                                                lightColor: .color_153_153_153_05)
+    static let tokenListCellSwipeBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_098_112_255)
     
     
     //MARK: ManuallyTOTP
@@ -193,6 +199,13 @@ extension UIColor {
                                                                                            lightColor: .color_098_112_255)
     static let alertActionButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
                                                                                      lightColor: .white)
+    static let alertStreetActionButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_237_085_085,
+    lightColor: .color_237_085_085)
+    static let alertStreetCancelButtonBackGroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .color_057_060_080)
+    static let alertStreetCancelButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_153_153_153_003, lightColor: .color_255_255_255_05)
+    static let alertStreetUnderLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_190_192_201_04, lightColor: .color_190_192_201_04)
+
+
     
     
     //MARK: Toast
@@ -229,5 +242,25 @@ extension UIColor {
     static let dissmissCoverColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_000_000_000_05,
                                                                              lightColor: .color_000_000_000_04)
 
+    //MARK: GroupView
+    static let groupBackCardColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .white)
+    static let groupHeaderTitleColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_102_102_102, lightColor: .color_102_102_102)
+    static let groupCellTitleColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .color_051_051_051)
+    
+    //MARK: GroupEditView
+    static let groupEditTextFieldTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06, lightColor: .color_051_051_051)
+    static let groupEditAddCodeButtonColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_098_112_255)
+    static let groupEditTextFieldBackGroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_153_153_153_01, lightColor: .white)
+    static let groupEditAddCodeButtonBackGroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_153_153_153_01, lightColor: .white)
+    static let groupCellBackCardColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .white)
+    static let groupAddCodeVCBackGroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_033_033_033_056, lightColor: .color_249_249_249)
+    static let groupEditCellDeleteActionColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_237_085_085, lightColor: .color_237_085_085)
+
+    
+    //MARK: CustomSegmentControl
+    static let customSegmentControlEnableTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_098_112_255)
+    static let customSegmentControlDisnableTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_136_136_136, lightColor: .color_136_136_136)
+    static let customSegmentControlUnderLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_098_112_255)
+    
 
 }

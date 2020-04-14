@@ -2,23 +2,58 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import AudioToolbox
 
-protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProtocol {
+
+protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProtocol, BaseTokenListViewType {
     
     var name: BehaviorSubject<String> { get }
-    var password: Observable<String> { get }
-    var issuer: Observable<String> { get }
     var lastTime: BehaviorSubject<String> { get }
     var haveSelectToDelete: BehaviorSubject<Bool> { get }
-    var passwordCount: Int { get }
     var isOnTime: Bool { get }
     var getTapPassword: () -> Void { get }
     var reFreshTime: Int { get }
     var passwordShow: Observable<Bool> { get }
     var isInSearch: BehaviorSubject<Bool> { get }
+    var warningTime: Observable<Bool> { get }
+    var tokenID: Data { get }
+    var isPin: Bool { get set }
+    var addPin: () -> Void { get }
+    var removePin: () -> Void { get }
+    func setPin(isPin: Bool)
 }
 
 class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
+    
+    func setPin(isPin: Bool) {
+        self.isPin = isPin
+    }
+
+    let addPin: () -> Void
+    
+    let removePin: () -> Void
+    
+    var isPin: Bool = false
+    
+    let tokenID: Data
+
+    var passwordColor: Observable<UIColor> {
+        
+        return warningTime.map({ if self.isOnTime {
+        
+                return $0 ? UIColor.tokenListWarningPasswordColor : UIColor.tokenListPasswordColor
+
+            } else {
+                
+                return UIColor.tokenListPasswordColor
+            }
+        })
+    }
+    
+    var warningTime: Observable<Bool> {
+        
+        return lastTime.compactMap({Int($0)}).map({$0 < 6})
+    }
     
     let isInSearch: BehaviorSubject<Bool> = .init(value: false)
     
@@ -56,7 +91,10 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
                   isOnTime: Bool,
                   getTapPassword: @escaping () -> Void,
                   refreshTime: Int,
-                  passwordShow: Observable<Bool>) {
+                  passwordShow: Observable<Bool>,
+                  uuid: Data,
+                  addPin: @escaping () -> Void,
+                  removePin: @escaping () -> Void) {
         self.getTapPassword = getTapPassword
         self.baseCellItem = baseViewModelItem
         self.name = name
@@ -93,12 +131,16 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
         self.passwordCount = passwordCount
         self.isOnTime = isOnTime
         self.passwordShow = passwordShow
+        self.tokenID = uuid
+        self.addPin = addPin
+        self.removePin = removePin
     }
 }
- 
-class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate {
+
+
+class BaseTokenListView: UIView {
     
-    private let nameLabel: UILabel = {
+    let nameLabel: UILabel = {
        
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
@@ -106,15 +148,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return label
     }()
     
-    private let nameTextField: UITextField = {
-        
-        let textField = UITextField()
-        textField.font = .pingFangMediumFont(size: 15)
-        textField.textColor = .tokenListCellTextFieldColor
-        return textField
-    }()
-    
-    private let passwordLabel: UILabel = {
+    let passwordLabel: UILabel = {
           
         let label = UILabel()
         label.setFont(.arialMTFont(size: 45))
@@ -122,7 +156,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return label
     }()
     
-    private let issuerLabel: UILabel = {
+    let issuerLabel: UILabel = {
           
         let label = UILabel()
         label.setTextColor(.tokenListIssuerColor)
@@ -130,6 +164,347 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return label
     }()
     
+    let digitsView: DigitsView = .init(frame: .zero)
+    
+    var disposedBag: DisposeBag = .init()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        addSubview(issuerLabel)
+        addSubview(passwordLabel)
+        addSubview(nameLabel)
+        addSubview(digitsView)
+        
+        issuerLabel.snp.makeConstraints {
+            
+            $0.top.left.equalTo(ScaleWidth(at: 16))
+            $0.right.equalTo(ScaleWidth(at: -16))
+        }
+        
+        passwordLabel.snp.makeConstraints {
+            
+            $0.left.right.equalTo(issuerLabel)
+            $0.top.equalTo(issuerLabel.snp.bottom).offset(ScaleWidth(at: 10))
+        }
+        
+        nameLabel.snp.makeConstraints {
+            
+            $0.left.equalTo(issuerLabel)
+            $0.right.equalTo(ScaleWidth(at: -50))
+            $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10)).priorityLow()
+//            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
+        }
+        
+        digitsView.snp.makeConstraints {
+            
+            $0.edges.equalTo(passwordLabel)
+        }
+        digitsView.isHidden = true
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func bindData(viewModel: BaseTokenListViewType) {
+        disposedBag = .init()
+        //MARK: 給空白讓 label 的 auto 高不會跑掉
+        let name = viewModel.name.map({ string -> String in
+          
+            if string.isEmpty {
+                
+                return " "
+            } else {
+                
+                return string
+            }
+        })
+            
+        name.bind(to: nameLabel.rx.text)
+            .disposed(by: disposedBag)
+
+        viewModel.issuer
+            .bind(to: issuerLabel.rx.text)
+            .disposed(by: disposedBag)
+        
+        viewModel.password
+            .bind(to: passwordLabel.rx.text)
+            .disposed(by: disposedBag)
+        
+        viewModel.passwordColor
+            .bind(to: passwordLabel.rx.textColor)
+            .disposed(by: disposedBag)
+        digitsView.setDigits(count: viewModel.passwordCount)
+    }
+}
+
+protocol BaseTokenListViewType {
+    
+    var name: BehaviorSubject<String> { get }
+    var password: Observable<String> { get }
+    var issuer: Observable<String> { get }
+    var passwordColor: Observable<UIColor> { get }
+    var passwordCount: Int { get }
+}
+
+protocol SwipeType: UIView {
+    
+    func swipeOn()
+    func swipeOff()
+}
+
+//MARK: 偷時間...
+class SwipeManager {
+    
+    static let shared: SwipeManager = .init()
+    var swipes: [SwipeType] = []
+    private init() {}
+    
+    func swipeOff() {
+     
+        swipes.forEach( { $0.swipeOff() })
+        swipes = []
+    }
+    
+    func addSwipeType(swipe: SwipeType) {
+        
+        swipes.append(swipe)
+    }
+    
+    func removeSwipeType(swipe: SwipeType) {
+        
+        guard let index = swipes.firstIndex(where: { $0 == swipe }) else { return }
+        swipes.remove(at: index)
+    }
+}
+ 
+class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate, SwipeType {
+    
+    private let pinImageView: UIImageView = {
+       
+        let view = UIImageView.init(image: .noSMStokenListPin)
+        return view
+    }()
+    
+    private var nowGesX: CGFloat = 0
+        
+    private var nowCellX: CGFloat {
+        
+        return swipebackCardView.frame.origin.x
+    }
+
+    enum SwipeStatus {
+        
+        case on
+        case off
+    }
+    
+    private var swipeStatus: SwipeStatus = .off
+
+    private let swipeWidth: CGFloat = ScaleWidth(at: 73)
+    
+    private let actionWidth: CGFloat = UIScreen.main.bounds.width / 3
+    
+    func swipeOn() {
+        
+        UIView.animate(withDuration: 0.2) {
+            
+            self.swipebackCardView.changeLeft(to: self.swipeWidth)
+            self.layoutIfNeeded()
+        }
+        swipeStatus = .on
+        SwipeManager.shared.addSwipeType(swipe: self)
+    }
+    
+    func swipeOff() {
+        
+        UIView.animate(withDuration: 0.2) {
+            
+            self.swipebackCardView.changeLeft(to: 0)
+            self.layoutIfNeeded()
+        }
+        swipeStatus = .off
+        SwipeManager.shared.removeSwipeType(swipe: self)
+    }
+    
+    private let swipeLabel: UILabel = {
+       
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 13))
+            .setTextColor(.white)
+            .setText("置顶")
+        return label
+    }()
+    
+    private let swipeImageView: UIImageView = UIImageView(image: .noSMStokenListPinAction)
+    
+    private lazy var swipeViewSubView: UIView = {
+        
+        let view = UIView()
+        view.addSubview(swipeImageView)
+        view.addSubview(swipeLabel)
+
+        swipeImageView.snp.makeConstraints {
+
+            $0.right.equalToSuperview().inset(ScaleWidth(at: 16.5))
+            $0.top.equalTo(ScaleWidth(at: 42.5))
+            $0.size.equalTo(ScaleWidth(at: 40))
+        }
+        swipeLabel.snp.makeConstraints {
+
+            $0.centerX.equalTo(swipeImageView)
+            $0.top.equalTo(swipeImageView.snp.bottom)
+        }
+        
+        return view
+    }()
+        
+    private let swipeLeftView: UIView = {
+    
+        let view = UIView()
+        view.setBackgroundColor(.tokenListCellSwipeBackgroundColor)
+        return view
+    }()
+    
+    private func swipeAction() {
+        
+        swipeOff()
+        
+        if viewModel?.isPin ?? false {
+            
+            viewModel?.removePin()
+        } else {
+            
+            viewModel?.addPin()
+        }
+    }
+        
+    private func addSwipeLeft() {
+        
+        contentView.addSubview(swipeLeftView)
+        swipeLeftView.snp.makeConstraints {
+            
+            $0.top.width.bottom.equalTo(swipebackCardView)
+            $0.right.equalTo(swipebackCardView.snp.left)
+        }
+
+        let tapGest = UITapGestureRecognizer()
+        tapGest.rx.event.subscribe(onNext: { [weak self] tapGest in
+            self?.swipeAction()
+            
+            }).disposed(by: cellDeinitDisposedBag)
+        swipeLeftView.addGestureRecognizer(tapGest)
+        
+        let gestView = UIView()
+        contentView.addSubview(gestView)
+        
+        gestView.snp.makeConstraints {
+            
+            $0.top.left.bottom.equalTo(swipebackCardView)
+            $0.width.equalTo(ScaleWidth(at: 50))
+        }
+        
+        swipeLeftView.addSubview(swipeViewSubView)
+        
+        swipeViewSubView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+         
+        let ges = UIPanGestureRecognizer()
+        ges.rx.event
+            .subscribe(onNext: { [weak self] panGestureRecognizer in
+                guard let self = self else { return }
+                
+                if self.isEditing {
+                    
+                    return
+                }
+                
+                switch panGestureRecognizer.state {
+                    
+                case .began:
+                    
+                    if self.nowCellX == 0 {
+                
+                        SwipeManager.shared.swipeOff()
+                    }
+                    self.swipeLeftView.isHidden = false
+                case .changed:
+                    
+                    let transLationX = panGestureRecognizer.translation(in: self).x
+                    let moveX = self.nowGesX - transLationX
+                    self.nowGesX = transLationX
+                    let newX: CGFloat = self.swipebackCardView.frame.origin.x - moveX
+                    
+                    let resultX: CGFloat
+                    
+                    if newX < 0 {
+                        
+                        resultX = 0
+                    } else {
+                        
+                        resultX = newX
+                    }
+                    
+                    self.swipebackCardView.changeLeft(to: resultX)
+//                    self.frame.origin = .init(x: resultX, y: self.frame.origin.y)
+
+                    
+                    if self.nowCellX > self.actionWidth {
+                        
+                        //MARK: 震動
+                        AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                    }
+                    
+                case .ended:
+                    if self.nowCellX > self.actionWidth {
+                        
+                        //MARK: swipe 行動
+                        self.swipeAction()
+                    } else if self.nowCellX < self.actionWidth, self.nowCellX > self.swipeWidth {
+                        
+                        self.swipeOn()
+                    } else {
+                        
+                    
+                        switch self.swipeStatus {
+                            
+                        case .on:
+                            
+                            self.swipeOff()
+                        case .off:
+                           
+                            if self.nowCellX == 0 {
+                                
+                                return
+                            }
+                            self.swipeOn()
+                        }
+                    }
+
+                default:
+                    break
+                }
+            })
+            .disposed(by: cellDeinitDisposedBag)
+        gestView.addGestureRecognizer(ges)
+    }
+    private let cellDeinitDisposedBag: DisposeBag = .init()
+    
+    private let baseTokenView: BaseTokenListView = .init(frame: .zero)
+
+    private let nameTextField: UITextField = {
+        
+        let textField = UITextField()
+        textField.font = .pingFangMediumFont(size: 15)
+        textField.textColor = .tokenListCellTextFieldColor
+        textField.isUserInteractionEnabled = true
+        return textField
+    }()
+
     private let countTimeLabel: UILabel = {
         
         let label = UILabel()
@@ -160,9 +535,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }()
     
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
-    
-    private let digitsView: DigitsView = .init(frame: .zero)
-    
+        
     private var isOnTime: Bool = false
     
     private var hotpShowPassword: Bool = false
@@ -183,36 +556,41 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
         layoutView()
+        addSwipeLeft()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private let swipebackCardView: UIView = {
+         
+        let view = NeverClearColorView()
+        view.setBackgroundColor(.tokenListBackCardColor)
+        return view
+    }()
+    
     private func layoutView() {
         
         addSubview(backCardView)
         sendSubviewToBack(backCardView)
-        contentView.addSubview(nameLabel)
+        backCardView.addSubview(swipebackCardView)
+        swipebackCardView.addSubview(baseTokenView)
         contentView.addSubview(nameTextField)
-        contentView.addSubview(passwordLabel)
-        contentView.addSubview(issuerLabel)
-        contentView.addSubview(circleView)
+        swipebackCardView.addSubview(circleView)
         circleView.addSubview(countTimeLabel)
-        contentView.addSubview(tapGetPasswordButton)
+        swipebackCardView.addSubview(tapGetPasswordButton)
+        swipebackCardView.addSubview(pinImageView)
         addSubview(deleteImageView)
         addSubview(deletedButton)
-        contentView.addSubview(digitsView)
-        
-        issuerLabel.snp.makeConstraints {
+        baseTokenView.snp.makeConstraints {
             
-            $0.top.left.equalTo(ScaleWidth(at: 16))
-            $0.right.equalTo(ScaleWidth(at: -16))
+            $0.edges.equalToSuperview()
         }
-    
+        
         deleteImageView.snp.makeConstraints {
             
-            $0.centerY.equalTo(passwordLabel)
+            $0.centerY.equalTo(baseTokenView.passwordLabel)
             $0.right.equalTo(contentView.snp.left)
             $0.height.equalTo(ScaleWidth(at: 18))
             $0.width.equalTo(ScaleWidth(at: 18))
@@ -223,24 +601,10 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.top.bottom.left.equalToSuperview()
             $0.right.equalTo(contentView.snp.left).offset(20)
         }
-
-        passwordLabel.snp.makeConstraints {
-            
-            $0.left.right.equalTo(issuerLabel)
-            $0.top.equalTo(issuerLabel.snp.bottom).offset(ScaleWidth(at: 10))
-        }
-        
-        nameLabel.snp.makeConstraints {
-            
-            $0.left.equalTo(issuerLabel)
-            $0.right.equalTo(ScaleWidth(at: -50))
-            $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10)).priorityLow()
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
-        }
         
         nameTextField.snp.makeConstraints {
-                  
-            $0.left.centerY.equalTo(nameLabel).offset(1)
+                        
+            $0.left.centerY.equalTo(baseTokenView.nameLabel).offset(1)
             $0.right.equalTo(ScaleWidth(at: -16))
         }
         
@@ -256,19 +620,25 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         backCardView.snp.makeConstraints {
             
-            $0.top.left.right.equalToSuperview()
+            $0.top.left.width.equalToSuperview()
             $0.bottom.equalTo(ScaleWidth(at: -4))
         }
-    
-        countTimeLabel.snp.makeConstraints {
+        
+        swipebackCardView.snp.makeConstraints {
             
+            $0.top.left.width.equalTo(contentView)
+            $0.bottom.equalTo(contentView).offset(ScaleWidth(at: -4))
+        }
+        
+        countTimeLabel.snp.makeConstraints {
+
             $0.center.equalTo(circleView)
         }
         
         circleView.snp.makeConstraints {
-            
+
             $0.size.equalTo(ScaleWidth(at: 27))
-            $0.centerY.equalTo(nameLabel)
+            $0.centerY.equalTo(baseTokenView.nameLabel)
             $0.right.equalTo(ScaleWidth(at: -16))
         }
         
@@ -277,23 +647,24 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.edges.equalTo(circleView)
         }
         
-        digitsView.snp.makeConstraints {
+        pinImageView.snp.makeConstraints {
             
-            $0.edges.equalTo(passwordLabel)
+            $0.top.equalTo(baseTokenView.issuerLabel)
+            $0.right.equalTo(swipebackCardView).offset(ScaleWidth(at: -16))
+            $0.size.equalTo(ScaleWidth(at: 30))
         }
-        digitsView.isHidden = true
         
         nameTextField.delegate = self
     }
     func runBackCardAnimation() {
         UIView.animate(withDuration: 0.3, animations: {
 
-            self.backCardView.backgroundColor = .tokenListBackcardAnimationColor
+            self.swipebackCardView.backgroundColor = .tokenListBackcardAnimationColor
             
         }, completion: { (value: Bool) in
             UIView.animate(withDuration: 0.1, animations: {
 
-                self.backCardView.backgroundColor = .tokenListBackCardColor
+                self.swipebackCardView.backgroundColor = .tokenListBackCardColor
             })
         })
     }
@@ -314,9 +685,13 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return true
     }
     
+    
+    private var viewModel: TokenListTableViewCellViewModelProtocol?
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         moveImageView.removeFromSuperview()
+        viewModel = nil
     }
     
     override func layoutSubviews() {
@@ -337,25 +712,26 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         UIView.animate(withDuration: 0.1, animations: {
             
-            self.nameLabel.isHidden = self.isEditing
-            self.passwordLabel.isHidden = self.isEditing
+            self.baseTokenView.nameLabel.isHidden = self.isEditing
+            self.baseTokenView.passwordLabel.isHidden = self.isEditing
             self.nameTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
-            self.digitsView.isHidden = !self.isEditing
+            self.baseTokenView.digitsView.isHidden = !self.isEditing
+            self.deleteImageView.isHidden = !self.isEditing
 
             if self.isOnTime {
                 
                 self.circleView.isHidden = self.isEditing
                 self.tapGetPasswordButton.isHidden = true
-                self.digitsView.isHidden = !self.isEditing
+                self.baseTokenView.digitsView.isHidden = !self.isEditing
             } else {
                 self.circleView.isHidden = true
                 self.tapGetPasswordButton.isHidden = self.isEditing
                 
                 if !self.isEditing && !self.hotpShowPassword {
                     
-                    self.digitsView.isHidden = false
-                    self.passwordLabel.isHidden = true
+                    self.baseTokenView.digitsView.isHidden = false
+                    self.baseTokenView.passwordLabel.isHidden = true
                 }
             }
             
@@ -370,18 +746,26 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                     let imageOfReorder = view.subviews[0] as? UIImageView
                     imageOfReorder?.image = nil
                     view.addSubview(moveImageView)
-                    moveImageView.center = .init(x: ScaleWidth(at: 10), y: passwordLabel.center.y)
+                    moveImageView.center = .init(x: ScaleWidth(at: 10), y: baseTokenView.passwordLabel.center.y)
                     
-                    view.isHidden = isInSearch
+                    view.isHidden = isInSearch || (viewModel?.isPin ?? false)
                 }
             }
             
-            digitsView.setColor(.tokenListHidePasswordInEditColor)
+            baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+            
+            //MARK: 為了在顯示的時候藏起來
+            swipeLeftView.isHidden = true
         } else {
             
             moveImageView.removeFromSuperview()
-            digitsView.setColor(.tokenListHidePasswordColor)
+            baseTokenView.digitsView.setColor(.tokenListHidePasswordColor)
         }
+        
+        pinImageView.isHidden = !(viewModel?.isPin ?? false) || isInSearch || isEditing
+        swipeLabel.text = viewModel?.isPin ?? false ? "取消置顶" : "置顶"
+        swipeImageView.image = viewModel?.isPin ?? false ? UIImage.noSMStokenListPinRemoveAction : UIImage.noSMStokenListPinAction
+
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
@@ -393,31 +777,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     override func bindData(viewModel: ViewModel) {
         super.bindData(viewModel: viewModel)
         
-        //給空白讓 label 的 auto 高不會跑掉
-        let name = viewModel.name.map({
-          
-            if $0.isEmpty {
-                
-                return " "
-            } else {
-                
-                return $0
-            }
-        }).asDriver(onErrorJustReturn: "")
-            
-        name.drive(nameLabel.rx.text)
-            .disposed(by: disposedBag)
+        baseTokenView.bindData(viewModel: viewModel)
         viewModel.name.bind(to:nameTextField.rx.text)
             .disposed(by: disposedBag)
 
-        viewModel.issuer
-            .bind(to: issuerLabel.rx.text)
-            .disposed(by: disposedBag)
-        
-        viewModel.password
-            .bind(to: passwordLabel.rx.text)
-            .disposed(by: disposedBag)
-        
+
         //hotp 的密碼是否顯示 有動作後要讓 button 不能按一陣子
         viewModel.passwordShow
             .subscribe(onNext: { [weak self] hotpShowPassword in
@@ -439,9 +803,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         viewModel.lastTime
             .bind(to: countTimeLabel.rx.text)
             .disposed(by: disposedBag)
-        
-        digitsView.setDigits(count: viewModel.passwordCount)
-        
+                
         isOnTime = viewModel.isOnTime
         tapGetPasswordButton.isHidden = viewModel.isOnTime
         
@@ -458,21 +820,9 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .subscribe(onNext: viewModel.getTapPassword)
             .disposed(by: disposedBag)
        
-        let warningTime = viewModel.lastTime.compactMap({Int($0)}).map({$0 < 6})
         
         let isOnTime = viewModel.isOnTime
-        passwordLabel.setTextColor(.tokenListPasswordColor)
-        
-        warningTime.map({ if isOnTime {
-            
-                    return $0 ? UIColor.tokenListWarningPasswordColor : UIColor.tokenListPasswordColor
-
-                } else {
-                    
-                    return UIColor.tokenListPasswordColor
-                }
-            }).bind(to: passwordLabel.rx.textColor)
-            .disposed(by: disposedBag)
+        baseTokenView.passwordLabel.setTextColor(.tokenListPasswordColor)
         
         viewModel.haveSelectToDelete
             .bind(to: deletedButton.rx.isSelected)
@@ -515,7 +865,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             circleView.isHidden = true
         }
         
-        warningTime.map({ $0 ? UIColor.circleViewWarningColor : UIColor.circleViewNormalColor })
+        viewModel.warningTime.map({ $0 ? UIColor.circleViewWarningColor : UIColor.circleViewNormalColor })
             .bind(to: countTimeLabel.rx.textColor, circleView.loadingColorBinder)
             .disposed(by: disposedBag)
         
@@ -525,5 +875,16 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             self.changeLayout()
             
             }).disposed(by: disposedBag)
+        
+        self.viewModel = viewModel
+    }
+
+    override func willTransition(to state: UITableViewCell.StateMask) {
+        super.willTransition(to: state)
+        
+        if state == .showingEditControl {
+            
+            swipeOff()
+        }
     }
 }
