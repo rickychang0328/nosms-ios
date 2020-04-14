@@ -5,7 +5,9 @@ import UIKit
 class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow? = UIWindow(frame: UIScreen.main.bounds)
-
+    static var shared: NoSMSAppDelegate {
+        return UIApplication.shared.delegate as! NoSMSAppDelegate
+    }
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let rootVC = TokenListViewController(viewModel: TokenListVCViewModel())
@@ -38,7 +40,10 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
          print("applicationDidEnterBackground")
         KeychainTokenStore.shared.appDidEnterBackgroundResetting()
     }
-    
+    func applicationWillTerminate(_ application: UIApplication) {
+         print("applicationWillTerminate")
+        UserDefaults.standard.set(true,forKey: UserDefaults.Key.isAppTerminate.string)
+    }
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
                 
         PastedAction.shared.applicationIsOpenFromURL()

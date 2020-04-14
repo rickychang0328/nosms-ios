@@ -55,6 +55,7 @@
 		BB93FD8623F3FDCF00A08CD6 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */; };
 		BB93FD8823F3FF2C00A08CD6 /* VersionUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */; };
 		BBBA6C3D2410AD09003F4559 /* TokenListMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBA6C3C2410AD09003F4559 /* TokenListMenuViewController.swift */; };
+		BBBC44A92445AA7A00C6AE6E /* BlurViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBBC44A82445AA7A00C6AE6E /* BlurViewController.swift */; };
 		BBE1439E244401B100387824 /* FaceIDSettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE1439D244401B100387824 /* FaceIDSettingViewController.swift */; };
 		BBE143A1244479F500387824 /* UIAlertControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE1439F244479F500387824 /* UIAlertControllerExtension.swift */; };
 		BBE143A2244479F500387824 /* NSObjectExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBE143A0244479F500387824 /* NSObjectExtension.swift */; };
@@ -148,6 +149,7 @@
 		BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionUpdateViewController.swift; sourceTree = "<group>"; };
 		BBBA6C3C2410AD09003F4559 /* TokenListMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListMenuViewController.swift; sourceTree = "<group>"; };
+		BBBC44A82445AA7A00C6AE6E /* BlurViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurViewController.swift; sourceTree = "<group>"; };
 		BBE1439D244401B100387824 /* FaceIDSettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FaceIDSettingViewController.swift; sourceTree = "<group>"; };
 		BBE1439F244479F500387824 /* UIAlertControllerExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIAlertControllerExtension.swift; sourceTree = "<group>"; };
 		BBE143A0244479F500387824 /* NSObjectExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSObjectExtension.swift; sourceTree = "<group>"; };
@@ -361,6 +363,7 @@
 		2AF6552C2387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXGroup;
 			children = (
+				BBBC44A524459B2D00C6AE6E /* Blur */,
 				BBE1439C2444016E00387824 /* FaceIDSetting */,
 				BB93FD7C23F3FD3300A08CD6 /* APINetWork */,
 				BB93FD7B23F3FC8A00A08CD6 /* VersionUpdate */,
@@ -443,6 +446,14 @@
 				BB93FD8323F3FDCF00A08CD6 /* Repository.swift */,
 			);
 			path = APINetWork;
+			sourceTree = "<group>";
+		};
+		BBBC44A524459B2D00C6AE6E /* Blur */ = {
+			isa = PBXGroup;
+			children = (
+				BBBC44A82445AA7A00C6AE6E /* BlurViewController.swift */,
+			);
+			path = Blur;
 			sourceTree = "<group>";
 		};
 		BBE1439C2444016E00387824 /* FaceIDSetting */ = {
@@ -686,6 +697,7 @@
 				BBE143A1244479F500387824 /* UIAlertControllerExtension.swift in Sources */,
 				2A91DFCE23ABB84400A630E9 /* Menu.swift in Sources */,
 				2AE53BF123A2499600AB1319 /* PastedAction.swift in Sources */,
+				BBBC44A92445AA7A00C6AE6E /* BlurViewController.swift in Sources */,
 				2A55BA9B23A727A300142382 /* UIImage+AppImageExtension.swift in Sources */,
 				2AD796B223A8DDF600BEF6E8 /* PhotoChoseViewController.swift in Sources */,
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,

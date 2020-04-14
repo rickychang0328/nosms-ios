@@ -8,7 +8,13 @@
 import UIKit
 import RxSwift
 import BiometricAuthentication
-
+public enum FaceIDAuthenticationStatus{
+    case success
+    case error
+    case closeAuthentication
+    case openAuthentication
+    case others
+}
 protocol FaceIDSettingVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
 }
 class FaceIDSettingVCViewModel: BaseVCViewModel, FaceIDSettingVCViewModelProtocol {
@@ -141,16 +147,16 @@ protocol FaceIDSettingCellSwitchItemsProtocol: BaseTableViewCellViewModelProtoco
     
     var title: String { get }
     var switcher: BehaviorSubject<Bool> { get }
-    var authSuccess: BehaviorSubject<Bool>{get}
-    var submitFaceIDSetting:BehaviorSubject<Bool> {get}
+    var authStatus: BehaviorSubject<FaceIDAuthenticationStatus>{get}
+//    var submitFaceIDSetting:BehaviorSubject<Bool> {get}
     var authError: BehaviorSubject<AuthenticationError> {get}
 }
 
 class FaceIDSettingCellSwitchItems: FaceIDSettingCellSwitchItemsProtocol {
     
     let switcher: BehaviorSubject<Bool> = .init(value: false)
-    let authSuccess: BehaviorSubject<Bool> = .init(value: false)
-    let submitFaceIDSetting: BehaviorSubject<Bool>  = .init(value:false)
+    let authStatus: BehaviorSubject<FaceIDAuthenticationStatus> = .init(value: .others)
+//    let submitFaceIDSetting: BehaviorSubject<Bool>  = .init(value:false)
     let authError: BehaviorSubject<AuthenticationError> = .init(value: .other)
     let title: String
     
@@ -169,9 +175,9 @@ class FaceIDSettingCellSwitchItems: FaceIDSettingCellSwitchItemsProtocol {
     }
 }
 class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsProtocol>: BaseTableViewCell<ViewModel> {
-    let authError: PublishSubject<AuthenticationError> = .init()
-    let authSuccess: PublishSubject<Bool> = .init()
-    let submitFaceIDSetting:PublishSubject<Bool> = .init()
+//    let authError: PublishSubject<AuthenticationError> = .init()
+//    let authSuccess: PublishSubject<Bool> = .init()
+//    let submitFaceIDSetting:PublishSubject<Bool> = .init()
     var isFirstOpen:Bool = true
     private let titleLabel: UILabel = {
         
@@ -223,10 +229,10 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
         super.bindData(viewModel: viewModel)
         
         titleLabel.text = viewModel.title
-        viewModel.authError.bind(to: self.authError).disposed(by: disposedBag)
-        viewModel.submitFaceIDSetting.bind(to: self.submitFaceIDSetting).disposed(by: disposedBag)
-        viewModel.authSuccess.bind(to: self.authSuccess).disposed(by: disposedBag)
-        viewModel.switcher.bind(to: switchView.rx.isOn).disposed(by: disposedBag)
+//        viewModel.authError.bind(to: self.authError).disposed(by: disposedBag)
+//        viewModel.submitFaceIDSetting.bind(to: self.submitFaceIDSetting).disposed(by: disposedBag)
+//        viewModel.authSuccess.bind(to: self.authSuccess).disposed(by: disposedBag)
+            viewModel.switcher.bind(to: switchView.rx.isOn).disposed(by: disposedBag)
         switchView.rx.controlEvent(.valueChanged)
         .withLatestFrom(switchView.rx.value)
         .subscribe(onNext : { bool in
@@ -238,35 +244,20 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
 //            }
             if bool {
                 if !BioMetricAuthenticator.shared.faceIDAvailable() && !BioMetricAuthenticator.shared.touchIDAvailable() {
-                    self.authSuccess.onNext(false)
-                    viewModel.authSuccess.onNext(false)
+                    viewModel.authStatus.onNext(.error)
                 }else{
                     ///您要允许"MustAuth"使用面容ID/指纹吗？
-                    self.submitFaceIDSetting.onNext(true)
-                    viewModel.submitFaceIDSetting.onNext(true)
-//                    BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { [weak self] (result) in
-//
-//                            switch result {
-//                            case .success( _):
-//                                // authentication successful
-//        //                        self?.showLoginSucessAlert()
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                                    self?.authSuccess.onNext(true)
-//
-//                                }
-//                            case .failure(let error):
-//                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-//                                    self?.authError.onNext(error)
-//                                }
-//                            }
-//                    }
+//                    viewModel.submitFaceIDSetting.onNext(true)
+                    viewModel.authStatus.onNext(.openAuthentication)
                 }
                 
+            }else {
+                viewModel.authStatus.onNext(.closeAuthentication)
             }
             
         })
         .disposed(by: disposedBag)
-        
+        switchView.isOn = UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string)
         switchView.rx.isOn
             .distinctUntilChanged()
             .bind(to: viewModel.switcher)
@@ -277,28 +268,40 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
 }
 
 class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewModel> {
-    var isFirstOpen:Bool = true
+    let authTitle = BioMetricAuthenticator.shared.faceIDAvailable() ? "面容ID" : "指纹解锁"
    convenience init() {
         let viewModel = FaceIDSettingVCViewModel()
         self.init(viewModel: viewModel)
    }
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.viewModel.tableViewSectionItem.switchItem.authSuccess.subscribe(onNext: { [weak self] success in
+        self.viewModel.tableViewSectionItem.switchItem.authStatus.subscribe(onNext: { [weak self] status in
                guard let self = self else { return }
-            if self.isFirstOpen {
-                self.isFirstOpen = false
-                return
-            }
-               if success {
+            
+            switch status {
                    //跳出辨識成功或是沒有動作
-                
-               }else {
-                self.showAlert(title: "您的设备尚未开启面容ID识别，请稍后再试",
+            case .closeAuthentication:
+                 UserDefaults.standard.set(false, forKey: UserDefaults.Key.faceIDString.string)
+                NoSMSHUD.showToast(title: "\(self.authTitle)已关闭")
+            case .openAuthentication:
+                NoSMSHUD.showToast(title: "\(self.authTitle)已开启")
+                self.showBiometricAuthentication()
+               
+                                                       
+            case .error:
+                self.showAlert(title: "您的设备尚未开启\(self.authTitle)识别，请稍后再试",
                           message: nil, confirmTitle: "确定",
-                          confirmAction: { [weak self] in
-
+                          confirmAction: {
+                            UserDefaults.standard.set(false, forKey: UserDefaults.Key.faceIDString.string)
+                         self.viewModel.tableViewSectionItem.switchItem.switcher.onNext(false)
                 })
+               
+                break
+            case .success:
+                break
+            default:
+                break
+                
             }
            }).disposed(by: disposedBag)
         self.viewModel.tableViewSectionItem.switchItem.authError.subscribe(onNext: { [weak self] error in
@@ -310,64 +313,7 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                     break
             }
         }).disposed(by: disposedBag)
-        /**
-         submitFaceIDSetting
-         **/
-        self.viewModel.tableViewSectionItem.switchItem.submitFaceIDSetting.subscribe(onNext: { [weak self] success in
-            guard let self = self else { return }
-            if success {
-                self.showAlert(title: "", message: "您要允许\"MustAuth\"使用面容ID/指纹吗？", confirmTitle: "确认", cancelTitle: "取消", confirmAction: { [weak self] in
-                        BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { [weak self] (result) in
-                                
-                            switch result {
-                            case .success( _):
-                                if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.faceIDString) {
-                                    UserDefaults.standard.set(true, forKey: UserDefaults.Key.faceIDString.faceIDString)
-                                }
-                                // authentication successful
-//                                self?.showLoginSucessAlert()
-                               break
-                            case .failure(let error):
-                                
-                                switch error {
-                                    
-                                // device does not support biometric (face id or touch id) authentication
-                                case .biometryNotAvailable:
-                                    self?.showErrorAlert(message: error.message())
-                                    
-                                // No biometry enrolled in this device, ask user to register fingerprint or face
-                                case .biometryNotEnrolled:
-//                                    self?.showGotoSettingsAlert(message: error.message())
-                                    break
-                                // show alternatives on fallback button clicked
-                                case .fallback:
-//                                    self?.txtUsername.becomeFirstResponder() // enter username password manually
-                                    break
-                                    // Biometry is locked out now, because there were too many failed attempts.
-                                // Need to enter device passcode to unlock.
-                                case .biometryLockedout:
-                                    self?.showPasscodeAuthentication(message: error.message())
-                                    
-                                // do nothing on canceled by system or user
-                                case .canceledBySystem, .canceledByUser:
-                                    break
-                                    
-                                // show error for any other reason
-                                default:
-                                    self?.showErrorAlert(message: error.message())
-                                }
-                            }
-                        }
-                }, cancelAction: nil)
-             
-            }else {
-//             self.showAlert(title: "您的设备尚未开启面容ID识别，请稍后再试",
-//                       message: nil, confirmTitle: "确定",
-//                       confirmAction: { [weak self] in
-//
-//             })
-         }
-        }).disposed(by: disposedBag)
+        
         // Do any additional setup after loading the view.
     }
     
@@ -384,7 +330,7 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
     // show passcode authentication
         func showPasscodeAuthentication(message: String) {
             
-            BioMetricAuthenticator.authenticateWithPasscode(reason: message) { [weak self] (result) in
+            BioMetricAuthenticator.authenticateWithPasscode(reason: "为\"MustAuth\"输入密码\n面容ID短时间内失败多次，需要验证手机密码",cancelTitle: "取消") { [weak self] (result) in
                 switch result {
                 case .success( _):
     //                self?.showLoginSucessAlert() // passcode authentication success
@@ -394,5 +340,52 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 }
             }
         }
+    func showBiometricAuthentication(){
+        self.showAlert(title: "", message: "您要允许\"MustAuth\"使用面容ID/指纹吗？", confirmTitle: "确认", cancelTitle: "取消", confirmAction: { [weak self] in
+                                BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { [weak self] (result) in
+                                        guard let self = self else { return }
+                                    switch result {
+                                    case .success( _):
+                                        if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) {
+                                            UserDefaults.standard.set(true, forKey: UserDefaults.Key.faceIDString.string)
+                                        }
+                                        NoSMSHUD.showToast(title: "\(self.authTitle)已开启")
+                                        // authentication successful
+        //                                self?.showLoginSucessAlert()
+                                       break
+                                    case .failure(let error):
+                                        UserDefaults.standard.set(false, forKey: UserDefaults.Key.faceIDString.string)
+                                        self.viewModel.tableViewSectionItem.switchItem.switcher.onNext(false)
+                                        switch error {
+                                            
+                                        // device does not support biometric (face id or touch id) authentication
+                                        case .biometryNotAvailable:
+                                            self.showErrorAlert(message: error.message())
+                                            
+                                        // No biometry enrolled in this device, ask user to register fingerprint or face
+                                        case .biometryNotEnrolled:
+        //                                    self?.showGotoSettingsAlert(message: error.message())
+                                            break
+                                        // show alternatives on fallback button clicked
+                                        case .fallback:
+        //                                    self?.txtUsername.becomeFirstResponder() // enter username password manually
+                                            break
+                                            // Biometry is locked out now, because there were too many failed attempts.
+                                        // Need to enter device passcode to unlock.
+                                        case .biometryLockedout:
+                                            self.showPasscodeAuthentication(message: error.message())
+                                            
+                                        // do nothing on canceled by system or user
+                                        case .canceledBySystem, .canceledByUser:
+//                                            self.showErrorAlert(message: error.message())
+                                            self.showPasscodeAuthentication(message: error.message())
+                                        // show error for any other reason
+                                        default:
+                                            self.showErrorAlert(message: error.message())
+                                        }
+                                    }
+                                }
+                        }, cancelAction: nil)
+    }
 }
 

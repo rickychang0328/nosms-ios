@@ -51,6 +51,9 @@ class MenuView: UIView {
             
             switch self {
             case .lock:
+                if !UserDefaults.standard.bool(forKey: UserDefaults.Key.isFirstSetFaceID.string) {
+                    UserDefaults.standard.set(true,forKey: UserDefaults.Key.isFirstSetFaceID.string)
+                }
                 return FaceIDSettingViewController()
             case .legal:
                 return UIViewController()
@@ -77,12 +80,12 @@ class MenuView: UIView {
                         return false
                     }
             case .lock:
-                
-                if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.faceIDString) {
-                    return true
-                }else {
-                    return false
-                }
+                return !UserDefaults.standard.bool(forKey: UserDefaults.Key.isFirstSetFaceID.string)
+//                if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) {
+//                    return true
+//                }else {
+//                    return false
+//                }
 //                    return true
                 default:
                     return false
@@ -202,6 +205,7 @@ class MenuView: UIView {
             self.dismissView {
                 
                 self.choseEvent.onNext(self.choseEvnets[indexPath.row])
+                self.tableView.reloadData()
             }
            
         }).disposed(by: disposeBag)
