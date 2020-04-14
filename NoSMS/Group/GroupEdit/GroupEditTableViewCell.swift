@@ -67,4 +67,47 @@ class GroupEditTableViewCell: BaseTableViewCellNoGeneric {
         baseTokenView.backgroundColor = .groupCellBackCardColor
     }
     
+    private func searchControlView() {
+        
+        for view in subviews {
+            //MARK: iOS 10 以下找這個
+            if view.description.contains("UITableViewCellDeleteConfirmationView") {
+                        
+                view.backgroundColor = .groupEditCellDeleteActionColor
+                       
+                view.frame = .init(origin: view.frame.origin, size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 4)))
+                       
+                let custom = GroupEditDeleteActionView(frame: .zero)
+                       
+                for button in view.subviews {
+                    
+                    if let buttonType = button as? UIButton {
+                        
+                        buttonType.setTitle("", for: .normal)
+                        buttonType.setTitle("", for: .selected)
+                        buttonType.setTitle("", for: .highlighted)
+                    }
+                    button.backgroundColor = .clear
+                    view.addSubview(custom)
+                    view.sendSubviewToBack(custom)
+                    custom.snp.makeConstraints {
+                               
+                        $0.edges.equalTo(button)
+                    }
+                }
+            }
+        }
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+
+        searchControlView()
+    }
+    
+    override func didAddSubview(_ subview: UIView) {
+        super.didAddSubview(subview)
+
+        searchControlView()
+    }
 }

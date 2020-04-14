@@ -131,8 +131,7 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
         }).disposed(by: disposedBag)
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    private func searchControlView() {
         
         for view in subviews {
             
@@ -149,7 +148,6 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
 
                 view.center.y = backCardView.center.y
                 
-                
                 for controlView in view.subviews {
                     
                     if let control = controlView as? UIImageView {
@@ -158,14 +156,50 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
                     }
                 }
             }
-                       
+              
+            
+            //MARK: iOS 10 以下找這個
             if view.description.contains("UITableViewCellDeleteConfirmationView") {
                         
-                view.backgroundColor = .blue
+                view.backgroundColor = .groupEditCellDeleteActionColor
+                view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 10)))
+                view.addCornerRadius(at: ScaleWidth(at: 6))
+                let custom = GroupDeleteActionView(frame: .zero)
+                       
+                for button in view.subviews {
+
+                    custom.addCornerRadius(at: 6)
+                    custom.backgroundColor = .groupEditCellDeleteActionColor
+                    if let buttonType = button as? UIButton {
+                        
+                        buttonType.setTitle("", for: .normal)
+                        buttonType.setTitle("", for: .selected)
+                        buttonType.setTitle("", for: .highlighted)
+                    }
+                    button.backgroundColor = .clear
+                    view.addSubview(custom)
+                    view.sendSubviewToBack(custom)
+                    custom.snp.makeConstraints {
+                               
+                        $0.edges.equalTo(button)
+                    }
+                }
             }
         }
     }
     
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+
+        searchControlView()
+    }
+    
+    override func didAddSubview(_ subview: UIView) {
+        super.didAddSubview(subview)
+
+        searchControlView()
+    }
+
     private func setupImageView(isEditing: Bool) {
         
         moveImageView.isHidden = !isEditing

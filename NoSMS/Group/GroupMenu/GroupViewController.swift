@@ -381,7 +381,6 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
     private func getSwipActionPullView(view: UIView) {
         
         view.backgroundColor = .groupEditCellDeleteActionColor
-        
         view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 10)))
         view.addCornerRadius(at: ScaleWidth(at: 6))
         let custom = GroupDeleteActionView(frame: .zero)

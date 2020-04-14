@@ -557,12 +557,40 @@ class CustomTableView: UITableView {
         
         for view in subviews {
             
-            if view.description.contains("UIShadowView") {
+            if #available(iOS 11, *) {
                 
-                view.isHidden = shadowViewIsHidden
+                if view.description.contains("UIShadowView") {
+                    
+                    view.isHidden = shadowViewIsHidden
+                }
+            } else {
+                
+                for iOS10View in view.subviews {
+                    
+                    if iOS10View.description.contains("UIShadowView") {
+                        
+                        iOS10View.isHidden = shadowViewIsHidden
+                    }
+                    
+                    if let cell = iOS10View as? UITableViewCell {
+                        
+                        for cellSubView in cell.subviews {
+                            
+                            if cellSubView.description.contains("UITableViewCellEditControl") {
+                                                            
+                                for controlView in cellSubView.subviews {
+                                    
+                                    if let control = controlView as? UIImageView {
+                                        
+                                        control.image = nil
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-        
         customTableViewEvent.onNext(.layoutSubview)
     }
 }
