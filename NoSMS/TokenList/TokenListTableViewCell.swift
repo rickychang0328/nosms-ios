@@ -455,12 +455,16 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                     if self.nowCellX > self.actionWidth, !self.isShock {
                         
                         //MARK: 震動
-                        let generator = UINotificationFeedbackGenerator()
-                        generator.notificationOccurred(.success)
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.prepare()
+                        generator.impactOccurred()
                         self.isShock = true
                         
                     } else if self.nowCellX < self.actionWidth, self.isShock {
                         
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.prepare()
+                        generator.impactOccurred()
                         self.isShock = false
                     }
                     
