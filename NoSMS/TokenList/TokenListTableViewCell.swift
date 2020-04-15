@@ -458,7 +458,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                         let generator = UINotificationFeedbackGenerator()
                         generator.notificationOccurred(.success)
                         self.isShock = true
-                    } else {
+                        
+                    } else if self.nowCellX < self.actionWidth, self.isShock {
                         
                         self.isShock = false
                     }
