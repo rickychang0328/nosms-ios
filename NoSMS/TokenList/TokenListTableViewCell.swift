@@ -462,7 +462,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                         
                     } else if self.nowCellX < self.actionWidth, self.isShock {
                         
-                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.prepare()
                         generator.impactOccurred()
                         self.isShock = false
@@ -493,6 +493,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                             self.swipeOn()
                         }
                     }
+                    
+                    self.isShock = false
 
                 default:
                     break
