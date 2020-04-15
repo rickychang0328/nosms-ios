@@ -63,10 +63,17 @@ class GroupSection: GroupSectionType {
             .groupListBehavior
             .subscribe(onNext: { [weak self] groups in
             
-            guard let self = self else { return }
-            self.groupList = groups
+                guard let self = self else { return }
             
-            self.viewModelEventResult.onNext(.reloadData)
+                let beforeCount = self.groupList.count
+                self.groupList = groups
+                
+                if beforeCount == groups.count {
+                    
+                } else {
+                    
+                    self.viewModelEventResult.onNext(.reloadData)
+                }
         }).disposed(by: disposedBag)
         
         KeychainTokenStore.shared
@@ -100,7 +107,6 @@ class GroupTableHeaderView: UIView {
         label.setFont(.pingFangMediumFont(size: 15))
             .setText("创建分组")
             .setTextAlignment(.left)
-            //TODO:
             .setTextColor(.tokenListTimerColor)
         return label
     }()
@@ -329,15 +335,11 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
                 self.showStreetDeleteAlert(title: "操作仅删除分组，并不会删除验证码", confirmTitle: "删除", confirmAction: {
 
                     self.viewModel.deleteGroup(index: row)
-                }, cancelAction: {
-                    
-                    self.tableView.setEditing(false, animated: false)
-                    self.tableView.setEditing(true, animated: false)
                 })
             }).disposed(by: disposedBag)
         
         tableView.rx.itemMoved
-            .map({ ($0.sourceIndex.row, $0.destinationIndex.row)})
+            .map({($0.sourceIndex.row, $0.destinationIndex.row)})
             .subscribe(onNext: viewModel.moveGroup)
             .disposed(by: disposedBag)
         
@@ -378,9 +380,11 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
         rightNavigationItem.title = tableView.isEditing ? "保存" : "编辑"
     }
     
+    private var swipeDisposedBag: DisposeBag = .init()
+    
     private func getSwipActionPullView(view: UIView) {
-        
-        view.backgroundColor = .groupEditCellDeleteActionColor
+        swipeDisposedBag = .init()
+        view.backgroundColor = .clear
         view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 10)))
         view.addCornerRadius(at: ScaleWidth(at: 6))
         let custom = GroupDeleteActionView(frame: .zero)
@@ -388,14 +392,62 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
         for button in view.subviews {
             
             if button.description.contains("UISwipeActionStandardButton") {
-                button.backgroundColor = .groupEditCellDeleteActionColor
+                
+                button.backgroundColor = .clear
                 button.isHidden = true
                 view.addSubview(custom)
                 custom.addCornerRadius(at: 6)
                 custom.backgroundColor = .groupEditCellDeleteActionColor
+                
                 custom.snp.makeConstraints {
                     
-                    $0.edges.equalTo(button)
+                    $0.top.bottom.left.equalTo(button)
+                    $0.width.equalTo(button.frame.width - ScaleWidth(at: 10))
+                }
+                
+                let gestSubscribe: (UIPanGestureRecognizer) -> Void = { realGest in
+                    
+                    realGest.rx.event.subscribe(onNext: { [weak self] gest in
+                    guard let self = self else { return }
+                    
+                    if gest.state == .began {
+                        
+                        
+                    } else if gest.state == .changed {
+                        
+                        custom.snp.updateConstraints {
+                            
+                            $0.top.bottom.left.equalTo(button)
+                            $0.width.equalTo(view.frame.width - ScaleWidth(at: 10))
+                        }
+                        
+                    } else if gest.state == .ended {
+                        
+                        UIView.animate(withDuration: 0.3) {
+
+                            custom.snp.updateConstraints {
+                                
+                                $0.width.equalTo(view.frame.width - ScaleWidth(at: 10))
+                            }
+                            self.tableView.layoutIfNeeded()
+                        }
+                    }
+                    }).disposed(by: self.swipeDisposedBag)
+                    
+                }
+                    
+                if #available(iOS 12, *) {
+                    
+                    if let gest = tableView.gestureRecognizers?.first(where: {$0.description.contains("_UISwipeActionPanGestureRecognizer")}) as? UIPanGestureRecognizer {
+                        
+                        gestSubscribe(gest)
+                    }
+                } else {
+                    
+                    if let gest = tableView.gestureRecognizers?.first(where: {$0.description.contains("UIPanGestureRecognizer")}) as? UIPanGestureRecognizer {
+                        
+                        gestSubscribe(gest)
+                    }
                 }
             }
         }
@@ -452,11 +504,26 @@ class GroupDeleteActionView: UIView {
         
         addSubview(image)
         addSubview(label)
+
+        let leftPan: CGFloat
+        let screenWidth = UIScreen.main.bounds.width
+        
+        if screenWidth == 375 {
+            
+            leftPan = 13
+        } else if screenWidth > 375 {
+            
+            leftPan = 11
+        } else {
+            
+            //se
+            leftPan = 16
+        }
         
         image.snp.makeConstraints {
             
             $0.top.equalTo(ScaleWidth(at: 2))
-            $0.left.equalTo(ScaleWidth(at: 9))
+            $0.left.equalTo(leftPan)
             $0.size.equalTo(ScaleWidth(at: 40))
         }
         

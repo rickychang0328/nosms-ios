@@ -2,7 +2,6 @@
 import UIKit
 import RxCocoa
 import RxSwift
-import AudioToolbox
 
 
 protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProtocol, BaseTokenListViewType {
@@ -17,7 +16,7 @@ protocol TokenListTableViewCellViewModelProtocol: BaseTableViewCellViewModelProt
     var isInSearch: BehaviorSubject<Bool> { get }
     var warningTime: Observable<Bool> { get }
     var tokenID: Data { get }
-    var isPin: Bool { get set }
+    var isPin: Bool { get }
     var addPin: () -> Void { get }
     var removePin: () -> Void { get }
     func setPin(isPin: Bool)
@@ -380,6 +379,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             viewModel?.addPin()
         }
     }
+    
+    private var isShock: Bool = false
         
     private func addSwipeLeft() {
         
@@ -450,13 +451,16 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                     }
                     
                     self.swipebackCardView.changeLeft(to: resultX)
-//                    self.frame.origin = .init(x: resultX, y: self.frame.origin.y)
-
                     
-                    if self.nowCellX > self.actionWidth {
+                    if self.nowCellX > self.actionWidth, !self.isShock {
                         
                         //MARK: 震動
-                        AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
+                        let generator = UINotificationFeedbackGenerator()
+                        generator.notificationOccurred(.success)
+                        self.isShock = true
+                    } else {
+                        
+                        self.isShock = false
                     }
                     
                 case .ended:

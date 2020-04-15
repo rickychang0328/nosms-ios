@@ -310,10 +310,27 @@ class GroupEditDeleteActionView: UIView {
         addSubview(image)
         addSubview(label)
         
+        //se
+        let leftPan: CGFloat
+        // 8
+        let screenWidth = UIScreen.main.bounds.width
+
+        if UIScreen.main.bounds.width == 375 {
+            
+            leftPan = 19
+        } else if screenWidth > 375 {
+            
+            leftPan = 17
+        } else {
+            
+            //se
+            leftPan = 21
+        }
+        
         image.snp.makeConstraints {
             
             $0.top.equalTo(ScaleWidth(at: 43))
-            $0.left.equalTo(ScaleWidth(at: 16.5))
+            $0.left.equalTo(leftPan)
             $0.size.equalTo(ScaleWidth(at: 40))
         }
         

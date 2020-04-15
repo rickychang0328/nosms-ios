@@ -75,7 +75,9 @@ class GroupEditTableViewCell: BaseTableViewCellNoGeneric {
                         
                 view.backgroundColor = .groupEditCellDeleteActionColor
                        
-                view.frame = .init(origin: view.frame.origin, size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 4)))
+
+                view.frame = .init(origin: view.frame.origin, size: .init(width: view.frame.width, height: baseTokenView.frame.height))
+                
                        
                 let custom = GroupEditDeleteActionView(frame: .zero)
                        

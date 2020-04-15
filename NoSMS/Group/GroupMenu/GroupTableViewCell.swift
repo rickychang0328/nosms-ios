@@ -111,7 +111,7 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
         deleteButtomImage.snp.makeConstraints {
             
             $0.centerY.equalTo(backCardView)
-            $0.right.equalTo(backCardView.snp.left).offset(ScaleWidth(at: -10))
+            $0.right.equalTo(backCardView.snp.left).offset(ScaleWidth(at: -17))
             $0.size.equalTo(ScaleWidth(at: 18))
         }
     }
@@ -153,6 +153,14 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
                     if let control = controlView as? UIImageView {
                         
                         control.image = nil
+                        
+                        uiTableViewCellEditControlobserver = control.observe(\.image, options: [.new]){ [weak control] (view, value) in
+
+                            if control?.image != nil {
+
+                                control?.image = nil
+                            }
+                        }
                     }
                 }
             }
@@ -161,8 +169,8 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
             //MARK: iOS 10 以下找這個
             if view.description.contains("UITableViewCellDeleteConfirmationView") {
                         
-                view.backgroundColor = .groupEditCellDeleteActionColor
-                view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 10)))
+                view.backgroundColor = .clear
+                view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 100), y: view.frame.origin.y), size: .init(width: view.frame.width, height: backCardView.frame.height))
                 view.addCornerRadius(at: ScaleWidth(at: 6))
                 let custom = GroupDeleteActionView(frame: .zero)
                        
@@ -180,18 +188,24 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
                     view.addSubview(custom)
                     view.sendSubviewToBack(custom)
                     custom.snp.makeConstraints {
-                               
-                        $0.edges.equalTo(button)
+                        $0.top.bottom.right.equalToSuperview()
+                        $0.left.equalToSuperview().offset(ScaleWidth(at: 10))
                     }
                 }
             }
         }
     }
     
+    private var uiTableViewCellEditControlobserver: NSKeyValueObservation?
+    
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
-
+        
         searchControlView()
+        if !editing {
+            
+            uiTableViewCellEditControlobserver = nil
+        }
     }
     
     override func didAddSubview(_ subview: UIView) {
