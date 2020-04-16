@@ -22,7 +22,6 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         
         if AuthIDStatusManager.isAuthOpen {
             
-            AuthIDStatusManager.isLockWindow = true
             firstVC.showBlurWithIDAuth()
         }
         
@@ -33,12 +32,11 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         
         PastedAction.shared.applicationDidBecomeActive()
 
-//        AuthIDStatusManager.isFirstOpenApp = false
-
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         
+        AuthIDStatusManager.applicationWillEnterForeground()
         KeychainTokenStore.shared.appWillEnterForeground()
         if AuthIDStatusManager.isLockWindow {
         
@@ -52,27 +50,23 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(_ application: UIApplication) {
         
         print("applicationWillResignActive")
-        
-//        if BlurViewController.shared.presentingViewController == nil {
-//
-//            self.window?.rootViewController?.getNowWhichVCDisplay().present(BlurViewController.shared, animated: false)
-//        }
     }
 
     
     func applicationDidEnterBackground(_ application: UIApplication) {
          print("applicationDidEnterBackground")
         KeychainTokenStore.shared.appDidEnterBackgroundResetting()
+        AuthIDStatusManager.backgroundTimerAction(viewController: window?.rootViewController?.getNowWhichVCDisplay())
+        
     }
     func applicationWillTerminate(_ application: UIApplication) {
          print("applicationWillTerminate")
-//        UserDefaults.standard.set(true,forKey: UserDefaults.Key.isAppTerminate.string)
     }
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
                 
         PastedAction.shared.applicationIsOpenFromURL()
         
-        let thirdAppOpenHandler = { () -> Bool in
+        let thirdAppOpenHandler = { (toastTime: Double) -> Bool in
         
             let action: MustAuth.ActionEnum
             
@@ -125,16 +119,16 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                     let tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
                     
                     let saveClosure = { KeychainTokenStore.shared.addTokenWith(urlString: token.url.absoluteString) { event in
-                        switch event {
-                            
-                        case .addSuccess:
-                            break
-                        case .haveTheSame(let title, let message, let completion):
-                            
-                            nowVC?.showAlert(title: title, message: message, confirmAction: completion)
-                        case .addError:
-                            NoSMSHUD.showToast(title: "创建失败")
-                        }
+                            switch event {
+                                
+                            case .addSuccess:
+                                break
+                            case .haveTheSame(let title, let message, let completion):
+                                
+                                nowVC?.showAlert(title: title, message: message, confirmAction: completion)
+                            case .addError:
+                                NoSMSHUD.showToast(title: "创建失败")
+                            }
                         }
                     }
                     
@@ -196,20 +190,26 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         
         if AuthIDStatusManager.isAuthOpen {
             
-            let authActionHandler = {
+            let authActionHandler: () -> Void = {
                 
                     self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
                                           
-                        _ = thirdAppOpenHandler()
+                        _ = thirdAppOpenHandler(2)
                     })
                 }
             
-            if BlurViewController.shared.presentingViewController != nil {
+            if AuthIDStatusManager.isLockWindow {
                     
-                BlurViewController.shared.dismiss(animated: false) {
+                let sucessHandler = {
+                    
+                    BlurViewController.shared.dismiss(animated: false) {
                         
-                    authActionHandler()
+                        _ = thirdAppOpenHandler(2)
+                    }
                 }
+                
+                AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: sucessHandler)
+
             } else {
                 
                 authActionHandler()
@@ -218,7 +218,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             return true
         } else {
             
-            return thirdAppOpenHandler()
+            return thirdAppOpenHandler(1)
         }
     }
     

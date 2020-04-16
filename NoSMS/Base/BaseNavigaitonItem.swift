@@ -15,12 +15,14 @@ struct BaseNavigaitonItem: BaseNavigaitonItemProtocol {
 
 class BaseNavigationController: UINavigationController {
     
-    private let blurVC: CustomBlurView = .init(frame: .zero)
+    private let blurVC: BlurViewController = BlurViewController()
+    
     private let disposedBag: DisposeBag = .init()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        addChild(blurVC)
         NotificationCenter.default
             .rx.notification(UIApplication.willResignActiveNotification)
             .subscribe(onNext: { [weak self] _ in
@@ -35,7 +37,7 @@ class BaseNavigationController: UINavigationController {
         NotificationCenter.default.rx
             .notification(UIApplication.didBecomeActiveNotification).subscribe(onNext: { [weak self] _ in
                 
-                if self?.blurVC.superview != nil {
+                if self?.blurVC.view.superview != nil {
                     
                     self?.dismissBlur()
                 }
@@ -43,17 +45,15 @@ class BaseNavigationController: UINavigationController {
     }
     
     private func showBlurVC() {
-        
-        view.addSubview(blurVC)
-        blurVC.snp.makeConstraints {
+        blurVC.reset()
+        view.addSubview(blurVC.view)
+        blurVC.view.snp.makeConstraints {
             $0.edges.equalToSuperview()
         }
-        blurVC.blurView.refresh()
-        blurVC.blurView.animate()
     }
     
     private func dismissBlur() {
         
-        blurVC.removeFromSuperview()
+        blurVC.view.removeFromSuperview()
     }
 }

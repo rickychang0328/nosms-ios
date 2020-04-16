@@ -22,6 +22,24 @@ enum AuthIDStatusManager {
     static var isAuthOpen: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) }
     static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.canAuthenticate() }
     static var isFirstOpenApp: Bool = true
+    static var disposedBag: DisposeBag = .init()
+    
+    static func backgroundTimerAction(viewController: UIViewController?) {
+        
+        Observable<Int>.timer(.seconds(300), scheduler: MainScheduler.instance).subscribe(onNext: { _ in
+            
+            self.isLockWindow = true
+            BlurViewController.shared.modalPresentationStyle = .overFullScreen
+            viewController?.present(BlurViewController.shared, animated: false)
+            self.disposedBag = .init()
+        }).disposed(by: disposedBag)
+    }
+    
+    static func applicationWillEnterForeground() {
+        
+        disposedBag = .init()
+    }
+    
     static func setAuthOpen(toOpen status: Bool) {
         
         UserDefaults.standard.set(status, forKey: UserDefaults.Key.faceIDString.string)
@@ -331,7 +349,9 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
     private func authResult(isOpened: Bool) {
         
         let title = isOpened ? "已关闭" : "已开启"
-        NoSMSHUD.showToast(title: "\(self.authTitle)\(title)")
+        
+        let contentView: UIView = navigationController?.view ?? view
+        NoSMSHUD.showToast(title: "\(self.authTitle)\(title)", contentView: contentView,toastSecond: 2)
         UserDefaults.standard.set(!isOpened, forKey: UserDefaults.Key.faceIDString.string)
     }
     
@@ -385,14 +405,18 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
     
     func showPasscodeAuthentication() {
         
-//        showBlurWithIDAuth(sucessHandler: <#T##(() -> Void)?##(() -> Void)?##() -> Void#>, systemIsNotOpenHandler: <#T##(() -> Void)?##(() -> Void)?##() -> Void#>)
-        let lastIDisOpened = AuthIDStatusManager.isAuthOpen
-
-        let faceIDHandler = {
+        let blur = BlurViewController.shared
+        blur.reset()
+        
+        blur.modalPresentationStyle = .overFullScreen
+        present(blur, animated: false) {
+            
+            let lastIDisOpened = AuthIDStatusManager.isAuthOpen
+            
+            let faceIDHandler = {
                 BioMetricAuthenticator.authenticateWithPasscode(reason: "为\"MustAuth\"输入密码\n\(self.authTitle)短时间内失败多次，需要验证手机密码",
                 cancelTitle: "取消") { [weak self] (result) in
                     guard let self = self else { return }
-                    
                     switch result {
                     case .success:
                         
@@ -401,36 +425,40 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                         
                         self.viewModel.setIsUseAuthID(lastIDisOpened)
                     }
+                    blur.dismiss(animated: false)
                 }
             }
-        
-        if BioMetricAuthenticator.shared.isFaceIdDevice() {
             
-            faceIDHandler()
-        } else {
-            
-            BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { (result) in
+            if BioMetricAuthenticator.shared.isFaceIdDevice() {
                 
-                switch result {
+                faceIDHandler()
+            } else {
+                
+                BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { (result) in
                     
-                case .success:
-                    
-                    self.authResult(isOpened: lastIDisOpened)
-                    
-                case .failure(let error):
-                    
-                    switch error {
+                    switch result {
                         
-                    case .canceledByUser, .canceledBySystem:
+                    case .success:
                         
-                        self.viewModel.setIsUseAuthID(lastIDisOpened)
-                    default:
+                        self.authResult(isOpened: lastIDisOpened)
+                        blur.dismiss(animated: false)
+                    case .failure(let error):
                         
-                        faceIDHandler()
+                        switch error {
+                            
+                        case .canceledByUser, .canceledBySystem:
+                            
+                            self.viewModel.setIsUseAuthID(lastIDisOpened)
+                            blur.dismiss(animated: false)
+                        default:
+                            
+                            faceIDHandler()
+                        }
                     }
                 }
             }
         }
+        
     }
 }
 
