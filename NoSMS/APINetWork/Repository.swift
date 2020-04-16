@@ -80,7 +80,7 @@ final class Repository {
         if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String {
 //            print("Build Version:\(build)")
 //            print("uuid:\(UIDevice.current.identifierForVendor?.uuidString),model:\(UIDevice.current.modelName.lowercased().replacingOccurrences(of: " ", with: "")),os_version:\(UIDevice.current.systemVersion)")
-            let parameters:[String:Any] = ["platform":"ios","version":build,"mid":UIDevice.current.identifierForVendor?.uuidString.lowercased() ?? "","brand":"apple","model":UIDevice.current.modelName.lowercased().replacingOccurrences(of: " ", with: ""),"os_version":UIDevice.current.systemVersion]
+            let parameters:[String:Any] = ["platform":"ios","version":build,"mid":UIDevice.current.identifierForVendor?.uuidString ?? "","brand":"apple","model":UIDevice.current.modelName.lowercased().replacingOccurrences(of: " ", with: ""),"os_version":UIDevice.current.systemVersion]
             let postURL = RESTAPIURL.VERSION.url!
             let resource = PostResource(url: postURL,parameters: parameters)
             apiClient.post(resource) {[weak self] (result) in

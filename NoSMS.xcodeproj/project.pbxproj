@@ -144,6 +144,10 @@
 		BB93FD8323F3FDCF00A08CD6 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionUpdateViewController.swift; sourceTree = "<group>"; };
+		BBB8505F2448540000F47745 /* UIDevice+VKKeychainIDFV.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIDevice+VKKeychainIDFV.m"; sourceTree = "<group>"; };
+		BBB850602448540000F47745 /* UIDevice+VKKeychainIDFV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIDevice+VKKeychainIDFV.h"; sourceTree = "<group>"; };
+		BBB850612448545E00F47745 /* NoSMS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NoSMS-Bridging-Header.h"; sourceTree = "<group>"; };
+		BBB85062244867C300F47745 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		BBBA6C3C2410AD09003F4559 /* TokenListMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListMenuViewController.swift; sourceTree = "<group>"; };
 		C336FAA68D76C39086892222 /* Pods-TWAzureAuthenticator.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticator.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticator/Pods-TWAzureAuthenticator.debug.xcconfig"; sourceTree = "<group>"; };
 		CBD28FD7B7CA61CFE1125CDC /* Pods-NoSMSUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSUITests.debug.xcconfig"; path = "Target Support Files/Pods-NoSMSUITests/Pods-NoSMSUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -353,6 +357,7 @@
 		2AF6552C2387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXGroup;
 			children = (
+				BBB8505D244853AC00F47745 /* Modulization */,
 				BB93FD7C23F3FD3300A08CD6 /* APINetWork */,
 				BB93FD7B23F3FC8A00A08CD6 /* VersionUpdate */,
 				2AE53BF223A249B000AB1319 /* JoinManuallyTOTP */,
@@ -434,6 +439,25 @@
 				BB93FD8323F3FDCF00A08CD6 /* Repository.swift */,
 			);
 			path = APINetWork;
+			sourceTree = "<group>";
+		};
+		BBB8505D244853AC00F47745 /* Modulization */ = {
+			isa = PBXGroup;
+			children = (
+				BBB850602448540000F47745 /* UIDevice+VKKeychainIDFV.h */,
+				BBB8505F2448540000F47745 /* UIDevice+VKKeychainIDFV.m */,
+				BBB8505E244853CD00F47745 /* Config */,
+			);
+			path = Modulization;
+			sourceTree = "<group>";
+		};
+		BBB8505E244853CD00F47745 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				BBB850612448545E00F47745 /* NoSMS-Bridging-Header.h */,
+				BBB85062244867C300F47745 /* PrefixHeader.pch */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -875,6 +899,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NoSMS/Modulization/Config/PrefixHeader.pch";
 				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -883,6 +909,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Azure.NoSMS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/NoSMS/Modulization/Config/NoSMS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -897,6 +924,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = K889LGV7VJ;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NoSMS/Modulization/Config/PrefixHeader.pch";
 				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -905,6 +934,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Azure.NoSMS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/NoSMS/Modulization/Config/NoSMS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
