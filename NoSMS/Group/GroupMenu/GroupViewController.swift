@@ -19,7 +19,6 @@ class GroupSection: GroupSectionType {
     
     func delete(index: Int) {
         
-        groupList.remove(at: index)
         //TODO:
         KeychainTokenStore.shared.removeGroup(index: index)
     }
@@ -282,6 +281,7 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
 
         tableView.shadowViewIsHidden = true
         tableView.tableHeaderView = tableHeaderView
+        tableView.showsVerticalScrollIndicator = false
         navigationItem.rightBarButtonItem = rightNavigationItem
         
         rightNavigationItem.rx.tap.subscribe(onNext: { [weak self] in
@@ -349,6 +349,19 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
             self.searchDeleteView()
             
         }).disposed(by: disposedBag)
+        
+        NotificationCenter.default.rx
+            .notification(UIApplication.didBecomeActiveNotification)
+            .subscribe(onNext: { [weak self] (_) in
+                
+                self?.isBackApp = false
+            }).disposed(by: disposedBag)
+        NotificationCenter.default.rx
+                .notification(UIApplication.willResignActiveNotification)
+                .subscribe(onNext: { [weak self] (_) in
+                    
+                    self?.isBackApp = true
+                }).disposed(by: disposedBag)
     }
     
     
@@ -382,10 +395,17 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
     
     private var swipeDisposedBag: DisposeBag = .init()
     
+    private var isBackApp: Bool = false
+    
     private func getSwipActionPullView(view: UIView) {
+        
+        if isBackApp {
+            
+            return
+        }
         swipeDisposedBag = .init()
         view.backgroundColor = .clear
-        view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: view.frame.height - ScaleWidth(at: 10)))
+        view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: ScaleWidth(at: 60)))
         view.addCornerRadius(at: ScaleWidth(at: 6))
         let custom = GroupDeleteActionView(frame: .zero)
         

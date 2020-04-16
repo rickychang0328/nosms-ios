@@ -590,7 +590,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         contentView.addSubview(nameTextField)
         swipebackCardView.addSubview(circleView)
         circleView.addSubview(countTimeLabel)
-        swipebackCardView.addSubview(tapGetPasswordButton)
+        contentView.addSubview(tapGetPasswordButton)
         swipebackCardView.addSubview(pinImageView)
         addSubview(deleteImageView)
         addSubview(deletedButton)
@@ -767,16 +767,33 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             
             //MARK: 為了在顯示的時候藏起來
             swipeLeftView.isHidden = true
+            
+            pinImageView.snp.remakeConstraints {
+                  
+                $0.top.equalTo(baseTokenView.issuerLabel)
+                $0.right.equalTo(self).offset(ScaleWidth(at: -16))
+                $0.size.equalTo(ScaleWidth(at: 30))
+            }
         } else {
             
             moveImageView.removeFromSuperview()
             baseTokenView.digitsView.setColor(.tokenListHidePasswordColor)
+            
+            pinImageView.snp.remakeConstraints {
+                
+                $0.top.equalTo(baseTokenView.issuerLabel)
+                $0.right.equalTo(swipebackCardView).offset(ScaleWidth(at: -16))
+                $0.size.equalTo(ScaleWidth(at: 30))
+            }
         }
         
-        pinImageView.isHidden = !(viewModel?.isPin ?? false) || isInSearch || isEditing
+        pinImageView.isHidden = !(viewModel?.isPin ?? false) || isInSearch
         swipeLabel.text = viewModel?.isPin ?? false ? "取消置顶" : "置顶"
         swipeImageView.image = viewModel?.isPin ?? false ? UIImage.noSMStokenListPinRemoveAction : UIImage.noSMStokenListPinAction
-
+        
+        let isPinColor = viewModel?.isPin ?? false ? UIColor.tokenListCellBackCardPinColor : UIColor.tokenListBackCardColor
+        swipebackCardView.backgroundColor = isPinColor
+        backCardView.backgroundColor = isPinColor        
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {

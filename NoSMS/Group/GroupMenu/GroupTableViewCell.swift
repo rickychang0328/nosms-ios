@@ -208,10 +208,10 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
         }
     }
     
-    override func didAddSubview(_ subview: UIView) {
-        super.didAddSubview(subview)
-
+    override func layoutSubviews() {
+        super.layoutSubviews()
         searchControlView()
+
     }
 
     private func setupImageView(isEditing: Bool) {

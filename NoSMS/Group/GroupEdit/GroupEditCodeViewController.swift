@@ -203,6 +203,12 @@ class GroupEditCodeViewController: BaseTableViewControllerNoGeneric {
         
         headerView.button.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
+            
+            if self.headerView.textField.isFirstResponder {
+                
+                self.headerView.textField.resignFirstResponder()
+            }
+            
             let vc = GroupAddCodeViewController(viewModel: GroupAddCodeVCViewModel(groupCode: self.viewModel.groupCodes, addTokenIDs: self.viewModel.newCodeAddGroup))
             
             self.navigationController?.pushViewController(vc, animated: true)

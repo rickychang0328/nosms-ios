@@ -477,13 +477,18 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     }
                     
                     let indexPath = self.tokenListSupportPin.getIndexPath(id: viewModels[viewModels.count - 1].tokenID)
+                    
                     self.eventResult.onNext(.scrollToIndex(indexPath))
+                    self.eventResult.onNext(.empty)
+
                         
                 } else {
                     if self.isFirstOpen {
                         self.isFirstOpen = false
                     }
                     self.eventResult.onNext(.reloadData)
+                    self.eventResult.onNext(.empty)
+
                 }
             })
             .disposed(by: disposedBag)
@@ -500,10 +505,12 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                 self._groupViewModels.forEach({$0.tokenListSupportPin.reloadPin()})
                 
                 self.eventResult.onNext(.addPin(indexPath: index))
+                self.eventResult.onNext(.empty)
             case .remove(let pinIndex):
 
                 //MARK: 在加到第一筆的時候就已經被 reloadPin 了所以直接拿之前Pin的位置
                 self.eventResult.onNext(.removePin(indexPath: IndexPath(row: pinIndex, section: 0)))
+                self.eventResult.onNext(.empty)
             case .emtpy:
                 break
             }
@@ -524,7 +531,9 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     func swapToken(beforeIndex: Int, afterIndex: Int) {
         
         do {
-            try tokenStore.moveTokenFromIndex(beforeIndex, toIndex: afterIndex)
+            let bef = tokenListSupportPin.getRealIndex(indexPath: IndexPath(row: beforeIndex, section: 1))
+            let after = tokenListSupportPin.getRealIndex(indexPath: IndexPath(row: afterIndex, section: 1))
+            try tokenStore.moveTokenFromIndex(bef, toIndex: after)
         } catch {
             
             eventResult.onNext(.error(error))
@@ -574,6 +583,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             tokenListSupportPin.setSearchString(input: input)
             _groupViewModels.forEach({ $0.setSearchText(input: input) })
             eventResult.onNext(.reloadData)
+            eventResult.onNext(.empty)
         }
     }
     func viewDidAppear() {
@@ -890,7 +900,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
                 SwipeManager.shared.swipeOff()
                 self.tableView.setEditing(true, animated: true)
-                self.groupVCs.forEach({$0.tableView.setEditing(true, animated: true)})
+                self.customSegmentView.selectIndex(at: 0)
+                self.customSegmentView.snp.updateConstraints {
+                    $0.height.equalTo(0)
+                }
+                self.scrollView.setContentOffset(.init(x: 0, y: 0), animated: false)
+                self.scrollView.isScrollEnabled = false
+//                self.groupVCs.forEach({$0.tableView.setEditing(true, animated: true)})
                 self.navigationItem.leftBarButtonItem?.isEnabled = false
                 self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
             case .group:
@@ -977,7 +993,15 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
                 self.tableView.endEditing(true)
                 self.tableView.setEditing(false, animated: true)
-                self.groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
+                self.scrollView.isScrollEnabled = true
+                if !self.groupVCs.isEmpty {
+                    
+                    self.customSegmentView.snp.updateConstraints {
+                        
+                        $0.height.equalTo(ScaleWidth(at: 41))
+                    }
+                }
+//                self.groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
                 
@@ -1076,26 +1100,33 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             guard let self = self else { return }
             if gest.state == .ended {
-
+                
+                let lastPage = self.customSegmentView.selectIndex
+                
                 let width = self.scrollView.bounds.width
+                let allContent = CGFloat(lastPage) * width
 
                 let contentWidth = self.scrollView.contentOffset.x
-
-                let page = contentWidth / width
-
-                let lessWidth = contentWidth - (width * CGFloat(Int(page)))
-
-                let toPage: Int
-
-                if lessWidth > (width / 2) {
-
-                    toPage = Int(page) + 1
-                } else {
-
-                    toPage = Int(page)
-                }
                 
-                self.customSegmentView.selectIndex(at: toPage)
+                if contentWidth > allContent {
+                    
+                    if self.groupVCs.count - 1 == lastPage {
+                        
+                        
+                    } else {
+                        
+                        self.customSegmentView.selectIndex(at: lastPage + 1)
+                    }
+                } else {
+                    
+                    if lastPage == 0 {
+                                           
+                                           
+                    } else {
+                                           
+                        self.customSegmentView.selectIndex(at: lastPage - 1)
+                    }
+                }
             }
         }).disposed(by: disposedBag)
         
@@ -1405,6 +1436,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             if tableView.isEditing {
                 
                 tableView.setEditing(false, animated: true)
+                scrollView.isScrollEnabled = true
                 groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
                 navigationItem.leftBarButtonItem?.isEnabled = true
                 self.viewModel.tableViewEndEdit()
@@ -1479,6 +1511,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModelEventWorking(event: event)
         }).disposed(by: lifeCycleDisposeBag)
+        
+//        tableView.reloadData()
+//        groupVCs.forEach({$0.tableView.reloadData()})
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -1644,7 +1679,7 @@ class CustomSegmentControl: UIView {
     
     let indexBehaiver: BehaviorSubject<Int> = .init(value: 0)
     
-    private var selectIndex: Int = 0
+    var selectIndex: Int = 0
     
     private let scrollView: UIScrollView = {
        

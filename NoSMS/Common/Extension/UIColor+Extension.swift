@@ -65,6 +65,8 @@ extension UIColor {
     private static let color_057_060_080: UIColor = .getColor(red: 57, green: 60, blue: 80, alpha: 1)
     private static let color_153_153_153_002: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.02)
     private static let color_153_153_153_003: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.03)
+    private static let color_240_240_240: UIColor = .getColor(red: 240, green: 240, blue: 240, alpha: 1)
+
 
     
     static let mustAuthRedColor: UIColor = .color_237_085_085
@@ -88,7 +90,7 @@ extension UIColor {
     static let tokenListHidePasswordInEditColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06,
                                                                                            lightColor: .color_000_000_000_01)
     static let tokenListTableViewBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
-                                                                                            lightColor: .color_250_250_250)
+                                                                                            lightColor: .color_240_240_240)
     static let tokenListSearchTextFieldTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06,
                                                                                             lightColor: .color_102_102_102)
     
@@ -114,6 +116,8 @@ extension UIColor {
     static let tokenListCellTextFieldUnderLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_043_043_045,
                                                                                                lightColor: .color_153_153_153_05)
     static let tokenListCellSwipeBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_098_112_255)
+    static let tokenListCellBackCardPinColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .color_249_249_249)
+    
     
     
     //MARK: ManuallyTOTP
