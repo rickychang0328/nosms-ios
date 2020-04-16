@@ -9,8 +9,8 @@ target 'NoSMS' do
   pod 'RxSwift', '~> 5.1'
   pod 'RxCocoa', '~> 5.1'
   pod 'SnapKit', '4.2.0'
-
-
+  pod 'BiometricAuthentication'
+  pod 'DynamicBlurView'
   # Pods for NoSMS
 
   target 'NoSMSTests' do

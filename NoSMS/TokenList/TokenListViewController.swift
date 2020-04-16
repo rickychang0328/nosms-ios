@@ -2,14 +2,16 @@
 import UIKit
 import RxSwift
 import RxCocoa
-
+import DynamicBlurView
 enum TokenListViewModelEvent {
     
     case reloadData
     case resetSearch
-    case scrollToIndex(Int)
+    case scrollToIndex(IndexPath)
     case error(Error)
     case empty
+    case addPin(indexPath: IndexPath)
+    case removePin(indexPath: IndexPath)
 }
 
 protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
@@ -17,15 +19,131 @@ protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     var eventResult: BehaviorSubject<TokenListViewModelEvent> { get }
     var deleteIsEnable: Observable<Bool> { get }
     var tokenIsEmpty: Bool { get }
+    var customSegmentControlViewModel: CustomSegmentControlViewModelType { get }
+    var groupViewModels: Observable<[TokenListInGroupVCViewModel]> { get }
+    var haveGroup: Observable<Bool> { get }
 
     func deleteToken()
-    func selectItem(index: Int) -> Observable<String>
     func swapToken(beforeIndex: Int, afterIndex: Int)
     func tableViewEndEdit()
     func searchText(input: String)
     func viewDidAppear()
+    func selectItem(indexPath: IndexPath) -> Observable<String>
 }
 
+
+class TokenListSupportPin {
+    
+    internal init(noPinTokenSection: TokenListSectionItemProtocol = TokenListSectionItem(),
+                  pinTokenSection: TokenListSectionItemProtocol = TokenListSectionItem()) {
+        
+        self.noPinTokenSection = noPinTokenSection
+        self.pinTokenSection = pinTokenSection
+    }
+    
+    var allTokenViewModel: [TokenListTableViewCellViewModelProtocol] = []
+    let noPinTokenSection: TokenListSectionItemProtocol
+    let pinTokenSection: TokenListSectionItemProtocol
+    
+    private var searchString: String = .init()
+    var sections: [TokenListSectionItemProtocol] {
+        
+        return [pinTokenSection, noPinTokenSection]
+    }
+    
+    func setupTokens(tokens: [TokenListTableViewCellViewModelProtocol]) {
+        
+        //MARK: 一樣的數值只是改變位置就改順序而已
+        if tokens.count == allTokenViewModel.count {
+            
+            let sortList = tokens.map({$0.tokenID})
+            let result = sortList.compactMap({ uuid in
+                return self.allTokenViewModel.first(where: { $0.tokenID == uuid})
+            })
+            
+            allTokenViewModel = result
+            
+        } else {
+            
+            allTokenViewModel = tokens
+        }
+            
+        reloadPin()
+    }
+    
+    func reloadPin() {
+        
+        let pinList = KeychainTokenStore.shared.getPinList()
+        let pinTokens = allTokenViewModel.filter({ pinList.contains($0.tokenID) })
+        let noPinTokens = allTokenViewModel.filter({ !pinList.contains($0.tokenID) })
+        let pinSortTokens = pinList.compactMap({ uuid in
+            return pinTokens.first(where: { token in
+                token.tokenID == uuid
+            })})
+        
+        pinTokenSection.rowItems = pinSortTokens
+        noPinTokenSection.rowItems = noPinTokens
+        
+        for item in noPinTokenSection.rowItems {
+            
+            item.setPin(isPin: false)
+        }
+        
+        for item in pinTokenSection.rowItems {
+            
+            item.setPin(isPin: true)
+        }
+    }
+    
+    func setSearchString(input: String) {
+        
+        searchString = input
+        pinTokenSection.setSearchString(input: input)
+        noPinTokenSection.setSearchString(input: input)
+    }
+    
+    func isSameString(input: String) -> Bool {
+        
+        return input == searchString
+    }
+    
+    func getTokenID(at indexPath: IndexPath) -> Data {
+        
+        let tokenIndex = sections[indexPath.section].getRealIndex(afterSearchIndex: indexPath.row)
+        let tokenViewModel = sections[indexPath.section].rowItems[tokenIndex]
+        return tokenViewModel.tokenID
+    }
+    
+    func getRealIndex(indexPath: IndexPath) -> Int {
+        
+        let tokenIndex = sections[indexPath.section].getRealIndex(afterSearchIndex: indexPath.row)
+        let tokenViewModel = sections[indexPath.section].rowItems[tokenIndex]
+        let result = allTokenViewModel.firstIndex(where: { $0.tokenID == tokenViewModel.tokenID})
+        return result ?? 0
+    }
+    
+    func getIndexPath(id: Data) -> IndexPath {
+        
+        let section: Int
+        let row: Int
+        
+        for indexSec in sections.indices {
+            
+            for indexRow in sections[indexSec].rowItems.indices {
+                
+                if sections[indexSec].rowItems[indexRow].tokenID == id {
+                    
+                    section = indexSec
+                    row = indexRow
+                    
+                    return IndexPath(row: row, section: section)
+                }
+            }
+        }
+        
+        return IndexPath.init()
+    }
+}
 protocol TokenListSectionItemProtocol: BaseTableViewSectionItemsProtocol {
     
     var rowItems: [TokenListTableViewCellViewModelProtocol] { get set }
@@ -118,8 +236,162 @@ class TokenListSectionItem: TokenListSectionItemProtocol {
     }
 }
 
-class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
+extension String {
+    
+    func haveSixChineseWord() -> Bool {
         
+        var chineseWords: Int = 0
+        
+        for subString in self {
+            
+            if subString.isChineseWord() {
+                
+                chineseWords += 1
+            }
+        }
+        
+        return (chineseWords > 6)
+    }
+}
+
+extension Character {
+    
+    func isChineseWord() -> Bool {
+        
+        if ("\u{4E00}" <= self  && self <= "\u{9FA5}") {
+            return true
+        } else {
+            
+            return false
+        }
+    }
+}
+
+struct CustomSegmentControlViewModel: CustomSegmentControlViewModelType {
+    
+    let titles: Observable<[String]>
+    
+    init(titles: Observable<[String]>) {
+        
+        let resultTitles = titles.map({["全部"] + $0}).map({$0.map({ string -> String in
+            
+            let result: String
+            if string.haveSixChineseWord() {
+                
+                var reString = ""
+                
+                for (index, char) in string.enumerated() {
+                    if index >= 6 {
+                        
+                        break
+                    }
+                    reString.append(char)
+                }
+                
+                reString = reString + "..."
+                result = reString
+            } else {
+                
+                result = string
+            }
+            
+            return result
+        })})
+        
+        self.titles = resultTitles
+    }
+}
+
+class TokenListInGroupVCViewModel: BaseVCViewModel, BaseTableViewVCViewModelProtocol {
+        
+    var cellViewModels: [BaseTableViewSectionItemsProtocol] {
+        
+        return tokenListSupportPin.sections
+    }
+    
+    var tableViewStyle: UITableView.Style { return .grouped }
+    
+    let tokenListSupportPin: TokenListSupportPin
+    
+    private let groupObject: GroupObject
+    
+    init(tokenListSupportPin: TokenListSupportPin,
+         groupID: UUID) {
+        
+        self.tokenListSupportPin = tokenListSupportPin
+        self.groupObject = KeychainTokenStore.shared.getGroup(uuid: groupID) ?? GroupObject()
+        
+        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "")), backgroundColor: .clear)
+    }
+    
+    private var viewModels: [TokenListTableViewCellViewModelProtocol] = []
+    
+    func setCellViewModel(viewModels: [TokenListTableViewCellViewModelProtocol]) {
+        
+        let realViewModel = viewModels.filter({self.groupObject.tokens.contains($0.tokenID)})
+        self.viewModels = viewModels
+        tokenListSupportPin.setupTokens(tokens: realViewModel)
+    }
+    
+    func setSearchText(input: String) {
+        
+        tokenListSupportPin.setSearchString(input: input)
+    }
+    
+    func selectItem(indexPath: IndexPath) -> Observable<String> {
+        
+        let id = tokenListSupportPin.getTokenID(at: indexPath)
+        
+        let realIndex = viewModels.firstIndex(where: {$0.tokenID == id})!
+        
+        let observer: Observable<String> = .create { anyObserver -> Disposable in
+            
+            let disposed = KeychainTokenStore.shared.persistentTokensBehavior
+                .map({$0[realIndex]})
+                .subscribe(onNext: { adapterToken in
+                    
+                    let showPassword = try? adapterToken.passwordShow.value()
+                    
+                    if showPassword ?? true {
+                        
+                        UIPasteboard.general.string = try? adapterToken.password.value()
+                        
+                        anyObserver.onNext("[ \(adapterToken.token.issuer) ]\n\(adapterToken.token.name)\n验证码已复制")
+                        anyObserver.onCompleted()
+                    } else {
+                        
+                        adapterToken.getOnTapPassword()
+                        anyObserver.onCompleted()
+                    }
+                })
+            return Disposables.create { disposed.dispose() }
+        }
+        return observer
+    }
+
+}
+
+class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
+    
+    let haveGroup: Observable<Bool>
+    
+    var groupViewModels: Observable<[TokenListInGroupVCViewModel]> {
+        
+        return groupViewModelsBehavior.asObservable()
+    }
+    
+    private let groupViewModelsBehavior: BehaviorSubject<[TokenListInGroupVCViewModel]> = .init(value: [])
+    
+    private var _groupViewModels: [TokenListInGroupVCViewModel] = [] {
+        
+        didSet {
+            
+            groupViewModelsBehavior.onNext(_groupViewModels)
+        }
+    }
+    
+    let customSegmentControlViewModel: CustomSegmentControlViewModelType
+
     var tokenIsEmpty: Bool {
         
         return tokenStore.tokenIsEmpty
@@ -135,24 +407,39 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     
     var cellViewModels: [BaseTableViewSectionItemsProtocol] {
         
-        return [sectionItems]
+        return tokenListSupportPin.sections
     }
-    
-    private let sectionItems: TokenListSectionItemProtocol
     
     private let tokenStore: TokenStoreProtocol
     
     private var isFirstOpen: Bool = true
+    
+    private let tokenListSupportPin: TokenListSupportPin
             
     init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
          backgroundColor: UIColor = .tokenListBackgroundColor,
-         sectionItems: TokenListSectionItemProtocol = TokenListSectionItem()) {
+         tokenListSupportPin: TokenListSupportPin = TokenListSupportPin()) {
         
         self.tokenStore = tokenStore
-        self.sectionItems = sectionItems
         self.deleteIsEnable = tokenStore.haveSelectTokenToDelete
+        self.tokenListSupportPin = tokenListSupportPin
+        
+        //TODO:
+        let groupListTitleObserber = KeychainTokenStore.shared.groupListBehavior.map({ $0.map { $0.title } }).asObservable()
+        self.customSegmentControlViewModel = CustomSegmentControlViewModel(titles: groupListTitleObserber)
+        self.haveGroup = KeychainTokenStore.shared.groupListBehavior.map({!$0.isEmpty})
         super.init(navigationItem: navigationItemViewModel, backgroundColor: backgroundColor)
+        
+        KeychainTokenStore.shared.groupListBehavior.subscribe(onNext: { [weak self] groups in
+            guard let self = self else { return }
+            self._groupViewModels = groups.map({ TokenListInGroupVCViewModel(tokenListSupportPin: TokenListSupportPin(), groupID: $0.uuid)})
+            
+            for groupViewModel in self._groupViewModels {
+                
+                groupViewModel.setCellViewModel(viewModels: self.tokenListSupportPin.allTokenViewModel)
+            }
+        }).disposed(by: disposedBag)
         
         tokenStore.persistentTokensBehavior
             .map( {
@@ -163,8 +450,14 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                 guard let self = self else { return }
                 
                 //轉換變動不需要重新load, 不是新增 也不是刪除
-                let count = self.sectionItems.rowItems.count
-                self.sectionItems.rowItems = viewModels
+                let count = self.tokenListSupportPin.allTokenViewModel.count
+                self.tokenListSupportPin.setupTokens(tokens: viewModels)
+                
+                for groupViewModel in self._groupViewModels {
+                    
+                    groupViewModel.setCellViewModel(viewModels: viewModels)
+                }
+                
                 if count == viewModels.count {
                    if self.isFirstOpen {
                         self.isFirstOpen = false
@@ -182,16 +475,46 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                         self.isFirstOpen = false
                         return
                     }
-                    self.eventResult.onNext(.scrollToIndex(viewModels.count - 1))
+                    
+                    let indexPath = self.tokenListSupportPin.getIndexPath(id: viewModels[viewModels.count - 1].tokenID)
+                    
+                    self.eventResult.onNext(.scrollToIndex(indexPath))
+                    self.eventResult.onNext(.empty)
+
                         
                 } else {
                     if self.isFirstOpen {
                         self.isFirstOpen = false
                     }
                     self.eventResult.onNext(.reloadData)
+                    self.eventResult.onNext(.empty)
+
                 }
             })
             .disposed(by: disposedBag)
+        
+        tokenStore.pinEvent.subscribe(onNext: { [weak self] event in
+            guard let self = self else { return }
+            
+            switch event {
+            
+            case .addPin(let id):
+                
+                let index = self.tokenListSupportPin.getIndexPath(id: id)
+                self.tokenListSupportPin.reloadPin()
+                self._groupViewModels.forEach({$0.tokenListSupportPin.reloadPin()})
+                
+                self.eventResult.onNext(.addPin(indexPath: index))
+                self.eventResult.onNext(.empty)
+            case .remove(let pinIndex):
+
+                //MARK: 在加到第一筆的時候就已經被 reloadPin 了所以直接拿之前Pin的位置
+                self.eventResult.onNext(.removePin(indexPath: IndexPath(row: pinIndex, section: 0)))
+                self.eventResult.onNext(.empty)
+            case .emtpy:
+                break
+            }
+        }).disposed(by: disposedBag)
     }
     
     func deleteToken() {
@@ -208,16 +531,18 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     func swapToken(beforeIndex: Int, afterIndex: Int) {
         
         do {
-            try tokenStore.moveTokenFromIndex(beforeIndex, toIndex: afterIndex)
+            let bef = tokenListSupportPin.getRealIndex(indexPath: IndexPath(row: beforeIndex, section: 1))
+            let after = tokenListSupportPin.getRealIndex(indexPath: IndexPath(row: afterIndex, section: 1))
+            try tokenStore.moveTokenFromIndex(bef, toIndex: after)
         } catch {
             
             eventResult.onNext(.error(error))
         }
     }
     
-    func selectItem(index: Int) -> Observable<String> {
+    func selectItem(indexPath: IndexPath) -> Observable<String> {
         
-        let realIndex = sectionItems.getRealIndex(afterSearchIndex: index)
+        let realIndex = tokenListSupportPin.getRealIndex(indexPath: indexPath)
 
         let observer: Observable<String> = .create { anyObserver -> Disposable in
             
@@ -251,12 +576,14 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     
     func searchText(input: String) {
         
-        if sectionItems.isSameString(input: input) {
+        if tokenListSupportPin.isSameString(input: input) {
             
         } else {
             
-            sectionItems.setSearchString(input: input)
+            tokenListSupportPin.setSearchString(input: input)
+            _groupViewModels.forEach({ $0.setSearchText(input: input) })
             eventResult.onNext(.reloadData)
+            eventResult.onNext(.empty)
         }
     }
     func viewDidAppear() {
@@ -351,11 +678,47 @@ class HomePageView: UIView {
     }
 }
 
+class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
+    
+    private let viewModel: TokenListInGroupVCViewModel
+    
+    init(viewModel: TokenListInGroupVCViewModel) {
+        
+        self.viewModel = viewModel
+        super.init(baseTableViewModel: viewModel)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        tableView.showsVerticalScrollIndicator = false
+        tableView.rx.itemSelected
+            .flatMapLatest(viewModel.selectItem(indexPath:))
+            .subscribe(onNext: { [weak self] string in
+            guard self != nil else { return }
+            NoSMSHUD.showToast(title: string)
+            
+            }).disposed(by: disposedBag)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+}
+
 class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
     
+    private var groupDisposedBag: DisposeBag = .init()
     private var lifeCycleDisposeBag: DisposeBag = .init()
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
+    private var groupVCs: [TokenListGroupViewController] = []
+    
+    private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
 
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -364,28 +727,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         button.rx.tap.subscribe(onNext: { [weak self] _ in
                    
             guard let self = self else { return }
-//            self.choseHowToAddTokenView.showView()
-            // 设置弹出的尺寸
-//            self.tokenListMenuVC.providesPresentationContextTransitionStyle = true
-//            self.tokenListMenuVC.definesPresentationContext = true
             self.tokenListMenuVC.preferredContentSize = CGSize(width: ScaleWidth(at: 144),height: ScaleWidth(at: 144))
             self.tokenListMenuVC.modalPresentationStyle = .popover
             var popover = self.tokenListMenuVC.popoverPresentationController!
             popover.delegate = self
             popover.popoverBackgroundViewClass = MyPopoverBackgroundView.self
-//            popover.backgroundColor = .white
-//            popover.backgroundColor = UIColor.init(white: 1, alpha: 1)
-//            let view:UIImageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 200, height: 165))
-//            view.image = UIImage(named: "NoSMS_popBack")
-            
-//            popover.permittedArrowDirections = UIPopoverArrowDirection.init(rawValue: 0)
-//            popover.permittedArrowDirections = .up
             popover.barButtonItem = self.addTokenBarButton
             self.present(self.tokenListMenuVC, animated: true)
-//            self.present(self.tokenListMenuVC, animated: true, completion: {
-//                 self.tokenListMenuVC.view.superview?.layer.cornerRadius = 5
-////                self.tokenListMenuVC.view.superview?.clipsToBounds = false
-//            })
             if self.searchTextField.isFirstResponder {
                               
                 self.searchTextField.resignFirstResponder()
@@ -409,9 +757,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     
                     self.searchTextField.resignFirstResponder()
                 }
-                self.tableView.setEditing(true, animated: true)
-                self.navigationItem.leftBarButtonItem?.isEnabled = false
-                self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
+                self.editControllView.isHidden = false
         }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
@@ -478,45 +824,22 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private let menuView: MenuView = .init(frame: .zero)
     
     private lazy var searchTextField: UITextField = {
-       
-        let textField = UITextField()
+        
+        let textField = CustomTextField(frame: .zero)
         textField.textColor = .tokenListSearchTextFieldTextColor
         textField.backgroundColor = .tokenListSearchTextFieldBackgroundColor
         textField.placeholder = "搜索"
         textField.font = .pingFangMediumFont(size: 15)
         textField.addCornerRadius(at: ScaleWidth(at: 6))
-        
-        let leftViewWidth = ScaleWidth(at: 18)
-        let leftPan = ScaleWidth(at: 14)
-        let leftPanAdd = ScaleWidth(at: 10)
-        let leftView = UIView(frame: CGRect(x: 0, y: 0, width: leftViewWidth + leftPan + leftPanAdd, height: leftViewWidth))
-        let leftImageView = UIImageView(frame: CGRect(x: leftPan, y: 0, width: leftViewWidth, height: leftViewWidth))
-        leftImageView.image = .noSmsSearch
-        leftView.addSubview(leftImageView)
-        textField.leftView = leftView
-        textField.leftViewMode = .always
-        
-        let rightButtonWidth = ScaleWidth(at: 20)
-        let rightPan = ScaleWidth(at: 8)
-        let rightView = UIView(frame: CGRect(x: 0, y: 0, width: rightButtonWidth + rightPan, height: leftViewWidth))
-        let clearButton = UIButton(frame: CGRect(x: 0, y: 0, width: rightButtonWidth, height: rightButtonWidth))
-        clearButton.setImage(.noSmsDelete, for: .normal)
-        rightView.addSubview(clearButton)
-        textField.rightView = rightView
-        textField.rightViewMode = .whileEditing
-        textField.rx.text
-            .compactMap({$0})
-            .map({!($0.count > 0)})
-            .bind(to: rightView.rx.isHidden)
-            .disposed(by: self.disposedBag)
-        clearButton.rx.tap
-            .subscribe(onNext: { [weak self] _ in
-                guard let self = self else { return }
-                rightView.isHidden = true
-                self.cleanTextField()
-            }).disposed(by: self.disposedBag)
+
+        textField.addCustomLeftView(image: .noSmsSearch, textViewMode: .always)
+        textField.addCustomClearButton()
+        textField.clearButton?.rx.tap.subscribe(onNext: { [weak self] in
+
+            self?.cleanTextField()
+        }).disposed(by: self.disposedBag)
         textField.returnKeyType = .search
-        
+
         textField.delegate = self
         return textField
     }()
@@ -531,6 +854,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         return button
     }()
     
+    private let scrollView: UIScrollView = .init()
+    
+    private let editControllView: EditControllView = .init(frame: .zero)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -543,10 +870,52 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         navigationController?.navigationBar.shadowImage = UIImage()
         
         view.addSubview(searchTextField)
+        view.addSubview(customSegmentView)
         view.addSubview(resetSearchButton)
+        view.addSubview(scrollView)
         view.addSubview(homePageView)
+        
         navigationController?.view.addSubview(choseHowToAddTokenView)
         navigationController?.view.addSubview(menuView)
+        navigationController?.view.addSubview(editControllView)
+        tableView.showsVerticalScrollIndicator = false
+        
+        editControllView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+        
+        editControllView.isHidden = true
+        
+        editControllView.eventPublish.subscribe(onNext: { [weak self] event in
+            guard let self = self else { return }
+            
+            self.editControllView.isHidden = true
+            
+            switch event {
+                
+            case .code:
+                
+                if self.searchTextField.isFirstResponder {
+
+                    self.searchTextField.resignFirstResponder()
+                }
+                SwipeManager.shared.swipeOff()
+                self.tableView.setEditing(true, animated: true)
+                self.customSegmentView.selectIndex(at: 0)
+                self.customSegmentView.snp.updateConstraints {
+                    $0.height.equalTo(0)
+                }
+                self.scrollView.setContentOffset(.init(x: 0, y: 0), animated: false)
+                self.scrollView.isScrollEnabled = false
+//                self.groupVCs.forEach({$0.tableView.setEditing(true, animated: true)})
+                self.navigationItem.leftBarButtonItem?.isEnabled = false
+                self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
+            case .group:
+                
+                self.navigationController?.pushViewController(.groupViewControllver, animated: true)
+            }
+        }).disposed(by: disposedBag)
         
         searchTextField.snp.makeConstraints {
             
@@ -554,6 +923,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             $0.left.equalToSuperview().offset(ScaleWidth(at: 12))
             $0.right.equalTo(ScaleWidth(at: -12))
             $0.height.equalTo(ScaleWidth(at: 40))
+        }
+        
+        customSegmentView.snp.makeConstraints {
+            
+            $0.top.equalTo(searchTextField.snp.bottom).offset(ScaleWidth(at: 8))
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(ScaleWidth(at: 0))
         }
         
         resetSearchButton.snp.makeConstraints {
@@ -567,13 +943,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         bottomView.addSubview(deleteTokenButton)
         bottomViewSetup()
 
-        tableView.snp.remakeConstraints {
-            
-            $0.top.equalTo(searchTextField.snp.bottom).offset(ScaleWidth(at: 8))
-            $0.left.right.equalToSuperview()
-            $0.bottom.equalTo(bottomView.snp.top)
-        }
-        
         homePageView.snp.makeConstraints {
             
             $0.top.equalTo(view.snp.topMargin)
@@ -626,6 +995,15 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
                 self.tableView.endEditing(true)
                 self.tableView.setEditing(false, animated: true)
+                self.scrollView.isScrollEnabled = true
+                if !self.groupVCs.isEmpty {
+                    
+                    self.customSegmentView.snp.updateConstraints {
+                        
+                        $0.height.equalTo(ScaleWidth(at: 41))
+                    }
+                }
+//                self.groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
                 
@@ -645,7 +1023,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }).disposed(by: disposedBag)
         
         tableView.rx.itemSelected
-            .map({ $0.row })
             .flatMapLatest(self.viewModel.selectItem)
             .subscribe(onNext: { [weak self] string in
                 guard self != nil else { return }
@@ -662,9 +1039,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         tableView.rx.didScroll.subscribe { [weak self] _ in
             guard let self = self else { return }
             
+            SwipeManager.shared.swipeOff()
             if (self.searchTextField.text?.isEmpty ?? true){
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.showSearchTextAction()
+                    self.showSearchTextAction(tableView: self.tableView)
                 }
             }
         }.disposed(by: disposedBag)
@@ -705,13 +1083,139 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 self.showKeyinTokenVC()
             }
         }).disposed(by: disposedBag)
-        self.callVersionAPI()
         
+        scrollView.snp.makeConstraints {
+            
+            $0.top.equalTo(customSegmentView.snp.bottom)
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(bottomView.snp.top)
+        }
+        
+        tableView.removeFromSuperview()
+        scrollView.addSubview(tableView)
+        scrollView.backgroundColor = .tokenListTableViewBackgroundColor
+        scrollView.showsVerticalScrollIndicator = false
+        scrollView.showsHorizontalScrollIndicator = false
+        
+        scrollView.panGestureRecognizer.rx.event.subscribe(onNext: { [weak self] gest in
+            
+            guard let self = self else { return }
+            if gest.state == .ended {
+                
+                let lastPage = self.customSegmentView.selectIndex
+                
+                let width = self.scrollView.bounds.width
+                let allContent = CGFloat(lastPage) * width
+
+                let contentWidth = self.scrollView.contentOffset.x
+                
+                if contentWidth > allContent {
+                    
+                    if self.groupVCs.count - 1 == lastPage {
+                        
+                        
+                    } else {
+                        
+                        self.customSegmentView.selectIndex(at: lastPage + 1)
+                    }
+                } else {
+                    
+                    if lastPage == 0 {
+                                           
+                                           
+                    } else {
+                                           
+                        self.customSegmentView.selectIndex(at: lastPage - 1)
+                    }
+                }
+            }
+        }).disposed(by: disposedBag)
+        
+        viewModel.groupViewModels.subscribe(onNext: { [weak self] tableViewModels in
+            
+            guard let self = self else { return }
+            
+            for vc in self.groupVCs {
+                
+                vc.view.removeFromSuperview()
+                vc.removeFromParent()
+            }
+            
+            self.groupVCs = []
+            self.groupDisposedBag = .init()
+            
+            for tableViewModel in tableViewModels {
+                
+                self.groupVCs.append(TokenListGroupViewController(viewModel: tableViewModel))
+            }
+            
+            for vc in self.groupVCs {
+                
+                self.addChild(vc)
+                self.scrollView.addSubview(vc.view)
+                vc.tableView.backgroundColor = .tokenListTableViewBackgroundColor
+                vc.tableView.rx.didScroll.subscribe(onNext: { [weak vc, weak self] in
+                    guard let tableView = vc?.tableView else { return }
+                    guard let self = self else { return }
+                    
+                    if (self.searchTextField.text?.isEmpty ?? true) {
+
+                        self.showSearchTextAction(tableView: tableView)
+                    }
+                }).disposed(by: self.groupDisposedBag)
+                
+                vc.tableView.rx.didScrollToTop.subscribe(onNext: { [weak self] in
+                    guard let self = self else { return }
+                    
+                    if (self.searchTextField.text?.isEmpty ?? true){
+                        
+                        self.showSearchTextAnimation()
+                    }
+                }).disposed(by: self.groupDisposedBag)
+            }
+            
+            let scrollSubView = self.scrollView.subviews
+            
+            for index in scrollSubView.indices {
+                
+                scrollSubView[index].snp.remakeConstraints {
+                    
+                    $0.top.bottom.height.width.equalToSuperview()
+                    
+                    if index == 0 {
+                        
+                        $0.left.equalToSuperview()
+                    } else {
+                        
+                        $0.left.equalTo(scrollSubView[index - 1].snp.right)
+                    }
+                    
+                    if index == scrollSubView.count - 1 {
+                        
+                        $0.right.equalToSuperview()
+                    }
+                }
+            }
+            self.customSegmentView.selectIndex(at: 0)
+        }).disposed(by: disposedBag)
+        
+        viewModel.haveGroup
+            .flatMapLatest(customSegmentViewSetup(hasGroup:))
+            .subscribe()
+            .disposed(by: disposedBag)
+        customSegmentView.indexBehaiver.subscribe(onNext: { [weak self] index in
+            
+            guard let self = self else { return }
+            
+            let scrollViewWidth = self.scrollView.bounds.width
+            self.scrollView.setContentOffset(CGPoint(x: scrollViewWidth * CGFloat(index), y: 0), animated: true)
+            }).disposed(by: disposedBag)
+        self.callVersionAPI()
     }
-    private func showSearchTextAction(){
+    private func showSearchTextAction(tableView: UITableView){
        
-        if !self.searchTextField.isEditing && self.tableView.contentSize.height > self.tableView.frame.height {
-            if self.tableView.panGestureRecognizer.translation(in: self.tableView).y < 0 || ( self.tableView.contentOffset.y > self.tableView.panGestureRecognizer.translation(in: self.tableView).y) {
+        if !self.searchTextField.isEditing && tableView.contentSize.height > tableView.frame.height {
+            if tableView.panGestureRecognizer.translation(in: tableView).y < 0 || ( tableView.contentOffset.y > tableView.panGestureRecognizer.translation(in: tableView).y) {
 
                 DispatchQueue.main.async {[weak self] in
                     guard let self = self else {return}
@@ -727,17 +1231,18 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     },
                                    completion: nil
                     )
-                    self.tableView.snp.updateConstraints {
+                    
+                    self.customSegmentView.snp.updateConstraints {
                         $0.top.equalTo(self.searchTextField.snp.bottom).offset(ScaleWidth(at: 0))
                     }
                 }
             }else {
-                if self.tableView.contentOffset.y < 0 {
+                if tableView.contentOffset.y < 0 {
                     showSearchTextAnimation()
                 }
             }
         }else {
-            if self.tableView.contentOffset.y < 0 {
+            if tableView.contentOffset.y < 0 {
                 showSearchTextAnimation()
             }
         }
@@ -758,13 +1263,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             },
                            completion: nil
             )
-            self.tableView.snp.updateConstraints {
+            self.customSegmentView.snp.updateConstraints {
                 $0.top.equalTo(self.searchTextField.snp.bottom).offset(ScaleWidth(at: 8))
             }
         }
     }
     private func callVersionAPI(){
-//        let repository = Repository(apiClient: APIClient())
         
         Repository.sharedInstance.postVersion {[weak self] (result) in
             switch result {
@@ -794,22 +1298,24 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         case .reloadData:
             
             tableView.reloadData()
+            groupVCs.forEach({ $0.tableView.reloadData()})
             wantToShowHomePageOrNot()
         case .resetSearch:
             tableView.reloadData()
             wantToShowHomePageOrNot()
             resetSearch()
-        case .scrollToIndex(let rowIndex):
+        case .scrollToIndex(let indexPath):
             
+            customSegmentView.selectIndex(at: 0)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
                  guard let self = self else { return }
                 self.tableView.reloadData()
                 self.wantToShowHomePageOrNot()
                 self.resetSearch()
-                self.tableView.scrollToRow(at: IndexPath(row: rowIndex, section: 0), at: .bottom, animated: false)
+                self.tableView.scrollToRow(at: indexPath, at: .bottom, animated: false)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    self.showSearchTextAction()
-                    if let view = self.tableView.cellForRow(at: IndexPath(row: rowIndex, section: 0)) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
+                    self.showSearchTextAction(tableView: self.tableView)
+                    if let view = self.tableView.cellForRow(at: indexPath) as? TokenListTableViewCell<TokenListTableViewCellViewModel> {
                         view.setBackCardAnimationColor()
                     }
                 }
@@ -819,6 +1325,44 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             break
         case .empty:
             break
+        case .addPin(let indexPath):
+            
+            groupVCs.forEach({ $0.tableView.reloadData()})
+            tableView.beginUpdates()
+            tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+            tableView.endUpdates()
+            
+        case .removePin(let indexPath):
+            
+            groupVCs.forEach({ $0.tableView.reloadData()})
+            tableView.beginUpdates()
+            tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
+            tableView.endUpdates()
+        }
+    }
+    
+    private func customSegmentViewSetup(hasGroup: Bool) -> Completable {
+        
+        return Completable.create { (handler) -> Disposable in
+            
+            let viewHeight: CGFloat
+            
+            if hasGroup {
+                
+                viewHeight = ScaleWidth(at: 41)
+            } else {
+                
+                viewHeight = 0
+            }
+            
+            self.customSegmentView.snp.updateConstraints {
+                
+                $0.height.equalTo(viewHeight)
+            }
+            handler(.completed)
+            return Disposables.create {
+
+            }
         }
     }
     
@@ -894,6 +1438,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             if tableView.isEditing {
                 
                 tableView.setEditing(false, animated: true)
+                scrollView.isScrollEnabled = true
+                groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
                 navigationItem.leftBarButtonItem?.isEnabled = true
                 self.viewModel.tableViewEndEdit()
                 
@@ -916,7 +1462,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 homePageView.isHidden = true
             }
         }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -928,7 +1473,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                    
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
-        
+
        NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification).subscribe({[weak self] _ in
                 guard let self = self else { return }
     //            if self.tokenListMenuVC.isViewLoaded {
@@ -978,7 +1523,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         lifeCycleDisposeBag = .init()
     }
-    
+ 
     private func bottomViewSetup() {
         
         deleteTokenButton.snp.makeConstraints {
@@ -1056,7 +1601,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private func showPhoto() {
         
-        let photoVC = UINavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
+        let photoVC = BaseNavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
         photoVC.modalPresentationStyle = .fullScreen
         
         AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in
@@ -1105,6 +1650,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return .none
     }
+
+    private lazy var customSegmentView = CustomSegmentControl(viewModel: viewModel.customSegmentControlViewModel)
 }
 
 extension UIDevice {
@@ -1112,5 +1659,427 @@ extension UIDevice {
     var isIPhoneXUp: Bool {
         
         return UIScreen.main.bounds.height >= 812
+    }
+}
+
+
+protocol CustomSegmentControlViewModelType {
+    
+    var titles: Observable<[String]> { get }
+}
+
+class CustomSegmentControl: UIView {
+    
+    private var titles: [String] = []
+    
+    private var gests: [UITapGestureRecognizer] = []
+    
+    private var labels: [UILabel] = []
+    
+    let indexBehaiver: BehaviorSubject<Int> = .init(value: 0)
+    
+    var selectIndex: Int = 0
+    
+    private let scrollView: UIScrollView = {
+       
+        let view = UIScrollView()
+        view.showsHorizontalScrollIndicator = false
+        return view
+    }()
+    
+    private let underLine: UIView = {
+       
+        let view = UIView()
+        view.setBackgroundColor(.customSegmentControlUnderLineColor)
+        view.addCornerRadius(at: ScaleWidth(at: 2))
+        return view
+    }()
+
+    private let disposedBag: DisposeBag = .init()
+    
+    private var gestDisposedBag: DisposeBag = .init()
+    
+    private override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+    
+    convenience init(viewModel: CustomSegmentControlViewModelType) {
+        
+        self.init(frame: .zero)
+        addSubview(scrollView)
+        addSubview(underLine)
+        clipsToBounds = true
+        scrollView.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+        
+        underLine.snp.makeConstraints {
+            
+            $0.height.equalTo(ScaleWidth(at: 4))
+            $0.bottom.equalToSuperview().inset(ScaleWidth(at: 1))
+            $0.width.left.equalToSuperview()
+        }
+        
+        viewModel.titles.subscribe(onNext: { [weak self] titles in
+            guard let self = self else { return }
+            
+            self.gestDisposedBag = .init()
+            self.titles = titles
+            self.gests = []
+            self.labels = []
+            
+            for view in self.scrollView.subviews {
+                
+                view.removeFromSuperview()
+            }
+            
+            for title in titles {
+                
+                let label = UILabel()
+                label.text = title
+                label.setFont(.pingFangMediumFont(size: 15))
+                self.labels.append(label)
+                self.scrollView.addSubview(label)
+                let tapGest = UITapGestureRecognizer()
+                label.addGestureRecognizer(tapGest)
+                label.isUserInteractionEnabled = true
+                self.gests.append(tapGest)
+
+                
+                tapGest.rx.event.subscribe(onNext: { [weak self] gest in
+                    
+                    guard let self = self else { return }
+                    
+                    guard let index = self.gests.firstIndex(of: gest) else {
+                        
+                        return
+                    }
+                    self.selectIndex(at: index)
+                    
+                }).disposed(by: self.gestDisposedBag)
+            
+            }
+            
+            let subViews = self.scrollView.subviews
+            
+            for index in subViews.indices {
+                
+                subViews[index].snp.makeConstraints {
+                    
+                    $0.centerY.height.equalToSuperview()
+                    
+                    if index == 0 {
+                        
+                        $0.left.equalToSuperview().offset(ScaleWidth(at: 16))
+                    } else {
+                        
+                        $0.left.equalTo(subViews[index - 1].snp.right).offset(ScaleWidth(at: 40))
+                    }
+                    
+                    if index == subViews.count - 1 {
+                        
+                        $0.right.equalToSuperview().inset(ScaleWidth(at: 16))
+                    }
+                }
+                
+            }
+            self.resetUnderLine()
+        }).disposed(by: disposedBag)
+    }
+    
+    private func resetUnderLine() {
+        
+        if scrollView.subviews.isEmpty {
+            
+            return
+        }
+        
+        underLine.snp.remakeConstraints {
+            
+            $0.left.width.equalTo(scrollView.subviews[0])
+            $0.height.equalTo(ScaleWidth(at: 4))
+            $0.bottom.equalToSuperview().inset(ScaleWidth(at: 1))
+        }
+    }
+
+    
+    func selectIndex(at index: Int) {
+        
+        let oldIndex = selectIndex
+
+        for label in labels {
+            
+            label.setTextColor(.customSegmentControlDisnableTextColor)
+        }
+        
+        labels[index].setTextColor(.customSegmentControlEnableTextColor)
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            
+            self.underLine.snp.remakeConstraints {
+            
+                $0.left.width.equalTo(self.scrollView.subviews[index])
+                $0.height.equalTo(ScaleWidth(at: 4))
+                $0.bottom.equalToSuperview().inset(ScaleWidth(at: 1))
+            }
+            self.layoutIfNeeded()
+        }, completion: { _ in
+                            
+            let viewframeX = self.scrollView.subviews[index].frame.origin.x
+            let contentOffsetX = self.scrollView.contentOffset.x
+            let scrollViewWidth = self.scrollView.bounds.width
+            let viewframeWidth = self.scrollView.subviews[index].bounds.width
+            
+            if viewframeX - contentOffsetX + viewframeWidth > scrollViewWidth {
+                
+                self.scrollView.setContentOffset(.init(x: viewframeX - (scrollViewWidth - viewframeWidth) + ScaleWidth(at: 16), y: 0), animated: true)
+            } else if contentOffsetX + scrollViewWidth < viewframeX || contentOffsetX > viewframeX {
+                
+                let contentX = viewframeX == 0 ? 0 : viewframeX - ScaleWidth(at: 16)
+                
+                self.scrollView.setContentOffset(.init(x: contentX, y: 0), animated: true)
+            }
+        })
+ 
+        selectIndex = index
+        indexBehaiver.onNext(index)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class CustomTextField: UITextField {
+    
+    var clearButton: UIButton?
+    
+    var customObserverText: Observable<String?> {
+        
+        return customTextBehavior.asObservable()
+    }
+    
+    private lazy var customTextBehavior: BehaviorSubject<String?> = {
+      
+        let behavior = BehaviorSubject<String?>(value: "")
+        self.rx.text.bind(to: behavior).disposed(by: self.disposedBag)
+        return behavior
+    }()
+    
+    private let disposedBag: DisposeBag = .init()
+
+    func addCustomLeftView(image: UIImage, textViewMode: UITextField.ViewMode) {
+        
+        let leftViewWidth = ScaleWidth(at: 18)
+        let leftPan = ScaleWidth(at: 14)
+        let leftPanAdd = ScaleWidth(at: 10)
+        let leftView = UIView(frame: CGRect(x: 0, y: 0, width: leftViewWidth + leftPan + leftPanAdd, height: leftViewWidth))
+        let leftImageView = UIImageView(frame: CGRect(x: leftPan, y: 0, width: leftViewWidth, height: leftViewWidth))
+        leftImageView.image = image
+        leftView.addSubview(leftImageView)
+        self.leftView = leftView
+        self.leftViewMode = textViewMode
+    }
+    
+    func addCustomClearButton(rightPan: CGFloat = ScaleWidth(at: 8)) {
+        
+        let rightButtonWidth = ScaleWidth(at: 20)
+        let rightPan = rightPan
+        let leftViewWidth = ScaleWidth(at: 18)
+        let rightView = UIView(frame: CGRect(x: 0, y: 0, width: rightButtonWidth + rightPan, height: leftViewWidth))
+        let clearButton = UIButton(frame: CGRect(x: 0, y: 0, width: rightButtonWidth, height: rightButtonWidth))
+        clearButton.setImage(.noSmsDelete, for: .normal)
+        rightView.addSubview(clearButton)
+        self.clearButton = clearButton
+        self.rightView = rightView
+        self.rightViewMode = .whileEditing
+        rx.text
+        .compactMap({$0})
+        .map({!($0.count > 0)})
+        .bind(to: rightView.rx.isHidden)
+        .disposed(by: disposedBag)
+        clearButton.rx.tap
+            .subscribe(onNext: { [weak self, weak rightView] _ in
+                rightView?.isHidden = true
+                self?.text = ""
+                self?.customTextBehavior.onNext("")
+            }).disposed(by: disposedBag)
+    }
+}
+
+class EditControllView: UIView {
+    
+    private let backImageView: UIImageView = {
+       
+        let view = UIImageView(image: .noSMSchoseEditControl)
+        return view
+    }()
+    
+    private let editCodeLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setText("验证码管理")
+            .setTextColor(.tokenListIssuerColor)
+        return label
+    }()
+    
+    private let editCodeImage: UIImageView = {
+          
+        let label = UIImageView(image: UIImage.noSMSchoseEditCode)
+        return label
+    }()
+    
+    private let editCodeButton: UIButton = {
+         
+        let button = UIButton()
+        return button
+    }()
+    
+    private let editGroupImage: UIImageView = {
+          
+        let label = UIImageView(image: UIImage.noSMSchoseEditGroup)
+        return label
+    }()
+    
+    private let editGroupLabel: UILabel = {
+         
+         let label = UILabel()
+         label.setFont(.pingFangMediumFont(size: 15))
+             .setText("分组管理")
+             .setTextColor(.tokenListIssuerColor)
+         return label
+     }()
+    
+    private let editGroupButton: UIButton = {
+        
+        let button = UIButton()
+        return button
+    }()
+    
+    enum Event {
+        
+        case group
+        case code
+    }
+    
+    private let disposedBag: DisposeBag = .init()
+    
+    let eventPublish: PublishSubject<Event> = .init()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        addSubview(backImageView)
+        backImageView.addSubview(editCodeImage)
+        backImageView.addSubview(editCodeLabel)
+        backImageView.addSubview(editGroupImage)
+        backImageView.addSubview(editGroupLabel)
+        addSubview(editCodeButton)
+        addSubview(editGroupButton)
+
+        let underLine = UIView()
+        underLine.setBackgroundColor(.alertStreetUnderLineColor)
+        backImageView.addSubview(underLine)
+        
+        
+        //適應各種奇怪的尺寸 layout
+        let withWidth: CGFloat
+        
+        if UIScreen.main.bounds.width < 375 {
+            //比對後給的值並不是絕對
+            withWidth = 355
+        } else {
+            
+            withWidth = 414
+        }
+        
+        
+        let topY: CGFloat
+        if #available(iOS 11, *) {
+            
+            topY = 27
+        } else {
+            
+            topY = 46
+        }
+        
+        backImageView.snp.makeConstraints {
+            $0.right.equalTo(0)
+            $0.topMargin.equalTo(topY)
+            $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
+            $0.height.equalTo(ScaleWidth(at: 136.7, with: withWidth))
+        }
+
+        editCodeLabel.snp.makeConstraints {
+
+            $0.centerY.equalTo(editCodeImage)
+            $0.left.equalTo(ScaleWidth(at: 58, with: withWidth))
+        }
+
+        editCodeImage.snp.makeConstraints {
+
+            $0.size.equalTo(ScaleWidth(at: 20, with: withWidth))
+            $0.top.equalTo(ScaleWidth(at: 36, with: withWidth))
+            $0.left.equalTo(ScaleWidth(at: 26, with: withWidth))
+        }
+
+        editGroupLabel.snp.makeConstraints {
+
+            $0.left.equalTo(editCodeLabel)
+            $0.centerY.equalTo(editGroupImage)
+        }
+
+        editGroupImage.snp.makeConstraints {
+
+            $0.left.size.equalTo(editCodeImage)
+            $0.top.equalTo(editCodeImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
+        }
+
+        underLine.snp.makeConstraints {
+
+            $0.top.equalTo(editCodeImage.snp.bottom).offset(ScaleWidth(at: 15, with: withWidth))
+            $0.height.equalTo(0.5)
+            $0.left.equalTo(ScaleWidth(at: 22, with: withWidth))
+            $0.right.equalTo(ScaleWidth(at: -17, with: withWidth))
+        }
+
+        editCodeButton.snp.makeConstraints {
+
+            $0.left.right.equalTo(backImageView)
+            $0.top.equalTo(editCodeImage).offset(ScaleWidth(at: -10, with: withWidth))
+            $0.bottom.equalTo(underLine.snp.top)
+        }
+
+        editGroupButton.snp.makeConstraints {
+
+            $0.bottom.left.right.equalTo(backImageView)
+            $0.top.equalTo(underLine.snp.bottom)
+        }        
+        
+        editCodeButton.rx.tap.subscribe(onNext: { [weak self] in
+            guard let self = self else { return }
+            
+            self.eventPublish.onNext(.code)
+        }).disposed(by: disposedBag)
+        
+        editGroupButton.rx.tap.subscribe(onNext: { [weak self] in
+            guard let self = self else { return }
+
+            self.eventPublish.onNext(.group)
+        }).disposed(by: disposedBag)
+        
+        let tapGest = UITapGestureRecognizer()
+        addGestureRecognizer(tapGest)
+        
+        tapGest.rx.event.subscribe(onNext: { [weak self] gest in
+            self?.isHidden = true
+            }).disposed(by: disposedBag)
+    }
+    
+    required init?(coder: NSCoder) {
+        
+        fatalError("init(coder:) has not been implemented")
     }
 }
