@@ -24,6 +24,72 @@ extension UIImage {
         return UIImage(named: "NoSMS_noInternetConnection") ?? UIImage()
     }
     
+    static var noSMSgroupCellArrow: UIImage {
+        
+        return UIImage(named: "NoSMS_groupCellArrow") ?? UIImage()
+    }
+    
+    static var noSMSchoseEditControl: UIImage {
+        
+        return UIImage(named: "NoSMS_choseEditControl") ?? UIImage()
+    }
+    
+    static var noSMSchoseEditCode: UIImage {
+        
+        return UIImage(named: "NoSMS_choseEditCode") ?? UIImage()
+    }
+    
+    static var noSMSchoseEditGroup: UIImage {
+        
+        return UIImage(named: "NoSMS_choseEditGroup") ?? UIImage()
+    }
+    
+    static var noSMSgroupMenuAdd: UIImage {
+        
+        return UIImage(named: "NoSMS_groupMenuAdd") ?? UIImage()
+    }
+
+    static var noSMSgroupMenuRemoveAction: UIImage {
+        
+        return UIImage(named: "NoSMS_groupMenuRemoveAction") ?? UIImage()
+    }
+
+    static var noSMSgroupMenuRemoveButton: UIImage {
+        
+        return UIImage(named: "NoSMS_groupMenuRemoveButton") ?? UIImage()
+    }
+
+    static var noSMSgroupEditRemoveAction: UIImage {
+        
+        return UIImage(named: "NoSMS_groupEditRemoveAction") ?? UIImage()
+    }
+
+    static var noSMSgroupAddSelect: UIImage {
+        
+        return UIImage(named: "NoSMS_groupAddSelect") ?? UIImage()
+    }
+
+    
+    static var noSMStokenListPinRemoveAction: UIImage {
+        
+        return UIImage(named: "NoSMS_tokenListPinRemoveAction") ?? UIImage()
+    }
+    
+    static var noSMStokenListPinAction: UIImage {
+        
+        return UIImage(named: "NoSMS_tokenListPinAction") ?? UIImage()
+    }
+    
+    static var noSMStokenListPin: UIImage {
+        
+        return UIImage(named: "NoSMS_tokenListPin") ?? UIImage()
+    }
+    
+    static var noSMSgroupMenu: UIImage {
+        
+        return UIImage(named: "NoSMS_groupMenu") ?? UIImage()
+    }
+    
     static var noSmsSearch: UIImage {
         
         return UIImage(named: "NoSMS_iconSearch") ?? UIImage()
@@ -43,7 +109,15 @@ extension UIImage {
         
         return UIImage(named: "NoSMS_privacy") ?? UIImage()
     }
-    
+    static var noSmsLock:UIImage{
+        return UIImage(named: "NoSMS_lock") ?? UIImage()
+    }
+    static var noSmsFaceID:UIImage{
+        return UIImage(named:"NoSMS_faceID") ?? UIImage()
+    }
+    static var noSmsFingerPrint:UIImage {
+        return UIImage(named:"NoSMS_fingerprint") ?? UIImage()
+    }
     static var noSmsService: UIImage {
         
         return UIImage(named: "NoSMS_service") ?? UIImage()

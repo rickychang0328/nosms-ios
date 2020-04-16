@@ -6,10 +6,23 @@ extension UserDefaults {
     enum Key {
     
         case pastedString
-        
+        case isFirstSetFaceID
+        case faceIDString
+        case enterBackgroundTime
+        case isAppTerminate
         var string: String {
-            
-            return "pastedString"
+            switch self{
+            case .pastedString:
+                return "pastedString"
+            case .faceIDString:
+                return "faceIDString"
+            case .enterBackgroundTime:
+                return "enterBackgroundTime"
+            case .isAppTerminate:
+                return "isAppTerminate"
+            case .isFirstSetFaceID:
+                return "isFirstSetFaceID"
+            }
         }
     }
     

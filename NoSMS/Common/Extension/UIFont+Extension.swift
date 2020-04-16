@@ -19,9 +19,9 @@ private var ScreenWidth: CGFloat { UIScreen.main.bounds.size.width }
 private var ScreenHeight: CGFloat { UIScreen.main.bounds.size.height }
 
 
-public func ScaleWidth(at width: CGFloat) -> CGFloat {
+public func ScaleWidth(at width: CGFloat, with scaleWidth: CGFloat = 375.0) -> CGFloat {
     
-    return ScreenWidth / 375.0 * width
+    return ScreenWidth / scaleWidth * width
 }
 
 public func ScaleHeight(at height: CGFloat) -> CGFloat {

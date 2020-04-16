@@ -183,6 +183,12 @@ extension UIView {
                 $0.firstItem as? UIView == self
         }).forEach({$0.constant = value})
     }
+    func changeLeft(to value: CGFloat) {
+        getAllConstraints().filter( {
+            $0.firstAttribute == .left &&
+                $0.firstItem as? UIView == self
+        }).forEach({$0.constant = value})
+    }
     
     func changeBottom(to value: CGFloat) {
           getAllConstraints().filter( {

@@ -6,6 +6,7 @@ import RxSwift
 protocol TokenStoreProtocol {
     
     var tokenIsEmpty: Bool { get }
+    var pinEvent: PublishSubject<KeychainTokenStore.PinListEvent> { get }
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
     var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
  
@@ -35,14 +36,34 @@ protocol AdapterTokenProtocol {
     var isOnTime: Bool { get }
     var getOnTapPassword: () -> Void { get }
     var passwordShow: BehaviorSubject<Bool> { get }
+    var isPin: BehaviorSubject<Bool> { get }
+    var uuid: Data { get }
     
     func appDidEnterBackgroundReset()
     func resetTimer()
     func changeNewToken(token: Token)
+    func addPin()
+    func removePin()
+    
 }
 
 class AdapterToken: AdapterTokenProtocol {
-
+    
+    func addPin() {
+        KeychainTokenStore.shared.tokenAddPin(id: uuid)
+    }
+    
+    func removePin() {
+        KeychainTokenStore.shared.tokenRemovePin(id: uuid)
+    }
+    
+    var uuid: Data {
+        
+        return persistentToken.identifier
+    }
+    
+    let isPin: BehaviorSubject<Bool> = .init(value: false)
+    
     let passwordShow: BehaviorSubject<Bool> = .init(value: true)
     
     lazy var getOnTapPassword: () -> Void = { [weak self] in
@@ -189,12 +210,20 @@ class AdapterToken: AdapterTokenProtocol {
 
 class KeychainTokenStore {
     
+    let groupListBehavior: BehaviorSubject<[GroupObject]> = .init(value: [])
+    
+    let pinEvent: PublishSubject<KeychainTokenStore.PinListEvent> = .init()
+    
     enum AddTokenEvent {
         
         case addSuccess
         case haveTheSame(title: String, message: String, completion: () -> Void)
         case addError(Error)
     }
+    
+    var pinList: [Data] = []
+    
+    var groupList: [GroupObject] = []
     
     let haveSelectTokenToDelete: BehaviorSubject<Bool> = .init(value: false)
     
@@ -235,7 +264,8 @@ class KeychainTokenStore {
         
         self.keychain = keychain
         self.userDefaults = userDefaults
-        
+        getPinListInKeyChain()
+        getGroupListInKeyChain()
         reloadTokens()
         
         // 刪除 token 邏輯
@@ -330,7 +360,7 @@ enum KeyChainTokenError: Error {
 }
 
 extension KeychainTokenStore: TokenStoreProtocol {
-    
+ 
     var tokenIsEmpty: Bool {
         
         return adapterTokens.isEmpty
@@ -466,7 +496,30 @@ extension KeychainTokenStore: TokenStoreProtocol {
             adapterTokens.remove(at: index)
         }
         
+        var removeGroupList: [Int] = []
+        
+        for index in groupList.indices {
+            
+            if let tokenIndex = groupList[index].tokens.firstIndex(where: {$0 == persistentToken.identifier}) {
+                
+                groupList[index].tokens.remove(at: tokenIndex)
+            }
+            
+            if groupList[index].tokens.isEmpty {
+                
+                removeGroupList.append(index)
+            }
+        }
+        
+        removeGroupList.reverse()
+        
+        for removeIndex in removeGroupList {
+            
+            groupList.remove(at: removeIndex)
+        }
+        
         persistentTokensBehavior.onNext(adapterTokens)
+        updateGroipList(data: groupList)
         saveTokenOrder()
     }
     
@@ -514,7 +567,12 @@ private extension UserDefaults {
     }
 }
 
+
+// MARK: KeyChain
 private let kMustAuthListArray = "kMustAuthListArray"
+private let kMustAuthPinListArray = "kMustAuthPinListArray"
+private let kMustAuthGroupListArray = "kMustAuthGroupListArray"
+
 
 class MustAuthKeychain {
     
@@ -594,6 +652,9 @@ class MustAuthKeychain {
     }
 }
 
+
+
+//MARK: TokenKeychainCRUD
 extension KeychainTokenStore {
     
     private func saveListSort(data: [Data]) {
@@ -620,5 +681,166 @@ extension KeychainTokenStore {
         let seachKeyDic = MustAuthKeychain.keyChainReadData(identifier: kMustAuthListArray)
         
         return seachKeyDic as? [Data] ?? []
+    }
+    
+    private func savePinList(data: [Data]) {
+           
+        _ = MustAuthKeychain.keyChainSaveData(data: data, withIdentifier: kMustAuthPinListArray)
+    }
+       
+    private func updatePinList(data: [Data]) {
+           
+        let updateSuccess = MustAuthKeychain.keyChainUpdata(data: data, withIdentifier: kMustAuthPinListArray)
+           
+        if updateSuccess {
+               
+               
+        } else {
+               
+            savePinList(data: data)
+        }
+    }
+    private func getPinListInKeyChain() {
+        
+        pinList = MustAuthKeychain.keyChainReadData(identifier: kMustAuthPinListArray) as? [Data] ?? []
+    }
+    
+    func tokenAddPin(id: Data) {
+        
+        pinList = [id] + pinList
+        updatePinList(data: pinList)
+        pinEvent.onNext(.addPin(id: id))
+    }
+    
+    func tokenRemovePin(id: Data) {
+        
+        let tokenIndexInPin = pinList.firstIndex(where: { $0 == id}) ?? 0
+        pinList.remove(at: tokenIndexInPin)
+        updatePinList(data: pinList)
+        
+        let tokenIndex = persistentTokens.firstIndex(where: { $0.identifier == id}) ?? 0
+        
+        moveTokenFromIndex(tokenIndex, toIndex: 0)
+        pinEvent.onNext(.remove(index: tokenIndexInPin))
+
+    }
+    
+    func getPinList() -> [Data] {
+     
+        return pinList
+    }
+    
+    enum PinListEvent {
+        
+        case emtpy
+        case addPin(id: Data)
+        case remove(index: Int)
+    }
+}
+
+//MARK: Group
+
+struct GroupObject: Codable {
+    
+    var title: String
+    let uuid: UUID
+    var tokens: [Data]
+    
+    internal init(title: String, uuid: UUID, tokens: [Data]) {
+        self.title = title
+        self.uuid = uuid
+        self.tokens = tokens
+    }
+    
+    init() {
+        
+        self.title = ""
+        self.uuid = UUID()
+        self.tokens = []
+    }
+}
+
+extension KeychainTokenStore {
+    
+    var canAddGroup: Observable<Bool> {
+        
+        return groupListBehavior.map({!($0.count >= self.groupMax)}).asObservable()
+    }
+    
+    private var groupMax: Int { return 10 }
+    
+    private func saveGroupList(data: [Data]) {
+        
+        _ = MustAuthKeychain.keyChainSaveData(data: data, withIdentifier: kMustAuthGroupListArray)
+    }
+       
+    private func updateGroipList(data: [GroupObject]) {
+        
+        let encoder = JSONEncoder()
+
+        let saveData = data.compactMap({
+            
+            return try? encoder.encode($0)
+        })
+        
+        let updateSuccess = MustAuthKeychain.keyChainUpdata(data: saveData, withIdentifier: kMustAuthGroupListArray)
+           
+        if updateSuccess {
+               
+               
+        } else {
+               
+            saveGroupList(data: saveData)
+        }
+        
+        groupListBehavior.onNext(groupList)
+    }
+    private func getGroupListInKeyChain() {
+        
+        
+        let datas = MustAuthKeychain.keyChainReadData(identifier: kMustAuthGroupListArray) as? [Data] ?? []
+        let decoder = JSONDecoder()
+        
+        groupList = datas.compactMap({
+            return try? decoder.decode(GroupObject.self, from: $0)})
+        
+        groupListBehavior.onNext(groupList)
+    }
+    
+    func saveGroup(groupID: GroupObject) {
+        
+        if let groupIndex = groupList.firstIndex(where: { $0.uuid == groupID.uuid }) {
+            
+            groupList[groupIndex].tokens = groupID.tokens
+        } else {
+            
+            groupList.append(groupID)
+        }
+        
+        updateGroipList(data: groupList)
+    }
+    
+    func removeGroup(index: Int) {
+        
+        groupList.remove(at: index)
+        updateGroipList(data: groupList)
+    }
+    
+    func getGroupList() -> [GroupObject] {
+     
+        return groupList
+    }
+    
+    func getGroup(uuid: UUID) -> GroupObject? {
+        
+        return groupList.first(where: { $0.uuid == uuid})
+    }
+    
+    func moveGroup(_ origin: Int, toIndex destination: Int) {
+        
+        let group = groupList[origin]
+        groupList.remove(at: origin)
+        groupList.insert(group, at: destination)
+        updateGroipList(data: groupList)
     }
 }
