@@ -2,7 +2,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
-
+import DynamicBlurView
 enum TokenListViewModelEvent {
     
     case reloadData
@@ -718,6 +718,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private var groupVCs: [TokenListGroupViewController] = []
     
+    private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
 
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -873,6 +874,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         view.addSubview(resetSearchButton)
         view.addSubview(scrollView)
         view.addSubview(homePageView)
+        
         navigationController?.view.addSubview(choseHowToAddTokenView)
         navigationController?.view.addSubview(menuView)
         navigationController?.view.addSubview(editControllView)
@@ -1081,7 +1083,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 self.showKeyinTokenVC()
             }
         }).disposed(by: disposedBag)
-        self.callVersionAPI()
         
         scrollView.snp.makeConstraints {
             
@@ -1209,6 +1210,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             let scrollViewWidth = self.scrollView.bounds.width
             self.scrollView.setContentOffset(CGPoint(x: scrollViewWidth * CGFloat(index), y: 0), animated: true)
             }).disposed(by: disposedBag)
+        self.callVersionAPI()
     }
     private func showSearchTextAction(tableView: UITableView){
        
@@ -1471,7 +1473,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                    
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
-        
+
        NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification).subscribe({[weak self] _ in
                 guard let self = self else { return }
     //            if self.tokenListMenuVC.isViewLoaded {
@@ -1511,9 +1513,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModelEventWorking(event: event)
         }).disposed(by: lifeCycleDisposeBag)
-        
-//        tableView.reloadData()
-//        groupVCs.forEach({$0.tableView.reloadData()})
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -1524,7 +1523,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         lifeCycleDisposeBag = .init()
     }
-    
+ 
     private func bottomViewSetup() {
         
         deleteTokenButton.snp.makeConstraints {
@@ -1602,7 +1601,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private func showPhoto() {
         
-        let photoVC = UINavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
+        let photoVC = BaseNavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
         photoVC.modalPresentationStyle = .fullScreen
         
         AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in

@@ -60,13 +60,15 @@ extension UIColor {
     private static let color_020_018_044: UIColor = .getColor(red: 20, green: 18, blue: 44, alpha: 1)
     private static let color_036_205_132: UIColor = .getColor(red: 36, green: 205, blue: 132, alpha: 1)
     private static let color_050_230_152: UIColor = .getColor(red: 50, green: 230, blue: 152, alpha: 1)
+
     private static let color_136_136_136: UIColor = .getColor(red: 136, green: 136, blue: 136, alpha: 1)
     private static let color_249_249_249: UIColor = .getColor(red: 249, green: 249, blue: 249, alpha: 1)
     private static let color_057_060_080: UIColor = .getColor(red: 57, green: 60, blue: 80, alpha: 1)
     private static let color_153_153_153_002: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.02)
     private static let color_153_153_153_003: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.03)
     private static let color_240_240_240: UIColor = .getColor(red: 240, green: 240, blue: 240, alpha: 1)
-
+    private static let color_239_239_239: UIColor = .getColor(red: 239, green: 239, blue: 255, alpha: 1)
+    private static let color_026_026_028: UIColor = .getColor(red: 26, green: 26, blue: 28, alpha: 1)
 
     
     static let mustAuthRedColor: UIColor = .color_237_085_085
@@ -246,6 +248,7 @@ extension UIColor {
     static let dissmissCoverColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_000_000_000_05,
                                                                              lightColor: .color_000_000_000_04)
 
+
     //MARK: GroupView
     static let groupBackCardColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .white)
     static let groupHeaderTitleColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_102_102_102, lightColor: .color_102_102_102)
@@ -267,4 +270,13 @@ extension UIColor {
     static let customSegmentControlUnderLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_083_097_250, lightColor: .color_098_112_255)
     
 
+
+    //MARK: FaceIDSetting
+    static let faceIDSettingBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_026_026_028,
+    lightColor: .white)
+    static let faceIDSettingVCBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
+    lightColor: .color_239_239_239)
+    static let faceIDSettingTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
+                                                                                     lightColor: .color_051_051_051)
+    static let faceIDSettingHeaderTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06, lightColor: .color_102_102_102)
 }

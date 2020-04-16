@@ -88,25 +88,68 @@ class NoSMSAlertView: UIView {
     }
 }
 
-class NoSMSStreetAlertViewController: UIViewController {
+
+
+extension UIViewController {
     
-    let cancelButton: UIButton = {
+    func showAlert(title: String? = nil,
+                   message: String? = nil,
+                   confirmTitle: String = "确认",
+                   cancelTitle: String = "取消",
+                   confirmAction: (() -> Void)? = nil,
+                   cancelAction: (() -> Void)? = nil) {
         
-        let button = UIButton()
-        button.setBackgroundColor(.clear)
-        button.setTitleColor(.alertCancelButtonTextColor, for: .normal)
-        button.titleLabel?.font = .pingFangMediumFont(size: 14)
-        button.addCornerRadius(at: ScaleWidth(at: 4))
-        return button
-    }()
+        
+        let vc = NoSMSAlertViewController()
+        vc.showAlertSetting(title: title, message: message, confirmTitle: confirmTitle,
+                            cancelTitle: cancelTitle, confirmAction: confirmAction, cancelAction: cancelAction)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
+    }
     
+    func showAlertOneButton(title: String? = nil,
+                            actionTitle: String? = "我知道了",
+                            confirmAction: (() -> Void)? = nil) {
+        
+        let vc = NoSMSAlertOneButtonViewController()
+        vc.showAlertSetting(title: title, actionTitle: actionTitle,confirmAction: confirmAction)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
+    }
+    
+    func showStreetDeleteAlert(title: String? = nil,
+                               confirmTitle: String = "删除",
+                               cancelTitle: String = "取消",
+                               confirmAction: (() -> Void)? = nil,
+                               cancelAction: (() -> Void)? = nil) {
+        
+        let vc = NoSMSStreetAlertViewController()
+        vc.showAlertSetting(title: title,
+                            confirmTitle: confirmTitle,
+                            cancelTitle: cancelTitle,
+                            confirmAction: confirmAction,
+                            cancelAction: cancelAction)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
+    }
+}
+
+
+
+class NoSMSAlertOneButtonView: UIView {
+
     let confirmButton: UIButton = {
         
         let button = UIButton()
-        button.setBackgroundColor(.clear)
-        button.setTitleColor(.alertStreetActionButtonTextColor, for: .normal)
-        button.titleLabel?.font = .pingFangMediumFont(size: 14)
+//        button.setBackgroundColor(.alertActionButtonBackgroundColor)
+        button.setTitleColor(.alertActionButtonBackgroundColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.titleLabel?.setTextAlignment(.center)
         button.addCornerRadius(at: ScaleWidth(at: 4))
+        button.setTitle("确定", for: .normal)
         return button
     }()
     
@@ -116,25 +159,57 @@ class NoSMSStreetAlertViewController: UIViewController {
         label.setFont(.pingFangSemiBoldFont(size: 15))
             .setTextColor(.alertTextColor)
             .setNumberOfLine(0)
-            .setTextAlignment(.left)
+            .setTextAlignment(.center)
         return label
     }()
 
-    private let downCancelView: UIView = {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         
-        let view = UIView()
-        //TODO:
-        view.setBackgroundColor(.alertStreetCancelButtonBackGroundColor)
-            .addCornerRadius(at: ScaleWidth(at: 6))
-        return view
-    }()
+        backgroundColor = .alertsBackgroundColor
+        addSubview(titleLabel)
+        addSubview(confirmButton)
+        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
+        titleLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 20))
+            $0.centerX.equalToSuperview()
+        }
+        
+        let underLine = UIView()
+        addSubview(underLine)
+        
+        underLine.snp.makeConstraints {
+            
+            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 17))
+            $0.left.right.equalToSuperview()
+            $0.height.equalTo(0.5)
+        }
+        
+        underLine.setBackgroundColor(.menuUnderLineColor)
+        
+        confirmButton.snp.makeConstraints {
+            
+            $0.height.equalTo(ScaleWidth(at: 21))
+            $0.top.equalTo(underLine.snp.bottom).offset(ScaleWidth(at: 10))
+            $0.leading.right.equalToSuperview().inset(ScaleWidth(at: 12))
+            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -11))
+            $0.width.equalTo(ScaleWidth(at: 40))
+        }
+    }
     
-    private let upView: UIView = {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class NoSMSAlertOneButtonViewController: UIViewController {
+    
+    let alertView: NoSMSAlertOneButtonView = {
         
-        let view = UIView()
-        //TODO:
-        view.addCornerRadius(at: ScaleWidth(at: 6))
-            .setBackgroundColor(.alertsBackgroundColor)
+        let view = NoSMSAlertOneButtonView(frame: .zero)
+        view.setBackgroundColor(.alertsBackgroundColor)
+            .addCornerRadius(at: ScaleWidth(at: 6))
         return view
     }()
     
@@ -143,90 +218,32 @@ class NoSMSStreetAlertViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.backgroundColor = .clear
-        view.addSubview(downCancelView)
-        view.addSubview(upView)
-        upView.addSubview(titleLabel)
-        downCancelView.addSubview(cancelButton)
-        upView.addSubview(confirmButton)
-        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 240)
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        view.addSubview(alertView)
         
-        let tapGest = UITapGestureRecognizer()
-        view.addGestureRecognizer(tapGest)
-        tapGest.rx.event.subscribe(onNext: { [weak self] _ in
+        alertView.snp.makeConstraints {
             
-            self?.dismiss(animated: true, completion: nil)
-            }).disposed(by: disposeBag)
-        
-        downCancelView.snp.makeConstraints {
-            
-            $0.left.right.equalToSuperview().inset(ScaleWidth(at: 15))
-            $0.bottom.equalTo(ScaleWidth(at: -34))
-            $0.height.equalTo(ScaleWidth(at: 42))
-        }
-        
-        upView.snp.makeConstraints {
-            
-            $0.bottom.equalTo(downCancelView.snp.top).offset(ScaleWidth(at: -15))
-            $0.left.right.equalTo(downCancelView)
-        }
-        
-        titleLabel.snp.makeConstraints {
-            
-            $0.top.equalTo(ScaleWidth(at: 20))
-            $0.centerX.equalToSuperview()
-        }
-        
-        let lineView = UIView()
-        
-        upView.addSubview(lineView)
-        
-        //TODO:
-        lineView.setBackgroundColor(.alertStreetUnderLineColor)
-        
-        lineView.snp.makeConstraints {
-            
-            $0.left.right.equalToSuperview()
-            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 20))
-            $0.height.equalTo(0.5)
-        }
-        
-        cancelButton.snp.makeConstraints {
-            
-            $0.edges.equalToSuperview()
-        }
-        
-        confirmButton.snp.makeConstraints {
-            
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -10))
-            $0.left.right.equalToSuperview()
-            $0.top.equalTo(lineView.snp.bottom).offset(ScaleWidth(at: 10))
+            $0.center.equalToSuperview()
+            $0.width.equalTo(ScaleWidth(at: 276))
+            $0.top.equalTo(40).priorityLow()
+            $0.bottom.equalTo(-40).priorityLow()
         }
     }
     
     func showAlertSetting(title: String? = nil,
-                          confirmTitle: String = "ok",
-                          cancelTitle: String = "取消",
-                          confirmAction: (() -> Void)? = nil,
-                          cancelAction: (() -> Void)? = nil) {
+                          actionTitle: String? = "我知道了",
+                          confirmAction: (() -> Void)? = nil) {
         
-        
-        titleLabel.text = title
-        cancelButton.setTitle(cancelTitle, for: .normal)
-        confirmButton.setTitle(confirmTitle, for: .normal)
-        cancelButton.rx.tap.subscribe(onNext: { [weak self] in
-            
-            guard let self = self else { return }
-            self.dismiss(animated: false, completion: cancelAction)
-        }).disposed(by: disposeBag)
-        
-        confirmButton.rx.tap.subscribe(onNext: { [weak self] in
+        alertView.titleLabel.text = title
+        alertView.confirmButton.setTitle(actionTitle, for: .normal)
+        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
         
             guard let self = self else { return }
             self.dismiss(animated: false, completion: confirmAction)
         }).disposed(by: disposeBag)
     }
 }
+
 
 class NoSMSAlertViewController: UIViewController {
     
@@ -367,41 +384,5 @@ class NoSMSHUD {
             toastView?.removeFromSuperview()
         }
         completion?()
-    }
-}
-
-extension UIViewController {
-    
-    func showAlert(title: String? = nil,
-                   message: String? = nil,
-                   confirmTitle: String = "确认",
-                   cancelTitle: String = "取消",
-                   confirmAction: (() -> Void)? = nil,
-                   cancelAction: (() -> Void)? = nil) {
-        
-        
-        let vc = NoSMSAlertViewController()
-        vc.showAlertSetting(title: title, message: message, confirmTitle: confirmTitle,
-                            cancelTitle: cancelTitle, confirmAction: confirmAction, cancelAction: cancelAction)
-        vc.modalPresentationStyle = .overCurrentContext
-        vc.modalTransitionStyle = .crossDissolve
-        present(vc, animated: true, completion: nil)
-    }
-    
-    func showStreetDeleteAlert(title: String? = nil,
-                               confirmTitle: String = "删除",
-                               cancelTitle: String = "取消",
-                               confirmAction: (() -> Void)? = nil,
-                               cancelAction: (() -> Void)? = nil) {
-        
-        let vc = NoSMSStreetAlertViewController()
-        vc.showAlertSetting(title: title,
-                            confirmTitle: confirmTitle,
-                            cancelTitle: cancelTitle,
-                            confirmAction: confirmAction,
-                            cancelAction: cancelAction)
-        vc.modalPresentationStyle = .overCurrentContext
-        vc.modalTransitionStyle = .crossDissolve
-        present(vc, animated: true, completion: nil)
     }
 }
