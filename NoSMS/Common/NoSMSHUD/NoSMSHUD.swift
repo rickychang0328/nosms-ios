@@ -386,3 +386,143 @@ class NoSMSHUD {
         completion?()
     }
 }
+
+class NoSMSStreetAlertViewController: UIViewController {
+    
+    let cancelButton: UIButton = {
+        
+        let button = UIButton()
+        button.setBackgroundColor(.clear)
+        button.setTitleColor(.alertCancelButtonTextColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 14)
+        button.addCornerRadius(at: ScaleWidth(at: 4))
+        return button
+    }()
+    
+    let confirmButton: UIButton = {
+        
+        let button = UIButton()
+        button.setBackgroundColor(.clear)
+        button.setTitleColor(.alertStreetActionButtonTextColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 14)
+        button.addCornerRadius(at: ScaleWidth(at: 4))
+        return button
+    }()
+    
+    let titleLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangSemiBoldFont(size: 15))
+            .setTextColor(.alertTextColor)
+            .setNumberOfLine(0)
+            .setTextAlignment(.left)
+        return label
+    }()
+
+    private let downCancelView: UIView = {
+        
+        let view = UIView()
+        //TODO:
+        view.setBackgroundColor(.alertStreetCancelButtonBackGroundColor)
+            .addCornerRadius(at: ScaleWidth(at: 6))
+        return view
+    }()
+    
+    private let upView: UIView = {
+        
+        let view = UIView()
+        //TODO:
+        view.addCornerRadius(at: ScaleWidth(at: 6))
+            .setBackgroundColor(.alertsBackgroundColor)
+        return view
+    }()
+    
+    private let disposeBag: DisposeBag = .init()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = .clear
+        view.addSubview(downCancelView)
+        view.addSubview(upView)
+        upView.addSubview(titleLabel)
+        downCancelView.addSubview(cancelButton)
+        upView.addSubview(confirmButton)
+        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 240)
+        
+        let tapGest = UITapGestureRecognizer()
+        view.addGestureRecognizer(tapGest)
+        tapGest.rx.event.subscribe(onNext: { [weak self] _ in
+            
+            self?.dismiss(animated: true, completion: nil)
+            }).disposed(by: disposeBag)
+        
+        downCancelView.snp.makeConstraints {
+            
+            $0.left.right.equalToSuperview().inset(ScaleWidth(at: 15))
+            $0.bottom.equalTo(ScaleWidth(at: -34))
+            $0.height.equalTo(ScaleWidth(at: 42))
+        }
+        
+        upView.snp.makeConstraints {
+            
+            $0.bottom.equalTo(downCancelView.snp.top).offset(ScaleWidth(at: -15))
+            $0.left.right.equalTo(downCancelView)
+        }
+        
+        titleLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 20))
+            $0.centerX.equalToSuperview()
+        }
+        
+        let lineView = UIView()
+        
+        upView.addSubview(lineView)
+        
+        //TODO:
+        lineView.setBackgroundColor(.alertStreetUnderLineColor)
+        
+        lineView.snp.makeConstraints {
+            
+            $0.left.right.equalToSuperview()
+            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 20))
+            $0.height.equalTo(0.5)
+        }
+        
+        cancelButton.snp.makeConstraints {
+            
+            $0.edges.equalToSuperview()
+        }
+        
+        confirmButton.snp.makeConstraints {
+            
+            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -10))
+            $0.left.right.equalToSuperview()
+            $0.top.equalTo(lineView.snp.bottom).offset(ScaleWidth(at: 10))
+        }
+    }
+    
+    func showAlertSetting(title: String? = nil,
+                          confirmTitle: String = "ok",
+                          cancelTitle: String = "取消",
+                          confirmAction: (() -> Void)? = nil,
+                          cancelAction: (() -> Void)? = nil) {
+        
+        
+        titleLabel.text = title
+        cancelButton.setTitle(cancelTitle, for: .normal)
+        confirmButton.setTitle(confirmTitle, for: .normal)
+        cancelButton.rx.tap.subscribe(onNext: { [weak self] in
+            
+            guard let self = self else { return }
+            self.dismiss(animated: false, completion: cancelAction)
+        }).disposed(by: disposeBag)
+        
+        confirmButton.rx.tap.subscribe(onNext: { [weak self] in
+        
+            guard let self = self else { return }
+            self.dismiss(animated: false, completion: confirmAction)
+        }).disposed(by: disposeBag)
+    }
+}

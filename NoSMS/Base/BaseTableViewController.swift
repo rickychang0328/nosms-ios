@@ -443,13 +443,15 @@ private extension TableViewCellFactoryType {
             
             let cell: GroupAddCodeTableViewCell
 
-            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as?             GroupAddCodeTableViewCell {
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? GroupAddCodeTableViewCell {
                            
                 cell = reuseCell
             } else {
                                            
                 cell = GroupAddCodeTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
             }
+            cell.bindData(viewModel: viewModel)
+            return cell
 
         case .faceIDSettingTableViewCell(let viewModel):
             let cell: FaceIDSettingTableViewCell
@@ -478,7 +480,6 @@ private extension TableViewCellFactoryType {
             return cell
         }
     }
-
 }
 
 
