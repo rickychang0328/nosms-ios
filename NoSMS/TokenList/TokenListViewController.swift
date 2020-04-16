@@ -930,22 +930,22 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                    
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
-        NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
-                    guard let self = self else { return }
-//            if self.blurVC != nil {
-//                return
-//            }else {
-
-            UserDefaults.standard.set(Date(), forKey: UserDefaults.Key.enterBackgroundTime.string)
-            UserDefaults.standard.set(false,forKey: UserDefaults.Key.isAppTerminate.string)
-            for childVC in  self.children{
-                if childVC is BlurViewController {
-                    return
-                }
-            }
-            self.showBlurVC()
+//        NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
+//                    guard let self = self else { return }
+////            if self.blurVC != nil {
+////                return
+////            }else {
+//
+//            UserDefaults.standard.set(Date(), forKey: UserDefaults.Key.enterBackgroundTime.string)
+//            UserDefaults.standard.set(false,forKey: UserDefaults.Key.isAppTerminate.string)
+//            for childVC in  self.children{
+//                if childVC is BlurViewController {
+//                    return
+//                }
 //            }
-        }).disposed(by: lifeCycleDisposeBag)
+//            self.showBlurVC()
+////            }
+//        }).disposed(by: lifeCycleDisposeBag)
         
        NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification).subscribe({[weak self] _ in
                 guard let self = self else { return }
@@ -986,13 +986,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModelEventWorking(event: event)
         }).disposed(by: lifeCycleDisposeBag)
-        if UserDefaults.standard.bool(forKey: UserDefaults.Key.isAppTerminate.string) {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {[weak self] in
-                UserDefaults.standard.set(false, forKey: UserDefaults.Key.isAppTerminate.string)
-                self?.showBlurVC()
-            }
-            
-        }
+//        if UserDefaults.standard.bool(forKey: UserDefaults.Key.isAppTerminate.string) {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {[weak self] in
+//                UserDefaults.standard.set(false, forKey: UserDefaults.Key.isAppTerminate.string)
+//                self?.showBlurVC()
+//            }
+//
+//        }
     }
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -1086,7 +1086,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private func showPhoto() {
         
-        let photoVC = UINavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
+        let photoVC = BaseNavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
         photoVC.modalPresentationStyle = .fullScreen
         
         AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in

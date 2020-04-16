@@ -1,5 +1,6 @@
 
 import UIKit
+import BiometricAuthentication
 
 @UIApplicationMain
 class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
@@ -11,30 +12,53 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         let rootVC = TokenListViewController(viewModel: TokenListVCViewModel())
-        let firstVC = UINavigationController(rootViewController: rootVC)
+        let firstVC = BaseNavigationController(rootViewController: rootVC)
         self.window?.rootViewController = firstVC
         self.window?.makeKeyAndVisible()
         
         //MARK: LaunchScreen 坑
         
         clearLaunchScreenCache()
+        
+        if AuthIDStatusManager.isAuthOpen {
+            
+            AuthIDStatusManager.isLockWindow = true
+            firstVC.showBlurWithIDAuth()
+        }
+        
         return true
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         
         PastedAction.shared.applicationDidBecomeActive()
+
+//        AuthIDStatusManager.isFirstOpenApp = false
+
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         
         KeychainTokenStore.shared.appWillEnterForeground()
+        if AuthIDStatusManager.isLockWindow {
+        
+            AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: {
+                
+                BlurViewController.shared.dismiss(animated: false)
+            })
+        }
     }
     
     func applicationWillResignActive(_ application: UIApplication) {
         
         print("applicationWillResignActive")
+        
+//        if BlurViewController.shared.presentingViewController == nil {
+//
+//            self.window?.rootViewController?.getNowWhichVCDisplay().present(BlurViewController.shared, animated: false)
+//        }
     }
+
     
     func applicationDidEnterBackground(_ application: UIApplication) {
          print("applicationDidEnterBackground")
@@ -42,63 +66,65 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     }
     func applicationWillTerminate(_ application: UIApplication) {
          print("applicationWillTerminate")
-        UserDefaults.standard.set(true,forKey: UserDefaults.Key.isAppTerminate.string)
+//        UserDefaults.standard.set(true,forKey: UserDefaults.Key.isAppTerminate.string)
     }
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
                 
         PastedAction.shared.applicationIsOpenFromURL()
         
-        let action: MustAuth.ActionEnum
-    
-        let urlComp = URLComponents(string: url.absoluteString) ?? URLComponents()
+        let thirdAppOpenHandler = { () -> Bool in
         
-        if let querys = urlComp.queryItems {
+            let action: MustAuth.ActionEnum
             
-            let actionQuerys = querys.filter({$0.name == MustAuth.kQueryActionKey})
+            let urlComp = URLComponents(string: url.absoluteString) ?? URLComponents()
             
-            //超過兩個的action邏輯
-            if actionQuerys.count == 1 {
+            if let querys = urlComp.queryItems {
                 
-                guard let actionString = actionQuerys[0].value, let actionEnum = MustAuth.ActionEnum(string: actionString) else {
+                let actionQuerys = querys.filter({$0.name == MustAuth.kQueryActionKey})
+                
+                //超過兩個的action邏輯
+                if actionQuerys.count == 1 {
+                    
+                    guard let actionString = actionQuerys[0].value, let actionEnum = MustAuth.ActionEnum(string: actionString) else {
+                        
+                        NoSMSHUD.showToast(title: "URL匹配失败")
+                        return false
+                    }
+                    
+                    action = actionEnum
+                    
+                } else if actionQuerys.count == 0 {
+                    
+                    action = .set
+                } else {
                     
                     NoSMSHUD.showToast(title: "URL匹配失败")
                     return false
                 }
-                
-                action = actionEnum
-                
-            } else if actionQuerys.count == 0 {
-                
-                action = .set
             } else {
                 
                 NoSMSHUD.showToast(title: "URL匹配失败")
                 return false
             }
-        } else {
             
-            NoSMSHUD.showToast(title: "URL匹配失败")
-            return false
-        }
-        
-        guard url.host == MustAuth.factorTimerKey || url.host == MustAuth.factorCounterKey || url.host == nil else {
-            
-            NoSMSHUD.showToast(title: "URL匹配失败")
-            return false
-        }
-        
-        switch action {
-            
-        case .set:
-            
-            if let token = try? url.absoluteString.mustAuth.parsingSetURL() {
+            guard url.host == MustAuth.factorTimerKey || url.host == MustAuth.factorCounterKey || url.host == nil else {
                 
-                let nowVC = window?.rootViewController?.getNowWhichVCDisplay()
-
+                NoSMSHUD.showToast(title: "URL匹配失败")
+                return false
+            }
+            
+            switch action {
                 
-                let tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
+            case .set:
                 
-                let saveClosure = { KeychainTokenStore.shared.addTokenWith(urlString: token.url.absoluteString) { event in
+                if let token = try? url.absoluteString.mustAuth.parsingSetURL() {
+                    
+                    let nowVC = self.window?.rootViewController?.getNowWhichVCDisplay()
+                    
+                    
+                    let tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
+                    
+                    let saveClosure = { KeychainTokenStore.shared.addTokenWith(urlString: token.url.absoluteString) { event in
                         switch event {
                             
                         case .addSuccess:
@@ -109,63 +135,91 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                         case .addError:
                             NoSMSHUD.showToast(title: "创建失败")
                         }
+                        }
                     }
-                }
-                
-                if tokens.count > 0 {
                     
-                    saveClosure()
-                } else {
-                    
-                    nowVC?.showAlert(title: "请确认是否要添加",
-                                    message: "[ \(token.issuer) ] \(token.name)",
-                                    confirmAction: saveClosure)
-                }
-                
-            } else {
-                
-                NoSMSHUD.showToast(title: "创建失败")
-                return false
-            }
-        case .get:
-            
-            if let token = try? url.mustAuth.parsingGetURL() {
-            
-                let tokens: [AdapterTokenProtocol]
-                
-                //url action get 的條件判斷 totp, hotp, 與空白的可能
-                if let isOntime = token.isOnTime {
-                    
-                    tokens = KeychainTokenStore.shared.getSameTokensWithType(name: token.name, issuer: token.issuer, isOnTime: isOntime)
-                } else {
-                    
-                    tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
-                }
-                
-                if tokens.count == 0 {
-                    
-                    NoSMSHUD.showToast(title: "未匹配到验证码")
-                } else if tokens.count == 1 {
-                    
-                    //如果是 hotp 要更新一下
-                    if !tokens[0].isOnTime {
+                    if tokens.count > 0 {
                         
-                        tokens[0].getOnTapPassword()
+                        saveClosure()
+                    } else {
+                        
+                        nowVC?.showAlert(title: "请确认是否要添加",
+                                         message: "[ \(token.issuer) ] \(token.name)",
+                            confirmAction: saveClosure)
                     }
-                    UIPasteboard.general.string = tokens[0].token.currentPassword
                     
-                    NoSMSHUD.showToast(title: "[ \(token.issuer) ]\n\(token.name)\n验证码已复制")
                 } else {
                     
-                    NoSMSHUD.showToast(title: "匹配到多个验证码，请手动复制")
+                    NoSMSHUD.showToast(title: "创建失败")
+                    return false
+                }
+            case .get:
+                
+                if let token = try? url.mustAuth.parsingGetURL() {
+                    
+                    let tokens: [AdapterTokenProtocol]
+                    
+                    //url action get 的條件判斷 totp, hotp, 與空白的可能
+                    if let isOntime = token.isOnTime {
+                        
+                        tokens = KeychainTokenStore.shared.getSameTokensWithType(name: token.name, issuer: token.issuer, isOnTime: isOntime)
+                    } else {
+                        
+                        tokens = KeychainTokenStore.shared.getAllSameTokens(name: token.name, issuer: token.issuer)
+                    }
+                    
+                    if tokens.count == 0 {
+                        
+                        NoSMSHUD.showToast(title: "未匹配到验证码")
+                    } else if tokens.count == 1 {
+                        
+                        //如果是 hotp 要更新一下
+                        if !tokens[0].isOnTime {
+                            
+                            tokens[0].getOnTapPassword()
+                        }
+                        UIPasteboard.general.string = tokens[0].token.currentPassword
+                        
+                        NoSMSHUD.showToast(title: "[ \(token.issuer) ]\n\(token.name)\n验证码已复制")
+                    } else {
+                        
+                        NoSMSHUD.showToast(title: "匹配到多个验证码，请手动复制")
+                    }
+                } else {
+                    
+                    NoSMSHUD.showToast(title: "复制失败")
+                    return false
+                }
+            }
+            return true
+        }
+        
+        if AuthIDStatusManager.isAuthOpen {
+            
+            let authActionHandler = {
+                
+                    self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
+                                          
+                        _ = thirdAppOpenHandler()
+                    })
+                }
+            
+            if BlurViewController.shared.presentingViewController != nil {
+                    
+                BlurViewController.shared.dismiss(animated: false) {
+                        
+                    authActionHandler()
                 }
             } else {
                 
-                NoSMSHUD.showToast(title: "复制失败")
-                return false
+                authActionHandler()
             }
+            
+            return true
+        } else {
+            
+            return thirdAppOpenHandler()
         }
-        return true
     }
     
     func clearLaunchScreenCache() {
