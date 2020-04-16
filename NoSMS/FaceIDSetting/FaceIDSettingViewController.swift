@@ -21,7 +21,7 @@ enum AuthIDStatusManager {
     static var isLockWindow: Bool = false
     static var isAuthOpen: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) }
     static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.canAuthenticate() }
-    static var disposedBag: DisposeBag = .init()
+    static var lastInAppTime: Date = .init()
     
     static var authMessage: String {
         
@@ -38,25 +38,11 @@ enum AuthIDStatusManager {
         return BioMetricAuthenticator.shared.isFaceIdDevice() ? "面容ID" : "指纹"
     }
     
-    static func backgroundTimerAction(viewController: UIViewController?) {
+    static func backgroundTimerAction() {
         
-        if isAuthOpen {
-            
-            Observable<Int>.timer(.seconds(300), scheduler: MainScheduler.instance).subscribe(onNext: { _ in
-                
-                self.isLockWindow = true
-                BlurViewController.shared.modalPresentationStyle = .overFullScreen
-                viewController?.present(BlurViewController.shared, animated: false)
-                self.disposedBag = .init()
-            }).disposed(by: disposedBag)
-        }
+        lastInAppTime = .init()
     }
-    
-    static func applicationWillEnterForeground() {
-        
-        disposedBag = .init()
-    }
-    
+
     static func setAuthOpen(toOpen status: Bool) {
         
         UserDefaults.standard.set(status, forKey: UserDefaults.Key.faceIDString.string)
@@ -355,7 +341,7 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
 }
 
 class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewModel> {
-    let authTitle = BioMetricAuthenticator.shared.faceIDAvailable() ? "面容ID" : "指纹解锁"
+    let authTitle = BioMetricAuthenticator.shared.isFaceIdDevice() ? "面容ID" : "指纹解锁"
     
     
     convenience init() {

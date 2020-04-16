@@ -36,14 +36,25 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         
-        AuthIDStatusManager.applicationWillEnterForeground()
         KeychainTokenStore.shared.appWillEnterForeground()
-        if AuthIDStatusManager.isLockWindow {
         
-            AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: {
+        let nowDate = Date()
+        
+        if AuthIDStatusManager.isAuthOpen {
+            
+            if AuthIDStatusManager.isLockWindow {
                 
-                BlurViewController.shared.dismiss(animated: false)
-            })
+                AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: {
+                    
+                    BlurViewController.shared.dismiss(animated: false)
+                })
+            } else {
+                
+                if AuthIDStatusManager.lastInAppTime.timeIntervalSince1970 < nowDate.timeIntervalSince1970 - 300 {
+                    
+                    self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth()
+                }
+            }
         }
     }
     
@@ -56,7 +67,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
          print("applicationDidEnterBackground")
         KeychainTokenStore.shared.appDidEnterBackgroundResetting()
-        AuthIDStatusManager.backgroundTimerAction(viewController: window?.rootViewController?.getNowWhichVCDisplay())
+        AuthIDStatusManager.backgroundTimerAction()
         
     }
     func applicationWillTerminate(_ application: UIApplication) {
