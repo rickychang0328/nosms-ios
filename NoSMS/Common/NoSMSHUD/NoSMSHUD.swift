@@ -180,10 +180,11 @@ class NoSMSAlertOneButtonViewController: UIViewController {
     }
     
     func showAlertSetting(title: String? = nil,
+                          actionTitle: String? = "我知道了",
                           confirmAction: (() -> Void)? = nil) {
         
         alertView.titleLabel.text = title
-        
+        alertView.confirmButton.setTitle(actionTitle, for: .normal)
         alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
         
             guard let self = self else { return }
@@ -338,10 +339,11 @@ class NoSMSHUD {
 extension UIViewController {
     
     func showAlertOneButton(title: String? = nil,
+                            actionTitle: String? = "我知道了",
                             confirmAction: (() -> Void)? = nil) {
         
         let vc = NoSMSAlertOneButtonViewController()
-        vc.showAlertSetting(title: title, confirmAction: confirmAction)
+        vc.showAlertSetting(title: title, actionTitle: actionTitle,confirmAction: confirmAction)
         vc.modalPresentationStyle = .overCurrentContext
         vc.modalTransitionStyle = .crossDissolve
         present(vc, animated: true, completion: nil)

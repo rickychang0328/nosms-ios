@@ -17,8 +17,14 @@ class BlurViewController: UIViewController {
     static let shared: BlurViewController = .init()
     
     let blurView = DynamicBlurView(frame: .zero)
-    private var isFirstOpen:Bool = true
+
     private var lifeCycleDisposeBag: DisposeBag = .init()
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        reset()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         modalPresentationStyle = .overFullScreen

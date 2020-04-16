@@ -237,5 +237,5 @@ extension UIColor {
     lightColor: .color_239_239_239)
     static let faceIDSettingTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
                                                                                      lightColor: .color_051_051_051)
-    
+    static let faceIDSettingHeaderTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06, lightColor: .color_102_102_102)
 }

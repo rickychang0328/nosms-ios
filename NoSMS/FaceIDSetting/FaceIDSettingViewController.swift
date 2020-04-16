@@ -21,18 +21,35 @@ enum AuthIDStatusManager {
     static var isLockWindow: Bool = false
     static var isAuthOpen: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) }
     static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.canAuthenticate() }
-    static var isFirstOpenApp: Bool = true
     static var disposedBag: DisposeBag = .init()
+    
+    static var authMessage: String {
+        
+        return "请使用\(authType)解锁"
+    }
+    
+    static var authManyTimeMessage: String {
+        
+        return "为\"MustAuth\"输入密码\n\(authType)验证短时间内失败多次，需要验证手机密码"
+    }
+    
+    static var authType: String {
+        
+        return BioMetricAuthenticator.shared.isFaceIdDevice() ? "面容ID" : "指纹"
+    }
     
     static func backgroundTimerAction(viewController: UIViewController?) {
         
-        Observable<Int>.timer(.seconds(300), scheduler: MainScheduler.instance).subscribe(onNext: { _ in
+        if isAuthOpen {
             
-            self.isLockWindow = true
-            BlurViewController.shared.modalPresentationStyle = .overFullScreen
-            viewController?.present(BlurViewController.shared, animated: false)
-            self.disposedBag = .init()
-        }).disposed(by: disposedBag)
+            Observable<Int>.timer(.seconds(300), scheduler: MainScheduler.instance).subscribe(onNext: { _ in
+                
+                self.isLockWindow = true
+                BlurViewController.shared.modalPresentationStyle = .overFullScreen
+                viewController?.present(BlurViewController.shared, animated: false)
+                self.disposedBag = .init()
+            }).disposed(by: disposedBag)
+        }
     }
     
     static func applicationWillEnterForeground() {
@@ -51,7 +68,7 @@ enum AuthIDStatusManager {
             
             let faceIDHandler = {
                 
-                    BioMetricAuthenticator.authenticateWithPasscode(reason: "", cancelTitle: "取消") { (result) in
+                    BioMetricAuthenticator.authenticateWithPasscode(reason: AuthIDStatusManager.authManyTimeMessage, cancelTitle: "取消") { (result) in
                         
                         switch result {
                             
@@ -70,7 +87,7 @@ enum AuthIDStatusManager {
                 faceIDHandler()
             } else {
                 
-                BioMetricAuthenticator.authenticateWithBioMetrics(reason: "", cancelTitle: "取消") { (result) in
+                BioMetricAuthenticator.authenticateWithBioMetrics(reason: AuthIDStatusManager.authMessage, cancelTitle: "取消") { (result) in
                     
                     switch result {
                         
@@ -89,8 +106,8 @@ enum AuthIDStatusManager {
                 }
             }
         } else {
-            
-            inVC.showErrorAlert(title: "解锁功能已被停用，请开启后再试", cancelTitle: "我知道了", alertCompletionHandler: systemIsNotOpenHandler ?? {})
+
+            inVC.showAlertOneButton(title: "解锁功能已被停用，请开启后再试", actionTitle: "我知道了", confirmAction: systemIsNotOpenHandler)
         }
     }
 }
@@ -188,7 +205,7 @@ class FaceIDSettingTableViewCell: BaseTableViewCell<FaceIDSettingTableViewCellVi
         let label: UILabel = .init()
         label.setTextAlignment(.center)
             .setFont(.pingFangMediumFont(size: 14))
-            .setTextColor(.black)
+            .setTextColor(.faceIDSettingHeaderTextColor)
             .setTextAlignment(.left)
             .setNumberOfLine(0)
         return label
@@ -414,8 +431,8 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
             let lastIDisOpened = AuthIDStatusManager.isAuthOpen
             
             let faceIDHandler = {
-                BioMetricAuthenticator.authenticateWithPasscode(reason: "为\"MustAuth\"输入密码\n\(self.authTitle)短时间内失败多次，需要验证手机密码",
-                cancelTitle: "取消") { [weak self] (result) in
+                BioMetricAuthenticator.authenticateWithPasscode(reason: AuthIDStatusManager.authManyTimeMessage,
+                                                                cancelTitle: "取消") { [weak self] (result) in
                     guard let self = self else { return }
                     switch result {
                     case .success:
@@ -434,7 +451,7 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 faceIDHandler()
             } else {
                 
-                BioMetricAuthenticator.authenticateWithBioMetrics(reason: "") { (result) in
+                BioMetricAuthenticator.authenticateWithBioMetrics(reason: AuthIDStatusManager.authMessage, cancelTitle: "取消") { (result) in
                     
                     switch result {
                         
