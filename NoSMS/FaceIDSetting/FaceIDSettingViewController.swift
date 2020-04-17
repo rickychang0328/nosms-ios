@@ -380,8 +380,8 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 
                 self.showAlert(title: "",
                                message: "您要允许\"MustAuth\"使用\(self.authTitle)吗？",
-                                confirmTitle: "确认",
-                                cancelTitle: "取消", confirmAction: {
+                                confirmTitle: "好",
+                                cancelTitle: "不允许", confirmAction: {
                     
                     self.showPasscodeAuthentication()
                                         
