@@ -58,6 +58,7 @@
 		2AF655502387ABA8000D8787 /* NoSMSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* NoSMSUITests.swift */; };
 		7F871825ADA176CFB4C66265 /* Pods_NoSMS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */; };
 		A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */; };
+		BB19B3C12449C22B00D5E9E4 /* UIDevice+VKKeychainIDFV.m in Sources */ = {isa = PBXBuildFile; fileRef = BB19B3BD2449C20100D5E9E4 /* UIDevice+VKKeychainIDFV.m */; };
 		BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8323F3FDCF00A08CD6 /* Repository.swift */; };
 		BB93FD8623F3FDCF00A08CD6 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */; };
 		BB93FD8823F3FF2C00A08CD6 /* VersionUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */; };
@@ -159,6 +160,10 @@
 		A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.debug.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.debug.xcconfig"; sourceTree = "<group>"; };
 		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		BB19B3BD2449C20100D5E9E4 /* UIDevice+VKKeychainIDFV.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIDevice+VKKeychainIDFV.m"; sourceTree = "<group>"; };
+		BB19B3BE2449C20200D5E9E4 /* UIDevice+VKKeychainIDFV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIDevice+VKKeychainIDFV.h"; sourceTree = "<group>"; };
+		BB19B3BF2449C20F00D5E9E4 /* NoSMS-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NoSMS-Bridging-Header.h"; sourceTree = "<group>"; };
+		BB19B3C02449C20F00D5E9E4 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		BB93FD8323F3FDCF00A08CD6 /* Repository.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		BB93FD8423F3FDCF00A08CD6 /* APIClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		BB93FD8723F3FF2C00A08CD6 /* VersionUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VersionUpdateViewController.swift; sourceTree = "<group>"; };
@@ -415,6 +420,7 @@
 		2AF6552C2387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXGroup;
 			children = (
+				BB19B3BB2449C1EA00D5E9E4 /* Modulization */,
 				2A7F13552444991400B4F140 /* Group */,
 				BBBC44A524459B2D00C6AE6E /* Blur */,
 				BBE1439C2444016E00387824 /* FaceIDSetting */,
@@ -482,6 +488,25 @@
 				725498DDA9F9AE2FA3E5D1D9 /* Pods_NoSMSUITests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BB19B3BB2449C1EA00D5E9E4 /* Modulization */ = {
+			isa = PBXGroup;
+			children = (
+				BB19B3BE2449C20200D5E9E4 /* UIDevice+VKKeychainIDFV.h */,
+				BB19B3BD2449C20100D5E9E4 /* UIDevice+VKKeychainIDFV.m */,
+				BB19B3BC2449C1F400D5E9E4 /* Config */,
+			);
+			path = Modulization;
+			sourceTree = "<group>";
+		};
+		BB19B3BC2449C1F400D5E9E4 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				BB19B3BF2449C20F00D5E9E4 /* NoSMS-Bridging-Header.h */,
+				BB19B3C02449C20F00D5E9E4 /* PrefixHeader.pch */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 		BB93FD7B23F3FC8A00A08CD6 /* VersionUpdate */ = {
@@ -784,6 +809,7 @@
 				2A75E64C238B7D7700E8CAB9 /* TokenListViewController.swift in Sources */,
 				2A75E660238BBAC500E8CAB9 /* UIFont+Extension.swift in Sources */,
 				2A7F136424449D1300B4F140 /* GroupViewController.swift in Sources */,
+				BB19B3C12449C22B00D5E9E4 /* UIDevice+VKKeychainIDFV.m in Sources */,
 				2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */,
 				BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */,
 				2AE3166223B1F3FE001DDBB2 /* BaseWebViewController.swift in Sources */,
@@ -967,6 +993,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
+				GCC_PREFIX_HEADER = "${SRCROOT}/NoSMS/Modulization/Config/PrefixHeader.pch";
 				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -975,6 +1002,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Azure.NoSMS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "${SRCROOT}/NoSMS/Modulization/Config/NoSMS-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -989,6 +1017,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
+				GCC_PREFIX_HEADER = "${SRCROOT}/NoSMS/Modulization/Config/PrefixHeader.pch";
 				INFOPLIST_FILE = NoSMS/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -997,6 +1026,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Azure.NoSMS;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "${SRCROOT}/NoSMS/Modulization/Config/NoSMS-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

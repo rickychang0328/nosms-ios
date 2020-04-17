@@ -161,7 +161,9 @@ class PrivacyVCViewModel: BaseWebVCViewModelProtocol {
     
     private(set) lazy var urlRequest: URLRequest = .init(url: url)
     
-    private let url: URL = (URL(string: "https://mustauth.com/privacy.html") ?? URL(fileReferenceLiteralResourceName: ""))
+//    private let url: URL = (URL(string: "https://mustauth.com/privacy.html") ?? URL(fileReferenceLiteralResourceName: ""))
+    
+    private let url: URL = (URL(string: "\(Repository.sharedInstance.getWebViewURL())privacy.html") ?? URL(fileReferenceLiteralResourceName: ""))
     
     let navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "隐私权政策"))
     
@@ -181,8 +183,8 @@ class HelperVCViewModel: BaseWebVCViewModelProtocol {
     
     private(set) lazy var urlRequest: URLRequest = .init(url: url)
 
-    private let url: URL = (URL(string: "https://mustauth.com/help.html") ?? URL(fileReferenceLiteralResourceName: ""))
-    
+//    private let url: URL = (URL(string: "https://mustauth.com/help.html") ?? URL(fileReferenceLiteralResourceName: ""))
+    private let url: URL = (URL(string: "\(Repository.sharedInstance.getWebViewURL())help.html") ?? URL(fileReferenceLiteralResourceName: ""))
     let navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "帮助中心"))
     
     let vcBackgroundColor: BehaviorSubject<UIColor> = .init(value: .clear)
