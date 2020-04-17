@@ -238,19 +238,20 @@ class TokenListSectionItem: TokenListSectionItemProtocol {
 
 extension String {
     
-    func haveSixChineseWord() -> Bool {
+    func haveChineseWordAndOverSixWord() -> Bool {
         
-        var chineseWords: Int = 0
+        var haveChineseWord: Bool = false
         
         for subString in self {
             
             if subString.isChineseWord() {
                 
-                chineseWords += 1
+                haveChineseWord = true
+                break
             }
         }
         
-        return (chineseWords > 6)
+        return haveChineseWord && (self.count > 6)
     }
 }
 
@@ -276,7 +277,7 @@ struct CustomSegmentControlViewModel: CustomSegmentControlViewModelType {
         let resultTitles = titles.map({["全部"] + $0}).map({$0.map({ string -> String in
             
             let result: String
-            if string.haveSixChineseWord() {
+            if string.haveChineseWordAndOverSixWord() {
                 
                 var reString = ""
                 
