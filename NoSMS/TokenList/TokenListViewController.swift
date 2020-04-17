@@ -1204,7 +1204,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             guard let self = self else { return }
             
             let scrollViewWidth = self.scrollView.bounds.width
+            self.scrollView.isScrollEnabled = false
             self.scrollView.setContentOffset(CGPoint(x: scrollViewWidth * CGFloat(index), y: 0), animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                
+                self.scrollView.isScrollEnabled = true
+            }
+            
             }).disposed(by: disposedBag)
         self.callVersionAPI()
     }
