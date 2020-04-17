@@ -94,7 +94,7 @@ enum AuthIDStatusManager {
             }
         } else {
 
-            inVC.showAlertOneButton(title: "解锁功能已被停用，请开启后再试", actionTitle: "我知道了", confirmAction: systemIsNotOpenHandler)
+            inVC.showAlertOneButton(title: "您的设备尚未开启\(AuthIDStatusManager.authType)识别，请稍后再试", actionTitle: "确定", confirmAction: systemIsNotOpenHandler)
         }
     }
 }
