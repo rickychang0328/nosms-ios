@@ -488,9 +488,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                            
                             if self.nowCellX == 0 {
                                 
-                                return
+                                self.swipeOff()
+                            } else {
+                                
+                                self.swipeOn()
                             }
-                            self.swipeOn()
                         }
                     }
                     
