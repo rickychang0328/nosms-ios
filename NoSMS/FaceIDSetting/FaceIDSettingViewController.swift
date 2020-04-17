@@ -22,6 +22,7 @@ enum AuthIDStatusManager {
     static var isAuthOpen: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) }
     static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.canAuthenticate() }
     static var lastInAppTime: Date = .init()
+    static var isGoInSettingPageBefore: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.isFirstSetFaceID.string) }
     
     static var authMessage: String {
         
@@ -93,7 +94,7 @@ enum AuthIDStatusManager {
             }
         } else {
 
-            inVC.showAlertOneButton(title: "解锁功能已被停用，请开启后再试", actionTitle: "我知道了", confirmAction: systemIsNotOpenHandler)
+            inVC.showAlertOneButton(title: "您的设备尚未开启\(AuthIDStatusManager.authType)识别，请稍后再试", actionTitle: "确定", confirmAction: systemIsNotOpenHandler)
         }
     }
 }
@@ -379,8 +380,8 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 
                 self.showAlert(title: "",
                                message: "您要允许\"MustAuth\"使用\(self.authTitle)吗？",
-                                confirmTitle: "确认",
-                                cancelTitle: "取消", confirmAction: {
+                                confirmTitle: "好",
+                                cancelTitle: "不允许", confirmAction: {
                     
                     self.showPasscodeAuthentication()
                                         
@@ -390,7 +391,8 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 })
             case .error:
                 
-                self.showAlertOneButton(title: "您的设备尚未开启\(self.authTitle)识别，请稍后再试",
+                self.showAlertOneButton(title: "您的设备尚未开启\(AuthIDStatusManager.authType)识别，请稍后再试",
+                                        actionTitle: "确定",
                                         confirmAction: {
                                             
                                             UserDefaults.standard.set(false, forKey: UserDefaults.Key.faceIDString.string)

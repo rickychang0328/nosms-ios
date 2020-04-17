@@ -238,19 +238,20 @@ class TokenListSectionItem: TokenListSectionItemProtocol {
 
 extension String {
     
-    func haveSixChineseWord() -> Bool {
+    func haveChineseWordAndOverSixWord() -> Bool {
         
-        var chineseWords: Int = 0
+        var haveChineseWord: Bool = false
         
         for subString in self {
             
             if subString.isChineseWord() {
                 
-                chineseWords += 1
+                haveChineseWord = true
+                break
             }
         }
         
-        return (chineseWords > 6)
+        return haveChineseWord && (self.count > 6)
     }
 }
 
@@ -276,7 +277,7 @@ struct CustomSegmentControlViewModel: CustomSegmentControlViewModelType {
         let resultTitles = titles.map({["全部"] + $0}).map({$0.map({ string -> String in
             
             let result: String
-            if string.haveSixChineseWord() {
+            if string.haveChineseWordAndOverSixWord() {
                 
                 var reString = ""
                 
@@ -479,15 +480,12 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     let indexPath = self.tokenListSupportPin.getIndexPath(id: viewModels[viewModels.count - 1].tokenID)
                     
                     self.eventResult.onNext(.scrollToIndex(indexPath))
-                    self.eventResult.onNext(.empty)
-
                         
                 } else {
                     if self.isFirstOpen {
                         self.isFirstOpen = false
                     }
                     self.eventResult.onNext(.reloadData)
-                    self.eventResult.onNext(.empty)
 
                 }
             })
@@ -583,7 +581,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             tokenListSupportPin.setSearchString(input: input)
             _groupViewModels.forEach({ $0.setSearchText(input: input) })
             eventResult.onNext(.reloadData)
-            eventResult.onNext(.empty)
         }
     }
     func viewDidAppear() {
@@ -1111,7 +1108,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
                 if contentWidth > allContent {
                     
-                    if self.groupVCs.count - 1 == lastPage {
+                    if self.groupVCs.count == lastPage {
                         
                         
                     } else {
@@ -1208,7 +1205,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             guard let self = self else { return }
             
             let scrollViewWidth = self.scrollView.bounds.width
+            self.scrollView.isScrollEnabled = false
             self.scrollView.setContentOffset(CGPoint(x: scrollViewWidth * CGFloat(index), y: 0), animated: true)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                
+                self.scrollView.isScrollEnabled = true
+            }
+            
             }).disposed(by: disposedBag)
         self.callVersionAPI()
     }
@@ -1275,19 +1278,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             case .success(let items):
                 DispatchQueue.main.async {
                     self?.menuView.reloadTableViewData()
-                    if items.isNeedUpdate ?? false {
-                        self?.updateRedView.isHidden = false
-                        
-                    }else {
-                        self?.updateRedView.isHidden = true
-                    }
+                    self?.setupRedView()
                 }
                 
             case .failure(_):
 
                 DispatchQueue.main.async {
                         
-                    self?.updateRedView.isHidden = true
+                    self?.setupRedView()
                 }
             }
         }
@@ -1474,10 +1472,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
 
-       NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification).subscribe({[weak self] _ in
+       NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
                 guard let self = self else { return }
     //            if self.tokenListMenuVC.isViewLoaded {
-                    self.tokenListMenuVC.dismiss(animated: true, completion: nil)
+                    self.tokenListMenuVC.dismiss(animated: false, completion: nil)
     //            }
                 }).disposed(by: lifeCycleDisposeBag)
         
@@ -1513,7 +1511,31 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModelEventWorking(event: event)
         }).disposed(by: lifeCycleDisposeBag)
+        
+        setupRedView()
     }
+    
+    private func setupRedView() {
+        
+        let isGoInSettingPageBefore = AuthIDStatusManager.isGoInSettingPageBefore
+        let isUpdate = Repository.sharedInstance.version?.isNeedUpdate ?? false
+        
+        let redViewIsHide: Bool
+        
+        if isUpdate {
+            
+            redViewIsHide = false
+        } else if !isGoInSettingPageBefore {
+            
+            redViewIsHide = false
+        } else {
+            
+            redViewIsHide = true
+        }
+        
+        updateRedView.isHidden = redViewIsHide
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         viewModel.viewDidAppear()

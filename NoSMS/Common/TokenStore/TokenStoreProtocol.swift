@@ -811,6 +811,7 @@ extension KeychainTokenStore {
         
         if let groupIndex = groupList.firstIndex(where: { $0.uuid == groupID.uuid }) {
             
+            groupList[groupIndex].title = groupID.title
             groupList[groupIndex].tokens = groupID.tokens
         } else {
             

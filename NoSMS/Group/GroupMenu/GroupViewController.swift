@@ -64,14 +64,28 @@ class GroupSection: GroupSectionType {
             
                 guard let self = self else { return }
             
+                let beforeList = self.groupList.map({$0.uuid})
                 let beforeCount = self.groupList.count
                 self.groupList = groups
+                let afterList = self.groupList.map({$0.uuid})
+                let afterCount = self.groupList.count
                 
-                if beforeCount == groups.count {
+                
+                //MARK: 為了讓 tableview 狀態正常點
+                if afterCount < beforeCount {
                     
-                } else {
+                } else if afterCount > beforeCount {
                     
                     self.viewModelEventResult.onNext(.reloadData)
+                } else {
+                    
+                    if !(beforeList == afterList) {
+                        
+                        
+                    } else {
+                        
+                        self.viewModelEventResult.onNext(.reloadData)
+                    }
                 }
         }).disposed(by: disposedBag)
         
@@ -156,7 +170,7 @@ class GroupTableHeaderView: UIView {
         
         addGroupBottom.snp.makeConstraints {
             
-            $0.left.right.equalToSuperview()
+            $0.left.right.equalToSuperview().inset(ScaleWidth(at: 15))
             $0.top.equalTo(label.snp.bottom).offset(ScaleWidth(at: 40))
             $0.height.equalTo(ScaleWidth(at: 60))
         }
@@ -276,7 +290,7 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
         tableView.snp.remakeConstraints {
             
             $0.top.bottom.equalToSuperview()
-            $0.left.right.equalToSuperview().inset(ScaleWidth(at: 15))
+            $0.left.right.equalToSuperview()
         }
 
         tableView.shadowViewIsHidden = true
@@ -335,6 +349,9 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
                 self.showStreetDeleteAlert(title: "操作仅删除分组，并不会删除验证码", confirmTitle: "删除", confirmAction: {
 
                     self.viewModel.deleteGroup(index: row)
+                    self.tableView.beginUpdates()
+                    self.tableView.deleteRows(at: [IndexPath(row: row, section: 0)], with: .fade)
+                    self.tableView.endUpdates()
                 })
             }).disposed(by: disposedBag)
         
@@ -405,7 +422,7 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
         }
         swipeDisposedBag = .init()
         view.backgroundColor = .clear
-        view.frame = .init(origin: .init(x: view.frame.origin.x + ScaleWidth(at: 10), y: view.frame.origin.y), size: .init(width: view.frame.width, height: ScaleWidth(at: 60)))
+        view.frame = .init(origin: .init(x: view.frame.origin.x, y: view.frame.origin.y), size: .init(width: view.frame.width, height: ScaleWidth(at: 60)))
         view.addCornerRadius(at: ScaleWidth(at: 6))
         let custom = GroupDeleteActionView(frame: .zero)
         
@@ -422,7 +439,7 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
                 custom.snp.makeConstraints {
                     
                     $0.top.bottom.left.equalTo(button)
-                    $0.width.equalTo(button.frame.width - ScaleWidth(at: 10))
+                    $0.width.equalTo(button.frame.width - ScaleWidth(at: 15))
                 }
                 
                 let gestSubscribe: (UIPanGestureRecognizer) -> Void = { realGest in
@@ -438,7 +455,7 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
                         custom.snp.updateConstraints {
                             
                             $0.top.bottom.left.equalTo(button)
-                            $0.width.equalTo(view.frame.width - ScaleWidth(at: 10))
+                            $0.width.equalTo(view.frame.width - ScaleWidth(at: 15))
                         }
                         
                     } else if gest.state == .ended {
@@ -447,7 +464,7 @@ class GroupViewController: BaseTableViewControllerNoGeneric {
 
                             custom.snp.updateConstraints {
                                 
-                                $0.width.equalTo(view.frame.width - ScaleWidth(at: 10))
+                                $0.width.equalTo(view.frame.width - ScaleWidth(at: 15))
                             }
                             self.tableView.layoutIfNeeded()
                         }
@@ -530,14 +547,14 @@ class GroupDeleteActionView: UIView {
         
         if screenWidth == 375 {
             
-            leftPan = 13
+            leftPan = 10
         } else if screenWidth > 375 {
             
-            leftPan = 11
+            leftPan = 8
         } else {
             
             //se
-            leftPan = 16
+            leftPan = 14
         }
         
         image.snp.makeConstraints {
