@@ -1472,10 +1472,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
 
-       NotificationCenter.default.rx.notification(UIApplication.didEnterBackgroundNotification).subscribe({[weak self] _ in
+       NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
                 guard let self = self else { return }
     //            if self.tokenListMenuVC.isViewLoaded {
-                    self.tokenListMenuVC.dismiss(animated: true, completion: nil)
+                    self.tokenListMenuVC.dismiss(animated: false, completion: nil)
     //            }
                 }).disposed(by: lifeCycleDisposeBag)
         
