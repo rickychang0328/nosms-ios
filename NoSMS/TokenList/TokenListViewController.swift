@@ -479,15 +479,12 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     let indexPath = self.tokenListSupportPin.getIndexPath(id: viewModels[viewModels.count - 1].tokenID)
                     
                     self.eventResult.onNext(.scrollToIndex(indexPath))
-                    self.eventResult.onNext(.empty)
-
                         
                 } else {
                     if self.isFirstOpen {
                         self.isFirstOpen = false
                     }
                     self.eventResult.onNext(.reloadData)
-                    self.eventResult.onNext(.empty)
 
                 }
             })
@@ -583,7 +580,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             tokenListSupportPin.setSearchString(input: input)
             _groupViewModels.forEach({ $0.setSearchText(input: input) })
             eventResult.onNext(.reloadData)
-            eventResult.onNext(.empty)
         }
     }
     func viewDidAppear() {
@@ -1111,7 +1107,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
                 if contentWidth > allContent {
                     
-                    if self.groupVCs.count - 1 == lastPage {
+                    if self.groupVCs.count == lastPage {
                         
                         
                     } else {

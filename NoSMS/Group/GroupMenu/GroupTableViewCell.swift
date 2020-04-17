@@ -80,8 +80,8 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
         backCardView.snp.makeConstraints {
             
             $0.top.equalToSuperview()
-            $0.left.equalToSuperview()
-            $0.right.equalTo(self)
+            $0.left.equalToSuperview().offset(ScaleWidth(at: 15))
+            $0.right.equalTo(self).offset(ScaleWidth(at: -15))
             $0.height.equalTo(ScaleWidth(at: 60))
         }
         
