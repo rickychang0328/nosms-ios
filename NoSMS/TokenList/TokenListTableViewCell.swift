@@ -699,7 +699,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     
     
-    private var viewModel: TokenListTableViewCellViewModelProtocol?
+    var viewModel: TokenListTableViewCellViewModelProtocol?
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -789,13 +789,19 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             }
         }
         
-        pinImageView.isHidden = !(viewModel?.isPin ?? false) || isInSearch
+        resetPinStatus()
+    }
+    
+    //MARK: 偷懶
+    func resetPinStatus() {
+        
+        pinImageView.isHidden = !(viewModel?.isPin ?? false)
         swipeLabel.text = viewModel?.isPin ?? false ? "取消置顶" : "置顶"
         swipeImageView.image = viewModel?.isPin ?? false ? UIImage.noSMStokenListPinRemoveAction : UIImage.noSMStokenListPinAction
-        
+             
         let isPinColor = viewModel?.isPin ?? false ? UIColor.tokenListCellBackCardPinColor : UIColor.tokenListBackCardColor
         swipebackCardView.backgroundColor = isPinColor
-        backCardView.backgroundColor = isPinColor        
+        backCardView.backgroundColor = isPinColor
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
