@@ -392,6 +392,7 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
             case .error:
                 
                 self.showAlertOneButton(title: "您的设备尚未开启\(self.authTitle)识别，请稍后再试",
+                                        actionTitle: "确定",
                                         confirmAction: {
                                             
                                             UserDefaults.standard.set(false, forKey: UserDefaults.Key.faceIDString.string)
