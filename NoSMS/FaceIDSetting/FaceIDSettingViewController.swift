@@ -22,6 +22,7 @@ enum AuthIDStatusManager {
     static var isAuthOpen: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) }
     static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.canAuthenticate() }
     static var lastInAppTime: Date = .init()
+    static var isGoInSettingPageBefore: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.isFirstSetFaceID.string) }
     
     static var authMessage: String {
         

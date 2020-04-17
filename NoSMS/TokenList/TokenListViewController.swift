@@ -1278,19 +1278,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             case .success(let items):
                 DispatchQueue.main.async {
                     self?.menuView.reloadTableViewData()
-                    if items.isNeedUpdate ?? false {
-                        self?.updateRedView.isHidden = false
-                        
-                    }else {
-                        self?.updateRedView.isHidden = true
-                    }
+                    self?.setupRedView()
                 }
                 
             case .failure(_):
 
                 DispatchQueue.main.async {
                         
-                    self?.updateRedView.isHidden = true
+                    self?.setupRedView()
                 }
             }
         }
@@ -1516,7 +1511,31 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
             self?.viewModelEventWorking(event: event)
         }).disposed(by: lifeCycleDisposeBag)
+        
+        setupRedView()
     }
+    
+    private func setupRedView() {
+        
+        let isGoInSettingPageBefore = AuthIDStatusManager.isGoInSettingPageBefore
+        let isUpdate = Repository.sharedInstance.version?.isNeedUpdate ?? false
+        
+        let redViewIsHide: Bool
+        
+        if isUpdate {
+            
+            redViewIsHide = false
+        } else if !isGoInSettingPageBefore {
+            
+            redViewIsHide = false
+        } else {
+            
+            redViewIsHide = true
+        }
+        
+        updateRedView.isHidden = redViewIsHide
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         viewModel.viewDidAppear()
