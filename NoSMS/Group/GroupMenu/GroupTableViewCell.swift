@@ -147,20 +147,12 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
             if view.description.contains("UITableViewCellEditControl") {
 
                 view.center.y = backCardView.center.y
-                
+
                 for controlView in view.subviews {
-                    
+
                     if let control = controlView as? UIImageView {
-                        
-                        control.image = nil
-                        
-                        uiTableViewCellEditControlobserver = control.observe(\.image, options: [.new]){ [weak control] (view, value) in
 
-                            if control?.image != nil {
-
-                                control?.image = nil
-                            }
-                        }
+                        control.isHidden = true
                     }
                 }
             }
@@ -195,17 +187,11 @@ class GroupTableViewCell<ViewModel: GroupTableViewCellViewModelType>: BaseTableV
             }
         }
     }
-    
-    private var uiTableViewCellEditControlobserver: NSKeyValueObservation?
-    
+        
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: animated)
         
         searchControlView()
-        if !editing {
-            
-            uiTableViewCellEditControlobserver = nil
-        }
     }
     
     override func layoutSubviews() {

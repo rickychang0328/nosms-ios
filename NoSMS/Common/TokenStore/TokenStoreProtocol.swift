@@ -721,7 +721,7 @@ extension KeychainTokenStore {
         let tokenIndex = persistentTokens.firstIndex(where: { $0.identifier == id}) ?? 0
         
         moveTokenFromIndex(tokenIndex, toIndex: 0)
-        pinEvent.onNext(.remove(index: tokenIndexInPin))
+        pinEvent.onNext(.remove(id: id))
 
     }
     
@@ -734,7 +734,7 @@ extension KeychainTokenStore {
         
         case emtpy
         case addPin(id: Data)
-        case remove(index: Int)
+        case remove(id: Data)
     }
 }
 
