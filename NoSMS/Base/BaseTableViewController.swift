@@ -616,7 +616,7 @@ class CustomTableView: UITableView {
                                     
                                     if let control = controlView as? UIImageView {
                                         
-                                        control.image = nil
+                                        control.isHidden = true
                                     }
                                 }
                             }

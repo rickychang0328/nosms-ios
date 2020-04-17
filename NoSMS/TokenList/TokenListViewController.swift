@@ -10,8 +10,9 @@ enum TokenListViewModelEvent {
     case scrollToIndex(IndexPath)
     case error(Error)
     case empty
-    case addPin(indexPath: IndexPath)
-    case removePin(indexPath: IndexPath)
+    //MARK: 偷時間
+    case addPin(id: Data)
+    case removePin(id: Data)
 }
 
 protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
@@ -498,16 +499,14 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             
             case .addPin(let id):
                 
-                let index = self.tokenListSupportPin.getIndexPath(id: id)
                 self.tokenListSupportPin.reloadPin()
                 self._groupViewModels.forEach({$0.tokenListSupportPin.reloadPin()})
-                
-                self.eventResult.onNext(.addPin(indexPath: index))
+                self.eventResult.onNext(.addPin(id: id))
                 self.eventResult.onNext(.empty)
-            case .remove(let pinIndex):
+            case .remove(let id):
 
-                //MARK: 在加到第一筆的時候就已經被 reloadPin 了所以直接拿之前Pin的位置
-                self.eventResult.onNext(.removePin(indexPath: IndexPath(row: pinIndex, section: 0)))
+                //MARK: 壞了只能先硬幹一下
+                self.eventResult.onNext(.removePin(id: id))
                 self.eventResult.onNext(.empty)
             case .emtpy:
                 break
@@ -696,6 +695,38 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
             NoSMSHUD.showToast(title: string)
             
             }).disposed(by: disposedBag)
+    }
+    
+    func addPinRefresh(id: Data) {
+        
+        let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
+        
+        for cell in cells {
+            
+            if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
+                cell.viewModel?.setPin(isPin: true)
+                cell.resetPinStatus()
+                tableView.beginUpdates()
+                tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                tableView.endUpdates()
+            }
+        }
+    }
+    
+    func removePinRefresh(id: Data) {
+        
+        let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
+        
+        for cell in cells {
+            
+            if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
+                cell.viewModel?.setPin(isPin: false)
+                cell.resetPinStatus()
+                tableView.beginUpdates()
+                tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
+                tableView.endUpdates()
+            }
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -1207,9 +1238,15 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             let scrollViewWidth = self.scrollView.bounds.width
             self.scrollView.isScrollEnabled = false
             self.scrollView.setContentOffset(CGPoint(x: scrollViewWidth * CGFloat(index), y: 0), animated: true)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 
-                self.scrollView.isScrollEnabled = true
+                //MARK: 因為編輯時會滾到到最前面會變成會滾於是編輯時不讓他可以滾
+                if self.tableView.isEditing {
+                    
+                } else {
+                    
+                    self.scrollView.isScrollEnabled = true
+                }
             }
             
             }).disposed(by: disposedBag)
@@ -1323,19 +1360,39 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             break
         case .empty:
             break
-        case .addPin(let indexPath):
+        case .addPin(let id):
             
-            groupVCs.forEach({ $0.tableView.reloadData()})
-            tableView.beginUpdates()
-            tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
-            tableView.endUpdates()
+            groupVCs.forEach({ $0.addPinRefresh(id: id)})
             
-        case .removePin(let indexPath):
+            let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
             
-            groupVCs.forEach({ $0.tableView.reloadData()})
-            tableView.beginUpdates()
-            tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
-            tableView.endUpdates()
+            for cell in cells {
+                
+                if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
+                    cell.viewModel?.setPin(isPin: true)
+                    cell.resetPinStatus()
+                    tableView.beginUpdates()
+                    tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                    tableView.endUpdates()
+                }
+            }
+            
+        case .removePin(let id):
+            
+            groupVCs.forEach({ $0.removePinRefresh(id: id)})
+            // 超級硬來
+            let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
+            
+            for cell in cells {
+                
+                if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
+                    cell.viewModel?.setPin(isPin: false)
+                    cell.resetPinStatus()
+                    tableView.beginUpdates()
+                    tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
+                    tableView.endUpdates()
+                }
+            }
         }
     }
     
