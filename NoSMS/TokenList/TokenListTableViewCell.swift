@@ -384,6 +384,9 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
     private func addSwipeLeft() {
         
+        let gestView = UIView()
+        contentView.addSubview(gestView)
+        
         contentView.addSubview(swipeLeftView)
         swipeLeftView.snp.makeConstraints {
             
@@ -398,13 +401,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             }).disposed(by: cellDeinitDisposedBag)
         swipeLeftView.addGestureRecognizer(tapGest)
         
-        let gestView = UIView()
-        contentView.addSubview(gestView)
-        
         gestView.snp.makeConstraints {
             
-            $0.top.left.bottom.equalTo(swipebackCardView)
-            $0.width.equalTo(ScaleWidth(at: 50))
+            $0.top.bottom.equalTo(swipebackCardView)
+            $0.left.equalTo(swipeLeftView)
+            $0.right.equalTo(swipeLeftView).offset(ScaleWidth(at: 50))
         }
         
         swipeLeftView.addSubview(swipeViewSubView)
@@ -415,6 +416,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
          
         let ges = UIPanGestureRecognizer()
+        let copy = UIPanGestureRecognizer()
         ges.rx.event
             .subscribe(onNext: { [weak self] panGestureRecognizer in
                 guard let self = self else { return }
@@ -503,7 +505,97 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 }
             })
             .disposed(by: cellDeinitDisposedBag)
+        
+        copy.rx.event
+           .subscribe(onNext: { [weak self] panGestureRecognizer in
+               guard let self = self else { return }
+               
+               if self.isEditing {
+                   
+                   return
+               }
+               
+               switch panGestureRecognizer.state {
+                   
+               case .began:
+                   
+                   if self.nowCellX == 0 {
+               
+                       SwipeManager.shared.swipeOff()
+                   }
+                   self.swipeLeftView.isHidden = false
+               case .changed:
+                   
+                   let transLationX = panGestureRecognizer.translation(in: self).x
+                   let moveX = self.nowGesX - transLationX
+                   self.nowGesX = transLationX
+                   let newX: CGFloat = self.swipebackCardView.frame.origin.x - moveX
+                   
+                   let resultX: CGFloat
+                   
+                   if newX < 0 {
+                       
+                       resultX = 0
+                   } else {
+                       
+                       resultX = newX
+                   }
+                   
+                   self.swipebackCardView.changeLeft(to: resultX)
+                   
+                   if self.nowCellX > self.actionWidth, !self.isShock {
+                       
+                       //MARK: 震動
+                       let generator = UIImpactFeedbackGenerator(style: .light)
+                       generator.prepare()
+                       generator.impactOccurred()
+                       self.isShock = true
+                       
+                   } else if self.nowCellX < self.actionWidth, self.isShock {
+                       
+                       let generator = UIImpactFeedbackGenerator(style: .medium)
+                       generator.prepare()
+                       generator.impactOccurred()
+                       self.isShock = false
+                   }
+                   
+               case .ended:
+                   if self.nowCellX > self.actionWidth {
+                       
+                       //MARK: swipe 行動
+                       self.swipeAction()
+                   } else if self.nowCellX < self.actionWidth, self.nowCellX > self.swipeWidth {
+                       
+                       self.swipeOn()
+                   } else {
+                       
+                   
+                       switch self.swipeStatus {
+                           
+                       case .on:
+                           
+                           self.swipeOff()
+                       case .off:
+                          
+                           if self.nowCellX == 0 {
+                               
+                               self.swipeOff()
+                           } else {
+                               
+                               self.swipeOn()
+                           }
+                       }
+                   }
+                   
+                   self.isShock = false
+
+               default:
+                   break
+               }
+           }).disposed(by: cellDeinitDisposedBag)
+
         gestView.addGestureRecognizer(ges)
+        swipeLeftView.addGestureRecognizer(copy)
     }
     private let cellDeinitDisposedBag: DisposeBag = .init()
     
