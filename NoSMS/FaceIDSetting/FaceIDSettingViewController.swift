@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import BiometricAuthentication
+import LocalAuthentication
 public enum FaceIDAuthenticationStatus{
     case success
     case error
@@ -20,7 +21,7 @@ enum AuthIDStatusManager {
     
     static var isLockWindow: Bool = false
     static var isAuthOpen: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) }
-    static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.canAuthenticate() }
+    static var systemAuthIsOpen: Bool { return BioMetricAuthenticator.shared.faceIDAvailable() || AuthIDStatusManager.touchIDAvailable() }
     static var lastInAppTime: Date = .init()
     static var isGoInSettingPageBefore: Bool { return UserDefaults.standard.bool(forKey: UserDefaults.Key.isFirstSetFaceID.string) }
     
@@ -51,7 +52,7 @@ enum AuthIDStatusManager {
     
     static func showIDAuthPage(inVC: UIViewController, sucessHandler: (() -> Void)? = nil, systemIsNotOpenHandler: (() -> Void)? = nil) {
         
-        if BioMetricAuthenticator.canAuthenticate() {
+        if BioMetricAuthenticator.shared.faceIDAvailable() || AuthIDStatusManager.touchIDAvailable() {
             
             let faceIDHandler = {
                 
@@ -96,6 +97,18 @@ enum AuthIDStatusManager {
 
             inVC.showAlertOneButton(title: "您的设备尚未开启\(AuthIDStatusManager.authType)识别，请稍后再试", actionTitle: "确定", confirmAction: systemIsNotOpenHandler)
         }
+    }
+    
+    static func touchIDAvailable() -> Bool {
+        
+        let context = LAContext()
+        var error: NSError?
+        
+        let canEvaluate = context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
+        if #available(iOS 11.0, *) {
+            return canEvaluate && context.biometryType == .touchID
+        }
+        return canEvaluate
     }
 }
 protocol FaceIDSettingVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
@@ -318,7 +331,7 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
             .subscribe(onNext : { bool in
             
                 if bool {
-                    if !BioMetricAuthenticator.shared.faceIDAvailable() && !BioMetricAuthenticator.shared.touchIDAvailable() {
+                    if !BioMetricAuthenticator.shared.faceIDAvailable() && !AuthIDStatusManager.touchIDAvailable() {
                         
                         viewModel.authStatus.onNext(.error)
                     } else {
@@ -369,7 +382,7 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                    //跳出辨識成功或是沒有動作
             case .closeAuthentication:
                 
-                if BioMetricAuthenticator.shared.touchIDAvailable() || BioMetricAuthenticator.shared.faceIDAvailable() {
+                if AuthIDStatusManager.touchIDAvailable() || BioMetricAuthenticator.shared.faceIDAvailable() {
                     
                     self.showPasscodeAuthentication()
                 } else {
