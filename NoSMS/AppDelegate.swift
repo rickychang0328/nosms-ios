@@ -6,6 +6,11 @@ import BiometricAuthentication
 class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow? = UIWindow(frame: UIScreen.main.bounds)
+    
+    var firstInApp: Bool = true
+    
+    var authSuccess: (() -> Void)?
+    
     static var shared: NoSMSAppDelegate {
         return UIApplication.shared.delegate as! NoSMSAppDelegate
     }
@@ -22,7 +27,11 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         
         if AuthIDStatusManager.isAuthOpen {
             
-            firstVC.showBlurWithIDAuth()
+            firstVC.showBlurWithIDAuth(sucessHandler: {
+                
+                self.authSuccess?()
+                self.authSuccess = nil
+            }, systemIsNotOpenHandler: nil)
         }
         
         return true
@@ -30,8 +39,23 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationDidBecomeActive(_ application: UIApplication) {
         
-        PastedAction.shared.applicationDidBecomeActive()
-
+        let pastedHandler = {
+            
+            PastedAction.shared.applicationDidBecomeActive()
+        }
+        
+        if AuthIDStatusManager.isLockWindow {
+            
+            authSuccess = pastedHandler
+        } else {
+            
+            pastedHandler()
+        }
+        
+        if firstInApp {
+            
+            firstInApp = false
+        }
     }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -46,13 +70,21 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 
                 AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: {
                     
-                    BlurViewController.shared.dismiss(animated: false)
+                    BlurViewController.shared.dismiss(animated: false, completion: {
+                        
+                        self.authSuccess?()
+                        self.authSuccess = nil
+                    })
                 })
             } else {
                 
                 if AuthIDStatusManager.lastInAppTime.timeIntervalSince1970 < nowDate.timeIntervalSince1970 - 300 {
                     
-                    self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth()
+                    self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
+                        
+                        self.authSuccess?()
+                        self.authSuccess = nil
+                    }, systemIsNotOpenHandler: nil)
                 }
             }
         }
@@ -199,13 +231,30 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             return true
         }
         
+        if firstInApp {
+            
+            if AuthIDStatusManager.isLockWindow {
+                
+                authSuccess = {
+                    
+                    _ = thirdAppOpenHandler(3)
+                }
+                
+                return true
+            } else {
+                
+             
+                return thirdAppOpenHandler(2)
+            }
+        }
+        
         if AuthIDStatusManager.isAuthOpen {
             
             let authActionHandler: () -> Void = {
                 
                     self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
                                           
-                        _ = thirdAppOpenHandler(2)
+                        _ = thirdAppOpenHandler(3)
                     })
                 }
             
@@ -215,7 +264,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                     
                     BlurViewController.shared.dismiss(animated: false) {
                         
-                        _ = thirdAppOpenHandler(2)
+                        _ = thirdAppOpenHandler(3)
                     }
                 }
                 
@@ -229,7 +278,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             return true
         } else {
             
-            return thirdAppOpenHandler(1)
+            return thirdAppOpenHandler(2)
         }
     }
     
