@@ -237,7 +237,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 
                 authSuccess = {
                     
-                    _ = thirdAppOpenHandler(2)
+                    _ = thirdAppOpenHandler(3)
                 }
                 
                 return true
@@ -254,7 +254,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 
                     self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
                                           
-                        _ = thirdAppOpenHandler(2)
+                        _ = thirdAppOpenHandler(3)
                     })
                 }
             
@@ -264,7 +264,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                     
                     BlurViewController.shared.dismiss(animated: false) {
                         
-                        _ = thirdAppOpenHandler(2)
+                        _ = thirdAppOpenHandler(3)
                     }
                 }
                 
@@ -278,7 +278,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             return true
         } else {
             
-            return thirdAppOpenHandler(1)
+            return thirdAppOpenHandler(2)
         }
     }
     
