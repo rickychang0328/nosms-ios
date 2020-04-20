@@ -701,6 +701,8 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
         
         let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
         
+        var haveCellVisible = false
+
         for cell in cells {
             
             if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
@@ -709,13 +711,23 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
                 tableView.beginUpdates()
                 tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
                 tableView.endUpdates()
+                haveCellVisible = true
+                break
+
             }
+        }
+        
+        if !haveCellVisible {
+            
+            tableView.reloadData()
         }
     }
     
     func removePinRefresh(id: Data) {
         
         let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
+        
+        var haveCellVisible = false
         
         for cell in cells {
             
@@ -725,7 +737,14 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
                 tableView.beginUpdates()
                 tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
                 tableView.endUpdates()
+                haveCellVisible = true
+                break
             }
+        }
+        
+        if !haveCellVisible {
+            
+            tableView.reloadData()
         }
     }
     
@@ -1366,6 +1385,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
             
+            var haveCellVisible = false
+            
             for cell in cells {
                 
                 if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
@@ -1374,7 +1395,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     tableView.beginUpdates()
                     tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
                     tableView.endUpdates()
+                    haveCellVisible = true
+                    break
                 }
+            }
+            
+            if !haveCellVisible {
+                
+                tableView.reloadData()
             }
             
         case .removePin(let id):
@@ -1383,6 +1411,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             // 超級硬來
             let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
             
+            var haveCellVisible = false
+
             for cell in cells {
                 
                 if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
@@ -1391,7 +1421,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     tableView.beginUpdates()
                     tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
                     tableView.endUpdates()
+                    haveCellVisible = true
+                    break
                 }
+            }
+            
+            if !haveCellVisible {
+                
+                tableView.reloadData()
             }
         }
     }
