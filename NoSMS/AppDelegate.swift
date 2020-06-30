@@ -6,9 +6,7 @@ import BiometricAuthentication
 class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow? = UIWindow(frame: UIScreen.main.bounds)
-    
-    var firstInApp: Bool = true
-    
+        
     var authSuccess: (() -> Void)?
     
     static var shared: NoSMSAppDelegate {
@@ -38,23 +36,12 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
-        
-        let pastedHandler = {
-            
-            PastedAction.shared.applicationDidBecomeActive()
-        }
-        
+                
         if AuthIDStatusManager.isLockWindow {
             
-            authSuccess = pastedHandler
         } else {
             
-            pastedHandler()
-        }
-        
-        if firstInApp {
-            
-            firstInApp = false
+            PastedAction.shared.applicationDidBecomeActive()
         }
     }
     
@@ -98,15 +85,17 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
     
     func applicationDidEnterBackground(_ application: UIApplication) {
          print("applicationDidEnterBackground")
-        KeychainTokenStore.shared.appDidEnterBackgroundResetting()
-        AuthIDStatusManager.backgroundTimerAction()
+         KeychainTokenStore.shared.appDidEnterBackgroundResetting()
+         AuthIDStatusManager.backgroundTimerAction()
+         PastedAction.shared.applicationDidEnterBackground()
+         self.authSuccess = nil
         
     }
     func applicationWillTerminate(_ application: UIApplication) {
          print("applicationWillTerminate")
     }
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-                
+        
         PastedAction.shared.applicationIsOpenFromURL()
         
         let thirdAppOpenHandler = { (toastTime: Double) -> Bool in
@@ -230,49 +219,21 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             }
             return true
         }
-        
-        if firstInApp {
+
+        if AuthIDStatusManager.isAuthOpen {
             
             if AuthIDStatusManager.isLockWindow {
-                
+
                 authSuccess = {
                     
                     _ = thirdAppOpenHandler(3)
                 }
-                
-                return true
             } else {
                 
-             
-                return thirdAppOpenHandler(2)
-            }
-        }
-        
-        if AuthIDStatusManager.isAuthOpen {
-            
-            let authActionHandler: () -> Void = {
-                
-                    self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
-                                          
-                        _ = thirdAppOpenHandler(3)
-                    })
-                }
-            
-            if AuthIDStatusManager.isLockWindow {
-                    
-                let sucessHandler = {
-                    
-                    BlurViewController.shared.dismiss(animated: false) {
-                        
-                        _ = thirdAppOpenHandler(3)
-                    }
-                }
-                
-                AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: sucessHandler)
-
-            } else {
-                
-                authActionHandler()
+                self.window?.rootViewController?.getNowWhichVCDisplay().showBlurWithIDAuth(sucessHandler: {
+                                      
+                    _ = thirdAppOpenHandler(3)
+                })
             }
             
             return true
