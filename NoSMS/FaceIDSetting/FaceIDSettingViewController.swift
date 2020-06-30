@@ -119,7 +119,7 @@ protocol FaceIDSettingVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
 }
 
 private let kFaceID = "面容ID"
-private let kTouchID = "指纹解鎖"
+private let kTouchID = "指纹解锁"
 
 class FaceIDSettingVCViewModel: BaseVCViewModel, FaceIDSettingVCViewModelProtocol {
     
@@ -305,7 +305,6 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
         addSubview(switchView)
         
         titleLabel.snp.makeConstraints {
-//            $0.centerY.equalToSuperview()
             $0.top.equalTo(ScaleWidth(at: 20))
             $0.left.equalTo(ScaleWidth(at: 20))
             $0.bottom.equalTo(ScaleWidth(at: -20))
@@ -315,7 +314,6 @@ class FaceIDSettingSwitchTableViewCell<ViewModel: FaceIDSettingCellSwitchItemsPr
             $0.top.equalTo(ScaleWidth(at: 17.5))
             $0.width.equalTo(ScaleWidth(at: 50))
             $0.height.equalTo(ScaleWidth(at: 25))
-//            $0.centerY.equalTo(titleLabel)
             $0.right.equalTo(ScaleWidth(at: -35))
         }
     }
@@ -476,7 +474,6 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 }
             }
         }
-        
     }
 }
 
