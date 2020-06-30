@@ -13,6 +13,11 @@ class PastedAction {
     
     private init() {}
     
+    func applicationDidEnterBackground() {
+        
+        openFromURL = false
+    }
+    
     func applicationIsOpenFromURL() {
         
         openFromURL = true
