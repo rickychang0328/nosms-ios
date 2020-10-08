@@ -302,7 +302,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 
                 let addToken = Token(name: account, issuer: issuer, generator: generator)
                 
-                self.tokenStore.addToken(addToken) { (event) in
+                self.tokenStore.addToken(addToken, groupNames: []) { (event) in
                     
                     switch event {
                                            

@@ -141,6 +141,9 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
             
             switch action {
                 
+            case .mulitpleShare:
+                
+                break
             case .set:
                 
                 if let token = try? url.absoluteString.mustAuth.parsingSetURL() {
