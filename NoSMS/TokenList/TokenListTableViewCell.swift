@@ -393,7 +393,13 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.top.width.bottom.equalTo(swipebackCardView)
             $0.right.equalTo(swipebackCardView.snp.left)
         }
-
+        
+        deletedButton.snp.makeConstraints {
+            
+            $0.top.bottom.left.equalToSuperview()
+            $0.right.equalTo(gestView)
+        }
+        
         let tapGest = UITapGestureRecognizer()
         tapGest.rx.event.subscribe(onNext: { [weak self] tapGest in
             self?.swipeAction()
@@ -639,6 +645,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return button
     }()
     
+    private let deletedButtonInContentView: UIButton = {
+       
+        let button = UIButton()
+        return button
+    }()
+    
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
         
     private var isOnTime: Bool = false
@@ -679,6 +691,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         addSubview(backCardView)
         sendSubviewToBack(backCardView)
+        contentView.addSubview(deletedButtonInContentView)
         backCardView.addSubview(swipebackCardView)
         swipebackCardView.addSubview(baseTokenView)
         contentView.addSubview(nameTextField)
@@ -701,10 +714,10 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.width.equalTo(ScaleWidth(at: 18))
         }
         
-        deletedButton.snp.makeConstraints {
+        deletedButtonInContentView.snp.makeConstraints {
             
             $0.top.bottom.left.equalToSuperview()
-            $0.right.equalTo(contentView.snp.left).offset(20)
+            $0.right.equalTo(contentView).offset(20)
         }
         
         nameTextField.snp.makeConstraints {
@@ -821,6 +834,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             self.baseTokenView.passwordLabel.isHidden = self.isEditing
             self.nameTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
+            self.deletedButtonInContentView.isEnabled = self.isEditing
             self.baseTokenView.digitsView.isHidden = !self.isEditing
             self.deleteImageView.isHidden = !self.isEditing
 
@@ -965,6 +979,13 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
 
         deletedButton.rx.tap.subscribe(onNext: { [weak self, weak haveSeletToDelete] _ in
 
+            guard let self = self else { return }
+            self.deletedButton.isSelected = !self.deletedButton.isSelected
+            haveSeletToDelete?.onNext(self.deletedButton.isSelected)
+        }).disposed(by: disposedBag)
+        
+        deletedButtonInContentView.rx.tap.subscribe(onNext: { [weak self, weak haveSeletToDelete] in
+            
             guard let self = self else { return }
             self.deletedButton.isSelected = !self.deletedButton.isSelected
             haveSeletToDelete?.onNext(self.deletedButton.isSelected)
