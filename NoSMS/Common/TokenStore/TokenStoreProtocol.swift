@@ -685,6 +685,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
                         }
                     }
                 }
+                mulitpleShareNewSaveHandler()
             }
             
             var filterTokens: [KeychainTokenStore.MulitpleShareToken] = []
