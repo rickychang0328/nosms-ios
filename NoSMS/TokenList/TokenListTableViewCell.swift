@@ -35,7 +35,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     var isPin: Bool = false
     
     let tokenID: Data
-
+    
     var passwordColor: Observable<UIColor> {
         
         return warningTime.map({ if self.isOnTime {
@@ -139,6 +139,8 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
 
 class BaseTokenListView: UIView {
     
+    let selectImageView: UIImageView = .init(image: .noSmsNoSelected)
+    
     let nameLabel: UILabel = {
        
         let label = UILabel()
@@ -169,11 +171,12 @@ class BaseTokenListView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        selectImageView.isHidden = true
         addSubview(issuerLabel)
         addSubview(passwordLabel)
         addSubview(nameLabel)
         addSubview(digitsView)
+        addSubview(selectImageView)
         
         issuerLabel.snp.makeConstraints {
             
@@ -199,6 +202,14 @@ class BaseTokenListView: UIView {
             
             $0.edges.equalTo(passwordLabel)
         }
+        
+        selectImageView.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 59))
+            $0.right.equalToSuperview().inset(ScaleWidth(at: 20))
+            $0.size.equalTo(ScaleWidth(at: 18))
+        }
+        
         digitsView.isHidden = true
         
     }
@@ -209,6 +220,7 @@ class BaseTokenListView: UIView {
     
     func bindData(viewModel: BaseTokenListViewType) {
         disposedBag = .init()
+        
         //MARK: 給空白讓 label 的 auto 高不會跑掉
         let name = viewModel.name.map({ string -> String in
           
@@ -227,7 +239,6 @@ class BaseTokenListView: UIView {
         viewModel.issuer
             .bind(to: issuerLabel.rx.text)
             .disposed(by: disposedBag)
-        
         viewModel.password
             .bind(to: passwordLabel.rx.text)
             .disposed(by: disposedBag)
@@ -281,6 +292,8 @@ class SwipeManager {
  
 class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate, SwipeType {
     
+    var isShareOTP = false
+
     private let pinImageView: UIImageView = {
        
         let view = UIImageView.init(image: .noSMStokenListPin)
@@ -305,7 +318,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let swipeWidth: CGFloat = ScaleWidth(at: 73)
     
     private let actionWidth: CGFloat = UIScreen.main.bounds.width / 3
-    
+        
     func swipeOn() {
         
         UIView.animate(withDuration: 0.2) {
@@ -326,6 +339,29 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         swipeStatus = .off
         SwipeManager.shared.removeSwipeType(swipe: self)
+    }
+    
+    func shareOTP() {
+
+        let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.itemClick))
+        self.addGestureRecognizer(gesture)
+        isShareOTP = true
+        circleView.alpha = 0
+        baseTokenView.passwordLabel.alpha = 0
+        baseTokenView.selectImageView.isHidden = false
+        baseTokenView.digitsView.isHidden = false
+        baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+    }
+    
+    @objc func itemClick(sender : UITapGestureRecognizer) {
+        if baseTokenView.selectImageView.image == UIImage(named: "NoSMS_oval") {
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["phone": self.baseTokenView.nameLabel.text ?? "", "isSelect": true])
+            baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+        } else {
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["phone": self.baseTokenView.nameLabel.text ?? "", "isSelect": false])
+            baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+        }
+      
     }
     
     private let swipeLabel: UILabel = {
@@ -662,7 +698,35 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         layoutView()
         addSwipeLeft()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.choseAllNotificationIdentifier(notification:)), name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.otpNotificationIdentifier(notification:)), name: Notification.Name("OTPNotificationIdentifier"), object: nil)
+
     }
+    
+    @objc func choseAllNotificationIdentifier(notification: Notification) {
+        if let isSelectAll = notification.userInfo?["selectAll"] as? Bool {
+            if isSelectAll {
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+            } else {
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+            }
+        }
+    }
+    
+    @objc func otpNotificationIdentifier(notification: Notification) {
+        
+        let phone = notification.userInfo?["phone"] as? String
+        let isSelect = notification.userInfo?["isSelect"] as? Bool ?? false
+         
+        if phone == nameTextField.text {
+            if isSelect {
+                 baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+            } else {
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+            }
+        }
+        
+       }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -898,8 +962,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: true)
-        
         changeLayout()
+        if baseTokenView.passwordLabel.alpha == 0 {
+             self.baseTokenView.digitsView.isHidden = false
+             baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+        }
     }
     
     override func bindData(viewModel: ViewModel) {

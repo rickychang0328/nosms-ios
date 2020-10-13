@@ -57,6 +57,9 @@
 		2AF655452387ABA8000D8787 /* NoSMSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF655442387ABA8000D8787 /* NoSMSTests.swift */; };
 		2AF655502387ABA8000D8787 /* NoSMSUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AF6554F2387ABA8000D8787 /* NoSMSUITests.swift */; };
 		7F871825ADA176CFB4C66265 /* Pods_NoSMS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */; };
+		A1B8D01E252C2059005099B7 /* ShareOTPViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D01D252C2059005099B7 /* ShareOTPViewController.swift */; };
+		A1B8D020252DBFCF005099B7 /* QRcodeOTPShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D01F252DBFCF005099B7 /* QRcodeOTPShareViewController.swift */; };
+		A1B8D022252EBD69005099B7 /* OTPShareAndReceiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D021252EBD69005099B7 /* OTPShareAndReceiveViewController.swift */; };
 		A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */; };
 		BB19B3C12449C22B00D5E9E4 /* UIDevice+VKKeychainIDFV.m in Sources */ = {isa = PBXBuildFile; fileRef = BB19B3BD2449C20100D5E9E4 /* UIDevice+VKKeychainIDFV.m */; };
 		BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8323F3FDCF00A08CD6 /* Repository.swift */; };
@@ -157,6 +160,9 @@
 		882C5645A49849890634181A /* Pods-NoSMSUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSUITests.release.xcconfig"; path = "Target Support Files/Pods-NoSMSUITests/Pods-NoSMSUITests.release.xcconfig"; sourceTree = "<group>"; };
 		9B2075010F5908FB50A06A7B /* Pods-TWAzureAuthenticatorTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorTests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorTests/Pods-TWAzureAuthenticatorTests.debug.xcconfig"; sourceTree = "<group>"; };
 		A196883168F4BEF0144199A0 /* Pods-NoSMSTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMSTests.release.xcconfig"; path = "Target Support Files/Pods-NoSMSTests/Pods-NoSMSTests.release.xcconfig"; sourceTree = "<group>"; };
+		A1B8D01D252C2059005099B7 /* ShareOTPViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareOTPViewController.swift; sourceTree = "<group>"; };
+		A1B8D01F252DBFCF005099B7 /* QRcodeOTPShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRcodeOTPShareViewController.swift; sourceTree = "<group>"; };
+		A1B8D021252EBD69005099B7 /* OTPShareAndReceiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareAndReceiveViewController.swift; sourceTree = "<group>"; };
 		A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.debug.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.debug.xcconfig"; sourceTree = "<group>"; };
 		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -236,6 +242,9 @@
 			isa = PBXGroup;
 			children = (
 				2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */,
+				A1B8D021252EBD69005099B7 /* OTPShareAndReceiveViewController.swift */,
+				A1B8D01D252C2059005099B7 /* ShareOTPViewController.swift */,
+				A1B8D01F252DBFCF005099B7 /* QRcodeOTPShareViewController.swift */,
 				2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */,
 				2A21B08423A9FBD800922FBB /* ChoseHowToAddToken.swift */,
 				2A91DFCD23ABB84400A630E9 /* Menu.swift */,
@@ -800,6 +809,7 @@
 				2A7F136024449A7D00B4F140 /* GroupEditTableViewCell.swift in Sources */,
 				2AD796B023A8892300BEF6E8 /* PhotoCheckCollectionViewCell.swift in Sources */,
 				2A75E654238B814300E8CAB9 /* BaseTableViewController.swift in Sources */,
+				A1B8D022252EBD69005099B7 /* OTPShareAndReceiveViewController.swift in Sources */,
 				2A75E656238B824A00E8CAB9 /* BaseNavigaitonItem.swift in Sources */,
 				2A43D70923EA60E900E0E85C /* DigitsView.swift in Sources */,
 				2AE756B12428A186002181F9 /* UIDevice+Extension.swift in Sources */,
@@ -812,10 +822,12 @@
 				BB19B3C12449C22B00D5E9E4 /* UIDevice+VKKeychainIDFV.m in Sources */,
 				2A21B08523A9FBD800922FBB /* ChoseHowToAddToken.swift in Sources */,
 				BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */,
+				A1B8D020252DBFCF005099B7 /* QRcodeOTPShareViewController.swift in Sources */,
 				2AE3166223B1F3FE001DDBB2 /* BaseWebViewController.swift in Sources */,
 				2A7F136224449AD400B4F140 /* GroupEditCodeViewController.swift in Sources */,
 				2AE3DC50238D3201009AC8EE /* TokenScannerViewController.swift in Sources */,
 				2AF6552E2387ABA6000D8787 /* AppDelegate.swift in Sources */,
+				A1B8D01E252C2059005099B7 /* ShareOTPViewController.swift in Sources */,
 				2A7F135A2444998100B4F140 /* GroupAddCodeViewController.swift in Sources */,
 				2A23621123A340D1006DD184 /* UIColor+Extension.swift in Sources */,
 			);

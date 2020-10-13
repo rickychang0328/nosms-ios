@@ -88,7 +88,7 @@ class GroupSection: GroupSectionType {
                     }
                 }
         }).disposed(by: disposedBag)
-        
+       
         KeychainTokenStore.shared
             .canAddGroup.subscribe(onNext: { [weak self] canAddGroup in
                 

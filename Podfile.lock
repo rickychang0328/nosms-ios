@@ -1,7 +1,7 @@
 PODS:
   - Base32 (1.1.2)
   - BiometricAuthentication (3.1.2)
-  - DynamicBlurView (4.0.0)
+  - DynamicBlurView (5.0.3)
   - OneTimePassword (3.2.0):
     - Base32 (~> 1.1.2)
   - RxCocoa (5.1.1):
@@ -34,7 +34,7 @@ SPEC REPOS:
 SPEC CHECKSUMS:
   Base32: 163c298644d184e89ca4e00a996bad6bf5166390
   BiometricAuthentication: 36445f3ab77699489f91995bed887be89890afac
-  DynamicBlurView: ccf9acd2b20c883cc2c72e3524a04d8d3ee20533
+  DynamicBlurView: b57e2f6aa33f85b2bcca272265162a3c7c5cc499
   OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
   RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
   RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
@@ -43,4 +43,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: f0bd96dd88ed50275697e7b11f01f64d8b73bdf6
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.9.3

@@ -552,7 +552,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     if showPassword ?? true {
                         
                         UIPasteboard.general.string = try? adapterToken.password.value()
-                        
                         anyObserver.onNext("[ \(adapterToken.token.issuer) ]\n\(adapterToken.token.name)\n验证码已复制")
                         anyObserver.onCompleted()
                     } else {
@@ -677,7 +676,6 @@ class HomePageView: UIView {
 class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
     
     private let viewModel: TokenListInGroupVCViewModel
-    
     init(viewModel: TokenListInGroupVCViewModel) {
         
         self.viewModel = viewModel
@@ -686,7 +684,6 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         tableView.showsVerticalScrollIndicator = false
         tableView.rx.itemSelected
             .flatMapLatest(viewModel.selectItem(indexPath:))
@@ -907,7 +904,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
         navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
         navigationController?.navigationBar.layer.shadowRadius = 4.0
@@ -928,7 +924,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         tableView.showsVerticalScrollIndicator = false
         
         editControllView.snp.makeConstraints {
-            
             $0.edges.equalToSuperview()
         }
         
@@ -1810,6 +1805,14 @@ class CustomSegmentControl: UIView {
         view.addCornerRadius(at: ScaleWidth(at: 2))
         return view
     }()
+    
+    private let secondUnderLine: UIView = {
+          
+           let view = UIView()
+           view.setBackgroundColor(.customSegmentControlUnderLineColor)
+           view.addCornerRadius(at: ScaleWidth(at: 2))
+           return view
+       }()
 
     private let disposedBag: DisposeBag = .init()
     
@@ -2068,11 +2071,26 @@ class EditControllView: UIView {
          return label
      }()
     
+    private let shareOTPLabel: UILabel = {
+            
+            let label = UILabel()
+            label.setFont(.pingFangMediumFont(size: 15))
+                .setText("驗證碼分享")
+                .setTextColor(.tokenListIssuerColor)
+            return label
+        }()
+    
     private let editGroupButton: UIButton = {
         
         let button = UIButton()
         return button
     }()
+    
+    private let shareOTPButton: UIButton = {
+          
+          let button = UIButton()
+          return button
+      }()
     
     enum Event {
         
@@ -2092,13 +2110,17 @@ class EditControllView: UIView {
         backImageView.addSubview(editCodeLabel)
         backImageView.addSubview(editGroupImage)
         backImageView.addSubview(editGroupLabel)
+        backImageView.addSubview(shareOTPLabel)
         addSubview(editCodeButton)
         addSubview(editGroupButton)
+        addSubview(shareOTPButton)
 
         let underLine = UIView()
+        let secondUnderLine = UIView()
         underLine.setBackgroundColor(.alertStreetUnderLineColor)
+        secondUnderLine.setBackgroundColor(.alertStreetUnderLineColor)
         backImageView.addSubview(underLine)
-        
+        backImageView.addSubview(secondUnderLine)
         
         //適應各種奇怪的尺寸 layout
         let withWidth: CGFloat
@@ -2125,7 +2147,7 @@ class EditControllView: UIView {
             $0.right.equalTo(0)
             $0.topMargin.equalTo(topY)
             $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-            $0.height.equalTo(ScaleWidth(at: 136.7, with: withWidth))
+            $0.height.equalTo(ScaleWidth(at: 136.7/2*3, with: withWidth))
         }
 
         editCodeLabel.snp.makeConstraints {
@@ -2152,6 +2174,11 @@ class EditControllView: UIView {
             $0.left.size.equalTo(editCodeImage)
             $0.top.equalTo(editCodeImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
         }
+        
+        shareOTPLabel.snp.makeConstraints {
+            $0.left.equalTo(editCodeLabel)
+            $0.top.equalTo(editGroupImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
+        }
 
         underLine.snp.makeConstraints {
 
@@ -2160,7 +2187,15 @@ class EditControllView: UIView {
             $0.left.equalTo(ScaleWidth(at: 22, with: withWidth))
             $0.right.equalTo(ScaleWidth(at: -17, with: withWidth))
         }
+        
+        secondUnderLine.snp.makeConstraints {
 
+            $0.top.equalTo(editGroupImage.snp.bottom).offset(ScaleWidth(at: 15, with: withWidth))
+            $0.height.equalTo(0.5)
+            $0.left.equalTo(ScaleWidth(at: 22, with: withWidth))
+            $0.right.equalTo(ScaleWidth(at: -17, with: withWidth))
+        }
+        
         editCodeButton.snp.makeConstraints {
 
             $0.left.right.equalTo(backImageView)
@@ -2172,7 +2207,13 @@ class EditControllView: UIView {
 
             $0.bottom.left.right.equalTo(backImageView)
             $0.top.equalTo(underLine.snp.bottom)
-        }        
+        }
+        
+        shareOTPButton.snp.makeConstraints {
+
+            $0.bottom.left.right.equalTo(backImageView)
+            $0.top.equalTo(secondUnderLine.snp.bottom)
+        }
         
         editCodeButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
@@ -2185,6 +2226,15 @@ class EditControllView: UIView {
 
             self.eventPublish.onNext(.group)
         }).disposed(by: disposedBag)
+
+        shareOTPButton.rx.tap.subscribe(onNext: { [weak self] in
+                   guard let self = self else { return }
+                
+            let newViewController = OTPShareAndReceiveViewController()
+            guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
+            navigationController.pushViewController(newViewController, animated: true)
+            self.isHidden = true
+               }).disposed(by: disposedBag)
         
         let tapGest = UITapGestureRecognizer()
         addGestureRecognizer(tapGest)
