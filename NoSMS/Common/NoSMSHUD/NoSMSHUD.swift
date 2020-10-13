@@ -592,9 +592,9 @@ class NoSMSAlertThreeButtonView: UIView {
            
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 14))
-            .setTextColor(.alertTextColor)
+            .setTextColor(.circleViewBackColorLight)
             .setNumberOfLine(0)
-            .setTextAlignment(.left)
+            .setTextAlignment(.center)
         return label
     }()
     
@@ -638,7 +638,7 @@ class NoSMSAlertThreeButtonView: UIView {
         cancelButton.snp.makeConstraints {
             
             $0.left.right.height.equalTo(confirmButton)
-            $0.top.equalTo(confirmButton.snp.bottom).offset(ScaleWidth(at: 10))
+            $0.top.equalTo(replaceButton.snp.bottom).offset(ScaleWidth(at: 10))
             $0.bottom.equalTo(ScaleWidth(at: -10.5))
         }
     }

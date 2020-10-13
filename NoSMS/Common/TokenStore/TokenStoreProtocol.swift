@@ -610,7 +610,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
             return result
         })
         
-        guard mulitpleShareTokens.count != urlString.count else {
+        guard mulitpleShareTokens.count == urlString.count else {
             
             eventHandler(.error(error: NoSMSError.urlError))
             return
@@ -654,7 +654,13 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     
                     for index in filterToken.indices {
                         
-                        filterToken[index].changeNamePlus(index: "\(index + 1)")
+                        var plustValue = "\(index + 1)"
+                        
+                        while !self.getSameTokensWithType(name: filterToken[index].token.name + plustValue, issuer: filterToken[index].token.issuer, isOnTime: filterToken[index].token.isOnTime).isEmpty {
+                            
+                            plustValue += "1"
+                        }
+                        filterToken[index].changeNamePlus(index: plustValue)
                     }
                 }
                 mulitpleShareNewSaveHandler()
@@ -686,7 +692,13 @@ extension KeychainTokenStore: TokenStoreProtocol {
             for sameToken in sameTokens {
                 
                 let filterToken = mulitpleShareTokens.filter({ $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime})
-                filterTokens += filterToken
+                
+                if filterTokens.contains(where: { $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime }) {
+                    
+                } else {
+                    
+                    filterTokens += filterToken
+                }
             }
             
             var message: String = ""
@@ -698,11 +710,11 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     
                 } else if index > 2 {
                     
-                    message += "/n ..."
+                    message += "\n..."
                     break
                 } else {
                     
-                    message += "/n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    message += "\n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
                 }
             }
             

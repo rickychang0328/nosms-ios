@@ -133,7 +133,7 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 return false
             }
             
-            guard url.host == MustAuth.factorTimerKey || url.host == MustAuth.factorCounterKey || url.host == nil else {
+            guard url.host == MustAuth.factorTimerKey || url.host == MustAuth.factorCounterKey || url.host == nil || url.host == MustAuth.kQueryActionMulitpleshare else {
                 
                 NoSMSHUD.showToast(title: "URL匹配失败")
                 return false
@@ -150,7 +150,6 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                     let nowVC = self.window?.rootViewController?.getNowWhichVCDisplay()
                     
                     KeychainTokenStore.shared.mulitpleShareURLAction(urlString: urls) { (event) in
-                        
                         
                         switch event {
                         
