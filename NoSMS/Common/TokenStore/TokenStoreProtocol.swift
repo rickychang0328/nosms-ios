@@ -18,6 +18,7 @@ protocol TokenStoreProtocol {
     func addTokenWith(urlString: String, eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
     func resetTokenSelected()
     func deleteSelectedToken() throws
+    func mulitpleShareURLAction(urlString: [String], eventHandler: @escaping (KeychainTokenStore.MulitpleShareEvent) -> Void)
 }
 
 protocol AdapterTokenProtocol {
@@ -576,8 +577,8 @@ extension KeychainTokenStore: TokenStoreProtocol {
     
     enum MulitpleShareEvent {
         
-        case success
-        case haveSameToken(replaceHandler: () -> Void, newAddHandler: () -> Void)
+        case success(toast: String)
+        case haveSameToken(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
         case error(error: Error)
     }
     
@@ -636,8 +637,10 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     return
                 }
             }
-            eventHandler(.success)
+            let toast = "已导入\(mulitpleShareTokens.count)个验证码"
+            eventHandler(.success(toast: toast))
         }
+        
         if dontHaveSame {
             
             mulitpleShareNewSaveHandler()
@@ -656,14 +659,54 @@ extension KeychainTokenStore: TokenStoreProtocol {
                 }
                 mulitpleShareNewSaveHandler()
             }
-            newAddHandler()
-            
-            for mulitpleShareToken in mulitpleShareTokens {
+            let replaceHandler = {
                 
-                let sameTokens = sameTokens.filter({ $0.token.name == mulitpleShareToken.token.name && $0.token.issuer == mulitpleShareToken.token.issuer && $0.token.isOnTime == mulitpleShareToken.token.isOnTime })
-                //TODO:
-                
+                for mulitpleShareToken in mulitpleShareTokens {
+                    
+                    let sameTokens = sameTokens.filter({ $0.token.name == mulitpleShareToken.token.name && $0.token.issuer == mulitpleShareToken.token.issuer && $0.token.isOnTime == mulitpleShareToken.token.isOnTime })
+                    
+                    let samePersistentTokens = sameTokens.map({ $0.persistentToken })
+                    for samePersistentToken in samePersistentTokens {
+                        
+                        do {
+                            
+                            try self.saveToken(mulitpleShareToken.token, toPersistentToken: samePersistentToken)
+                            mulitpleShareToken.isAdded = true
+                        } catch {
+                            
+                            eventHandler(.error(error: error))
+                            return
+                        }
+                    }
+                }
             }
+            
+            var filterTokens: [KeychainTokenStore.MulitpleShareToken] = []
+            
+            for sameToken in sameTokens {
+                
+                let filterToken = mulitpleShareTokens.filter({ $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime})
+                filterTokens += filterToken
+            }
+            
+            var message: String = ""
+            
+            for index in filterTokens.indices {
+                
+                if index == 0 {
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    
+                } else if index > 2 {
+                    
+                    message += "/n ..."
+                    break
+                } else {
+                    
+                    message += "/n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                }
+            }
+            
+            eventHandler(.haveSameToken(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
         }
     }
 }

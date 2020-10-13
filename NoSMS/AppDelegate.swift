@@ -143,7 +143,34 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                 
             case .mulitpleShare:
                 
-                break
+                if let mulitpleURL = try? url.mustAuth.parsingMulitple() {
+                    
+                    let urls = mulitpleURL.urlStrings
+                    
+                    let nowVC = self.window?.rootViewController?.getNowWhichVCDisplay()
+                    
+                    KeychainTokenStore.shared.mulitpleShareURLAction(urlString: urls) { (event) in
+                        
+                        
+                        switch event {
+                        
+                        case .success(toast: let toast):
+                            
+                            NoSMSHUD.showToast(title: toast)
+                        case .error(error: let error):
+                            
+                            break
+                        case .haveSameToken(message: let message, replaceHandler: let rereplaceHandler, newAddHandler: let newAddHandler):
+                            
+                            nowVC?.showReplaceAlert(message: message, confirmAction: newAddHandler, replaceAction: rereplaceHandler, cancelAction: nil)
+                            break
+                        }
+                    }
+                    
+                } else {
+                    
+                    NoSMSHUD.showToast(title: "导入失败")
+                }
             case .set:
                 
                 if let token = try? url.absoluteString.mustAuth.parsingSetURL() {
