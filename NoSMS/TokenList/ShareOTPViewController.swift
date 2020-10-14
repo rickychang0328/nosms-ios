@@ -51,14 +51,8 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            let defaults = UserDefaults.standard
-            var shareOTPDicArray:Array = [Dictionary<String, String>]()
-            shareOTPDicArray = defaults.object(forKey: "shareOTPDicArray") as? [[String : String]] ?? [[String : String]]()
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            let time = dateFormatter.string(from: Date())
-            shareOTPDicArray.append(["shareInformation": "导出：\(self.otpShareSelectedAccount.count)个验证码", "time": time])
-            defaults.set(shareOTPDicArray, forKey: "shareOTPDicArray")
+            let shareRecordManager = ShareRecordStoreManager()
+            shareRecordManager.addNewRecord(description: "导出：\(self.otpShareSelectedAccount.count)个验证码")
             let newViewController = QRcodeOTPShareViewController()
             newViewController.otpShareSelectedAccount = self.otpShareSelectedAccount
             newViewController.view.backgroundColor = .tokenListBackgroundColor

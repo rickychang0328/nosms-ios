@@ -14,11 +14,7 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
     private let disposeBag: DisposeBag = .init()
     var tableView = UITableView()
     
-    var otpValueDicArray: [[String : String]] = {
-        let defaults = UserDefaults.standard
-        var shareOTPDicArray = defaults.object(forKey: "shareOTPDicArray") as? [Dictionary<String, String>]
-        return shareOTPDicArray ?? []
-    }()
+    var otpValueDicArray: [ShareRecordObject] = ShareRecordStoreManager().getAllRecord()
     let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .getColor(red: 41, green: 44, blue: 68, alpha: 1)
@@ -108,7 +104,8 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ShareOTPRecordTableViewCell
-        cell.otpValueCount.text = otpValueDicArray[indexPath.row] ["shareInformation"]
+        cell.otpValueCount.text = otpValueDicArray[indexPath.row].description
+        cell.otpValueTime.text = otpValueDicArray[indexPath.row].time
         cell.backgroundColor = .otpShareReceiveButtonColor
         return cell
     }
@@ -134,15 +131,14 @@ class ShareOTPRecordTableViewCell: UITableViewCell {
     }()
     
     var otpValueTime: UILabel = {
-           let label = UILabel()
-           label.text = "2020-09-09 11:00:26"
-           label.backgroundColor = .clear
-           label.setFont(.pingFangMediumFont(size: 12))
-               .setTextColor(.getColor(red: 136, green: 136, blue: 136, alpha: 1))
-               .setNumberOfLine(0)
-               .setTextAlignment(.left)
-           return label
-       }()
+        let label = UILabel()
+        label.backgroundColor = .clear
+        label.setFont(.pingFangMediumFont(size: 12))
+            .setTextColor(.getColor(red: 136, green: 136, blue: 136, alpha: 1))
+            .setNumberOfLine(0)
+            .setTextAlignment(.left)
+        return label
+    }()
     
     var lineView: UIView = {
           let view = UIView()
@@ -181,6 +177,53 @@ class ShareOTPRecordTableViewCell: UITableViewCell {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
+
+struct ShareRecordObject {
+    
+    let time: String
+    let description: String
+}
+
+class ShareRecordStoreManager {
+    
+    private let userDefault: UserDefaults = .standard
+    private let userDefaultKey: String = "shareOTPDicArray"
+    private let userDefaultDicDescriptionKey: String = "shareInformation"
+    private let userDefaultTimeKey: String = "time"
+
+    func getAllRecord() -> [ShareRecordObject] {
+        
+        let shareOTPDicArray: [[String: String]] = userDefault.object(forKey: userDefaultKey) as? [[String: String]] ?? []
+        let result = shareOTPDicArray.compactMap({ dic -> ShareRecordObject? in
+            
+            guard let description = dic[userDefaultDicDescriptionKey] else {
+                
+                return nil
+            }
+            guard let time = dic[userDefaultTimeKey] else {
+                
+                return nil
+            }
+            
+            return ShareRecordObject(time: time, description: description)
+        })
+
+        return result
+    }
+    
+    func addNewRecord(description: String) {
+        
+        var shareOTPDicArray: [[String: String]] = []
+        shareOTPDicArray = userDefault.object(forKey: userDefaultKey) as? [[String : String]] ?? []
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let time = dateFormatter.string(from: Date())
+        shareOTPDicArray.append([userDefaultDicDescriptionKey: description, userDefaultTimeKey: time])
+        userDefault.set(shareOTPDicArray, forKey: userDefaultKey)
     }
     
 }
