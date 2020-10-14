@@ -70,7 +70,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     
     let password: Observable<String>
     
-    let issuer: Observable<String>
+    let issuer: BehaviorSubject<String>
     
     let lastTime: BehaviorSubject<String>
     
@@ -83,7 +83,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     internal init(baseViewModelItem: BaseTableViewCellViewModelItemProtocol,
                   name: BehaviorSubject<String>,
                   password: Observable<String>,
-                  issuer: Observable<String>,
+                  issuer: BehaviorSubject<String>,
                   lastTime: BehaviorSubject<String>,
                   haveSelectToDelete: BehaviorSubject<Bool>,
                   passwordCount: Int,
@@ -116,15 +116,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
             string.insert(" ", at: index)
             return string
         })
-        self.issuer = issuer.map({
-            if $0.isEmpty {
-                
-                return " "
-            } else {
-                
-                return $0
-            }
-        })
+        self.issuer = issuer
         self.lastTime = lastTime
         self.haveSelectToDelete = haveSelectToDelete
         self.passwordCount = passwordCount
@@ -220,11 +212,22 @@ class BaseTokenListView: UIView {
                 return string
             }
         })
+        
+        let issuer = viewModel.issuer.map({ string -> String in
+          
+            if string.isEmpty {
+                
+                return " "
+            } else {
+                
+                return string
+            }
+        })
             
         name.bind(to: nameLabel.rx.text)
             .disposed(by: disposedBag)
 
-        viewModel.issuer
+        issuer
             .bind(to: issuerLabel.rx.text)
             .disposed(by: disposedBag)
         
@@ -243,7 +246,7 @@ protocol BaseTokenListViewType {
     
     var name: BehaviorSubject<String> { get }
     var password: Observable<String> { get }
-    var issuer: Observable<String> { get }
+    var issuer: BehaviorSubject<String> { get }
     var passwordColor: Observable<UIColor> { get }
     var passwordCount: Int { get }
 }
@@ -607,6 +610,15 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     private let baseTokenView: BaseTokenListView = .init(frame: .zero)
 
+    private let issuerTextField: UITextField = {
+        
+        let textField = UITextField()
+        textField.font = .pingFangSemiBoldFont(size: 18)
+        textField.textColor = .tokenListIssuerColor
+        textField.isUserInteractionEnabled = true
+        return textField
+    }()
+    
     private let nameTextField: UITextField = {
         
         let textField = UITextField()
@@ -695,6 +707,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         backCardView.addSubview(swipebackCardView)
         swipebackCardView.addSubview(baseTokenView)
         contentView.addSubview(nameTextField)
+        contentView.addSubview(issuerTextField)
         swipebackCardView.addSubview(circleView)
         circleView.addSubview(countTimeLabel)
         contentView.addSubview(tapGetPasswordButton)
@@ -720,6 +733,22 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.right.equalTo(contentView).offset(20)
         }
         
+        issuerTextField.snp.makeConstraints {
+            
+            $0.left.centerY.equalTo(baseTokenView.issuerLabel).offset(1)
+            $0.right.equalTo(ScaleWidth(at: -16))
+        }
+        
+        let textFieldUnderLineIssuer = UIView()
+        textFieldUnderLineIssuer.setBackgroundColor(.tokenListCellTextFieldUnderLineColor)
+        issuerTextField.addSubview(textFieldUnderLineIssuer)
+        textFieldUnderLineIssuer.snp.makeConstraints {
+            
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(ScaleWidth(at: 4))
+            $0.height.equalTo(1)
+        }
+
         nameTextField.snp.makeConstraints {
                         
             $0.left.centerY.equalTo(baseTokenView.nameLabel).offset(1)
@@ -773,6 +802,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         
         nameTextField.delegate = self
+        issuerTextField.delegate = self
     }
     func runBackCardAnimation() {
         UIView.animate(withDuration: 0.3, animations: {
@@ -831,8 +861,10 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         UIView.animate(withDuration: 0.1, animations: {
             
             self.baseTokenView.nameLabel.isHidden = self.isEditing
+            self.baseTokenView.issuerLabel.isHidden = self.isEditing
             self.baseTokenView.passwordLabel.isHidden = self.isEditing
             self.nameTextField.isHidden = !self.isEditing
+            self.issuerTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
             self.deletedButtonInContentView.isEnabled = self.isEditing
             self.baseTokenView.digitsView.isHidden = !self.isEditing
@@ -922,6 +954,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         baseTokenView.bindData(viewModel: viewModel)
         viewModel.name.bind(to:nameTextField.rx.text)
             .disposed(by: disposedBag)
+        viewModel.issuer.bind(to: issuerTextField.rx.text)
+            .disposed(by: disposedBag)
 
 
         //hotp 的密碼是否顯示 有動作後要讓 button 不能按一陣子
@@ -994,6 +1028,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         nameTextField.rx.controlEvent(.editingDidEnd)
             .flatMapLatest({[unowned self] in return self.nameTextField.rx.text.orEmpty })
             .bind(to: viewModel.name)
+            .disposed(by: disposedBag)
+        
+        issuerTextField.rx.controlEvent(.editingDidEnd)
+            .flatMapLatest({[unowned self] in return self.issuerTextField.rx.text.orEmpty })
+            .bind(to: viewModel.issuer)
             .disposed(by: disposedBag)
         
         if isOnTime {

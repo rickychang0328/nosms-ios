@@ -322,6 +322,24 @@ class KeychainTokenStore {
                         }
                     }).disposed(by: self.disposeBag)
                 }
+                
+                let issuerArray = tokenArray.map({$0.issuer})
+                
+                for index in issuerArray.indices {
+                    
+                    issuerArray[index].subscribe(onNext: { newIssuer in
+                        
+                        if self.persistentTokens[index].token.issuer != newIssuer {
+                            
+                            let generator = tokenArray[index].token.generator
+                            let name = tokenArray[index].token.name
+                            let newToken = Token(name: name, issuer: newIssuer, generator: generator)
+                            
+                            try? self.saveToken(newToken, toPersistentToken: tokenArray[index].persistentToken)
+                            tokenArray[index].changeNewToken(token: newToken)
+                        }
+                    }).disposed(by: self.disposeBag)
+                }
             })
     }
     
