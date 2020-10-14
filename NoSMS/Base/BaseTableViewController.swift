@@ -157,7 +157,16 @@ protocol BaseTableViewSectionItemsProtocol: AnyObject {
 class BaseTableViewCellNoGeneric: UITableViewCell {
     
     var disposedBag: DisposeBag = .init()
-
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        let _ = contentView
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         
@@ -183,7 +192,16 @@ class BaseTableViewCellNoGeneric: UITableViewCell {
 class BaseTableViewCell<ViewModel: BaseTableViewCellViewModelProtocol>: UITableViewCell {
     
     var disposedBag: DisposeBag = .init()
-
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        let _ = contentView
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
         

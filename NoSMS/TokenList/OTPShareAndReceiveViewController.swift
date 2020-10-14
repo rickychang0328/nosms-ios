@@ -56,6 +56,8 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             
+            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
+            self.navigationController?.pushViewController(nextVC, animated: true)
         }).disposed(by: disposedBag)
         return button
     }()
