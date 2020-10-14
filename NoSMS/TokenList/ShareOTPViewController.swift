@@ -95,6 +95,8 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
                     self.exportOTPButton.backgroundColor = .exportOTPDisableTextColor
                     self.otpShareSelectedAccount.removeAll()
                 }
+                
+
             }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
@@ -566,7 +568,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
             exportOTPButton.isEnabled = true
             exportOTPButton.backgroundColor = .exportOTPEnableTextColor
         }
-        
     }
 
     

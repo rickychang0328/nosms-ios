@@ -17,8 +17,7 @@ class QRcodeOTPShareViewController: UIViewController {
     var page = 1
     var otpShareSelectedAccount = [String]()
     var otpShareSelectedAccountToken = [String]()
-    let fixMustauthURL = "mustauth://mulitpleshare/mulitpleshare?action=mulitpleshare"
-        
+   
     private lazy var exportOTPButton: UIButton = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -212,12 +211,23 @@ class QRcodeOTPShareViewController: UIViewController {
         if endIndex >= otpShareSelectedAccount.count {
             endIndex = otpShareSelectedAccount.count - 1
         }
-        var url = fixMustauthURL
+
+        var urlcom = URLComponents()
+        urlcom.scheme = MustAuth.kMustAuthScheme
+        urlcom.host = MustAuth.kQueryActionMulitpleshare
+        urlcom.path = "/\(MustAuth.kQueryActionMulitpleshare)"
+        
+        let action = URLQueryItem(name: MustAuth.kQueryActionKey, value: MustAuth.kQueryActionMulitpleshare)
+        var mulitpleURLArray = [URLQueryItem]()
+       
         for index in startIndex...endIndex {
              let token = otpShareSelectedAccountToken[index]
-             url += "&\(token)"
+             let mulitpleURL = URLQueryItem(name: MustAuth.kQueryMulitpleURLKey, value: token)
+             mulitpleURLArray.append(mulitpleURL)
+             //url += "&\(token)"
         }
-        qrCodeImageView.image = url.generateQRCode()
+        urlcom.queryItems = [action] + mulitpleURLArray
+        qrCodeImageView.image =  urlcom.url?.debugDescription.generateQRCode()
     }
     
     private func addTimer() {
@@ -336,21 +346,48 @@ class QRcodeOTPShareViewController: UIViewController {
 
 extension String {
     
+//    func createQRCode() -> UIImage?{
+//        let sureQRString = self
+//
+//        let stringData = sureQRString.data(using: String.Encoding.utf8, allowLossyConversion: false)
+//
+//        //建立一個二維碼的濾鏡
+//        let qrFilter = CIFilter(name: "CIQRCodeGenerator")
+//
+//        //inputMessage為轉換成 QR Code 圖片的初始資料
+//        qrFilter?.setValue(stringData, forKey: "inputMessage")
+//
+//        /*
+//         inputCorrectionLevel表示有多少額外的錯誤更正資料要被附加到輸出到 QR Code 圖片中
+//         其數值是 4 種字串之一： L 、 M 、 Q 、 H ，
+//         分別對應到不同的錯誤復原能力，
+//         依序為 7% 、 15% 、 25% 、 30%
+//         數值越大，輸出的 QR Code 圖片也就越大
+//         */
+//        qrFilter?.setValue("H", forKey: "inputCorrectionLevel")
+//
+//        let qrCIImage = qrFilter?.outputImage
+//
+//        // 返回二維碼的image
+//        let codeImage = UIImage(ciImage: qrCIImage!)
+//
+//        return codeImage
+//    }
     func generateQRCode() -> UIImage? {
         let data = self.data(using: String.Encoding.ascii)
-        
+
         if let filter = CIFilter(name: "CIQRCodeGenerator") {
             filter.setValue(data, forKey: "inputMessage")
             let transform = CGAffineTransform(scaleX: 3, y: 3)
-            
+
             if let output = filter.outputImage?.transformed(by: transform) {
                 return UIImage(ciImage: output)
             }
         }
-        
+
         return nil
     }
-    
+
 }
 
 extension UIViewController {

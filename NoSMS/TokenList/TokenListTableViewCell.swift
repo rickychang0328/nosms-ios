@@ -212,7 +212,11 @@ class BaseTokenListView: UIView {
     
     func bindData(viewModel: BaseTokenListViewType) {
         disposedBag = .init()
-        
+        do {
+                let a = try viewModel.name.value()
+               } catch {
+                   print("User creation failed with error: \(error)")
+        }
         //MARK: 給空白讓 label 的 auto 高不會跑掉
         let name = viewModel.name.map({ string -> String in
           
@@ -235,7 +239,7 @@ class BaseTokenListView: UIView {
                 return string
             }
         })
-            
+        
         name.bind(to: nameLabel.rx.text)
             .disposed(by: disposedBag)
 
@@ -759,7 +763,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let name = notification.userInfo?["name"] as? String
         let isSelect = notification.userInfo?["isSelect"] as? Bool ?? false
         let accountName = "[\(baseTokenView.issuerLabel.text!)] \(nameTextField.text!)"
-         
+      
         if accountName == name {
             if isSelect {
                  baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
