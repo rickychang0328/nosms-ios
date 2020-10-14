@@ -7,6 +7,7 @@ enum NoSMSError: Error {
     
     case imageError
     case imageisNotQRCode
+    case urlError
 }
 
 protocol PhotoChoseVCViewModelProtocol: BaseVCViewModelProtocol {

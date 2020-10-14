@@ -42,11 +42,44 @@ enum DeserializationError: Error {
 
 struct MustAuth {
     
+    static let kQuerySecretKey = "secret"
     static let kQueryActionKey = "action"
     static let kQueryActionGetValue = "get"
     static let kQueryActionSetValue = "set"
     static let kMustAuthScheme = "mustauth"
     static let kOTPAuthScheme = "otpauth"
+    static let kQueryActionMulitpleshare = "mulitpleshare"
+    static let kQueryGroupKey = "group"
+    static let kQueryMulitpleURLKey = "mulitpleURL"
+    
+    struct MulitpleURLParsing {
+        
+        let urlStrings: [String]
+        
+        init(_ value: String) throws {
+            
+            let stringURL = value.trimmingCharacters(in: .whitespaces)
+                                
+            guard let url = URL(string: stringURL) else {
+                
+                throw SerializationError.urlGenerationFailure
+            }
+            
+            guard url.scheme?.lowercased() == kOTPAuthScheme || url.scheme?.lowercased() == kMustAuthScheme else {
+                throw DeserializationError.invalidURLScheme
+            }
+
+            let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            
+            let urls = queryItems.filter({$0.name == kQueryMulitpleURLKey}).compactMap({$0.value})
+            
+            if urls.isEmpty {
+                
+                throw NoSMSError.urlError
+            }
+            self.urlStrings = urls
+        }
+    }
     
     var regularExpression: RegularExpression {
         
@@ -81,6 +114,7 @@ struct MustAuth {
         
         case get
         case set
+        case mulitpleShare
         
         init?(string: String) {
             
@@ -91,7 +125,10 @@ struct MustAuth {
             case kQueryActionSetValue:
                 
                 self = .set
+            
+            case kQueryActionMulitpleshare:
                 
+                self = .mulitpleShare
             default:
                 
                 return nil
@@ -118,6 +155,8 @@ struct MustAuth {
         let secretData: Data
         
         let url: URL
+        
+        let groups: [String]
         
         init(_ value: String) throws {
             
@@ -193,6 +232,7 @@ struct MustAuth {
             }
             
             let nameAndIssuer = try getNameAndIssuer(queryItems: queryItems, url: url)
+            let groups = queryItems.filter({ $0.name == MustAuth.kQueryGroupKey }).compactMap({$0.value})
             
             self.name = nameAndIssuer.name
             self.issuer = nameAndIssuer.issuer
@@ -203,6 +243,7 @@ struct MustAuth {
             self.secretData = secret
             self.url = newURL
             self.action = action
+            self.groups = groups
         }
     }
     
@@ -226,6 +267,44 @@ struct MustAuth {
     func parsingGetURL() throws -> ParsingGetURL {
         
         return try ParsingGetURL(value: value)
+    }
+    
+    func parsingMulitple() throws -> MulitpleURLParsing {
+        
+        return try MulitpleURLParsing(value)
+    }
+    
+    func getActionEnum() -> ActionEnum? {
+        
+        guard let urlComp = URLComponents(string: value) else {
+            
+            return nil
+        }
+        
+        if let querys = urlComp.queryItems {
+            
+            let actionQuerys = querys.filter({$0.name == MustAuth.kQueryActionKey})
+            
+            //超過兩個的action邏輯
+            if actionQuerys.count == 1 {
+                
+                guard let actionString = actionQuerys[0].value, let actionEnum = MustAuth.ActionEnum(string: actionString) else {
+                    
+                    return nil
+                }
+                return actionEnum
+                
+            } else if actionQuerys.count == 0 {
+                
+                return .set
+            } else {
+                
+                return nil
+            }
+        } else {
+            
+            return nil
+        }
     }
     
     struct ParsingGetURL {
@@ -404,6 +483,17 @@ extension URL {
 }
 
 extension Token {
+    
+    var isOnTime: Bool {
+        
+        if case Generator.Factor.counter = generator.factor {
+            
+            return false
+        } else {
+            
+            return true
+        }
+    }
     
     init?(customURL: URL) {
         

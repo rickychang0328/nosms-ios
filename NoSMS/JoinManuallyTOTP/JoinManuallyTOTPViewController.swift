@@ -181,7 +181,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
             .compactMap({ try? $0.mustAuth.parsingSetURL().secretString })
             .bind(to: joinManuallySectionItems.keyTokenCellViewModel.inputString)
             .disposed(by: disposedBag)
-
+        
         tokenObserver.map({
             
                 if case .timer = $0.generator.factor {
@@ -302,7 +302,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 
                 let addToken = Token(name: account, issuer: issuer, generator: generator)
                 
-                self.tokenStore.addToken(addToken) { (event) in
+                self.tokenStore.addToken(addToken, groupNames: []) { (event) in
                     
                     switch event {
                                            
@@ -410,5 +410,14 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
 
                  }
            }).disposed(by: disposedBag)
+    }
+}
+
+
+extension Data {
+    
+    func getMustAuthSecret() -> String {
+        
+        return MF_Base32Codec.base32String(from: self)
     }
 }
