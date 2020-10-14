@@ -14,8 +14,11 @@ class QRcodeOTPShareViewController: UIViewController {
     var disposedBag: DisposeBag = .init()
     var secondsRemaining = 60
     var pageInex = 1
+    var page = 1
     var otpShareSelectedAccount = [String]()
-    
+    var otpShareSelectedAccountToken = [String]()
+    let fixMustauthURL = "mustauth://mulitpleshare/mulitpleshare?action=mulitpleshare"
+        
     private lazy var exportOTPButton: UIButton = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -24,12 +27,12 @@ class QRcodeOTPShareViewController: UIViewController {
         button.backgroundColor = UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1)
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.addCornerRadius(at: 6)
-        if self.otpShareSelectedAccount.count > 1 {
+        if self.page > 1 {
             button.isHidden = true
         }
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            self.popViewControllerss(popViews: 3)
+            self.popViewControllerss(popViews: 2)
         }).disposed(by: disposedBag)
         return button
     }()
@@ -42,19 +45,20 @@ class QRcodeOTPShareViewController: UIViewController {
         button.backgroundColor = UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1)
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.addCornerRadius(at: 6)
-        if otpShareSelectedAccount.count == 1 {
+        if page == 1 {
             button.isHidden = true
             exportOTPButton.isHidden = false
         }
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             self.pageInex += 1
+            self.setQRcodeImageView(pageindex: self.pageInex)
             self.previousButton.isHidden = false
-            if self.otpShareSelectedAccount.count == self.pageInex {
+            if self.page == self.pageInex {
                 button.isHidden = true
                 self.exportOTPButton.isHidden = false
             }
-            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.otpShareSelectedAccount.count)个二维码"
+            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
         }).disposed(by: disposedBag)
         return button
     }()
@@ -72,11 +76,12 @@ class QRcodeOTPShareViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             self.pageInex -= 1
+            self.setQRcodeImageView(pageindex: self.pageInex)
             self.nextButton.isHidden = false
             if self.self.pageInex == 1 {
                 button.isHidden = true
             }
-            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.otpShareSelectedAccount.count)个二维码"
+            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
         }).disposed(by: disposedBag)
         return button
     }()
@@ -93,12 +98,12 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private lazy var qrCodeIndex: UILabel = {
         let label = UILabel()
-        label.text = "扫描第 \(self.pageInex)/\(self.otpShareSelectedAccount.count)个二维码"
+        label.text = "扫描第 \(self.pageInex)/\(page)个二维码"
         label.font = .pingFangSemiBoldFont(size: 16)
         label.textAlignment = .center
         label.textColor = UIColor.getColor(red: 102, green: 102, blue: 102, alpha: 1)
         label.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
-        if otpShareSelectedAccount.count == 1 {
+        if page == 1 {
             label.isHidden = true
         }
         return label
@@ -141,8 +146,6 @@ class QRcodeOTPShareViewController: UIViewController {
     private lazy var qrCodeImageView: UIImageView = {
         let view = UIImageView()
         view.backgroundColor = UIColor.white
-        view.image = "mustauth://mulitpleshare/mulitpleshare?action=mulitpleshare&mulitpleURL=mustauth://totp/Google:levi@gmail.com?secret%3DHXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ%26issuer%3DGoogle%26algorithm%3DSHA1%26digits%3D6%26period%3D30%26action%3Dset&mulitpleURL=mustauth://totp/Google1:levi@gmail.com?secret%3DHXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ%26issuer%3DGoogle".generateQRCode()
-        view.addCornerRadius(at: 25)
         return view
     }()
     
@@ -150,8 +153,16 @@ class QRcodeOTPShareViewController: UIViewController {
         super.viewDidLoad()
         setNavigate()
         self.navigationItem.title = "扫描二维码"
+        page = self.otpShareSelectedAccount.count / 10
+        if page == 0 {
+           page = 1
+        } else if self.otpShareSelectedAccount.count % 10 > 0 {
+           page += 1
+        }
         setLayOut()
         addNotification()
+        initTokenArray()
+        setQRcodeImageView(pageindex: 1)
         //addTimer()
     }
     
@@ -176,6 +187,37 @@ class QRcodeOTPShareViewController: UIViewController {
             // Fallback on earlier versions
         }
         navigationController?.navigationBar.barTintColor = color
+    }
+    private func initTokenArray() {
+        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+        for account in otpShareSelectedAccount {
+            for token in tokenStore.tokenList {
+                if account == "[\(token.token.issuer)] \(token.token.name)" {
+                    var adapterToken:URL
+                    do {
+                        adapterToken = try token.getMustAuthTokenURL()
+                        otpShareSelectedAccountToken.append(adapterToken.debugDescription)
+                    } catch {
+                        print("User creation failed with error: \(error)")
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    private func setQRcodeImageView(pageindex: Int) {
+        let startIndex = (pageindex - 1) * 10
+        var endIndex = startIndex + 9
+        if endIndex >= otpShareSelectedAccount.count {
+            endIndex = otpShareSelectedAccount.count - 1
+        }
+        var url = fixMustauthURL
+        for index in startIndex...endIndex {
+             let token = otpShareSelectedAccountToken[index]
+             url += "&\(token)"
+        }
+        qrCodeImageView.image = url.generateQRCode()
     }
     
     private func addTimer() {
@@ -213,7 +255,7 @@ class QRcodeOTPShareViewController: UIViewController {
         self.view.addSubview(previousButton)
         self.view.addSubview(qrCodeIndex)
         
-        if otpShareSelectedAccount.count == 1 {
+        if page == 1 {
             exportOTPButton.snp.makeConstraints {
                 $0.bottom.equalToSuperview().offset(ScaleWidth(at: -48))
                 $0.left.equalToSuperview().offset(ScaleWidth(at: 15))

@@ -35,6 +35,8 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
             .setTextColor(.getColor(red: 102, green: 102, blue: 102, alpha: 1))
             .setNumberOfLine(0)
             .setTextAlignment(.center)
+        label.adjustsFontSizeToFitWidth = true
+        label.sizeToFit()
         return label
     }()
     

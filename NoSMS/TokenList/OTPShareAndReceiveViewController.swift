@@ -22,28 +22,6 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            if !BioMetricAuthenticator.shared.faceIDAvailable() && !AuthIDStatusManager.touchIDAvailable() {
-                self.showFaceIDAlert(title: "",
-                                     message: "您的设备尚未开启指纹识别",
-                                     confirmTitle: "设置",
-                                     cancelTitle: "取消", confirmAction: {
-                                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                                            return
-                                        }
-                                        
-                                        if UIApplication.shared.canOpenURL(settingsUrl) {
-                                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                                                print("Settings opened: \(success)")
-                                            })
-                                        }
-                                        
-                                        
-                }, cancelAction: {
-                    
-                })
-                
-                return
-            }
             let context = LAContext()
             context.localizedCancelTitle = "Cancel"
             var error: NSError?

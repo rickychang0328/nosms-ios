@@ -346,6 +346,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.itemClick))
         self.addGestureRecognizer(gesture)
         isShareOTP = true
+        pinImageView.isHidden = true
+        tapGetPasswordButton.isHidden = true
         circleView.alpha = 0
         baseTokenView.passwordLabel.alpha = 0
         baseTokenView.selectImageView.isHidden = false
@@ -988,6 +990,10 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let isPinColor = viewModel?.isPin ?? false ? UIColor.tokenListCellBackCardPinColor : UIColor.tokenListBackCardColor
         swipebackCardView.backgroundColor = isPinColor
         backCardView.backgroundColor = isPinColor
+        if isShareOTP == true {
+            pinImageView.isHidden = true
+            tapGetPasswordButton.isHidden = true
+        }
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {

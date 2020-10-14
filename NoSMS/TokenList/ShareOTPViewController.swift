@@ -8,7 +8,6 @@ import DynamicBlurView
 
 
 class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
-    
     private var groupDisposedBag: DisposeBag = .init()
     private var lifeCycleDisposeBag: DisposeBag = .init()
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
@@ -18,7 +17,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     
     private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
-        
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setImage(.noSmsAdd, for: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 40, height: 25)
@@ -44,7 +42,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     }()
     
     private lazy var exportOTPButton: UIButton = {
-        
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setTitle("导出验证码", for: .normal)
         button.titleLabel?.textColor = .white
@@ -118,7 +115,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     }()
     
     private let bottomView: UIView = {
-        
         let view = UIView()
         view.setBackgroundColor(.tokenListBottomViewBackgroundColor)
         return view
@@ -187,7 +183,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         navigationController?.navigationBar.layer.masksToBounds = false
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
-        
         view.addSubview(searchTextField)
         view.addSubview(customSegmentView)
         view.addSubview(resetSearchButton)
