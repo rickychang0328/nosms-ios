@@ -2,8 +2,20 @@
 import UIKit
 import RxCocoa
 import RxSwift
+import BiometricAuthentication
 
 class NoSMSAlertView: UIView {
+    
+    let bioImageView: UIImageView = {
+        let image = UIImageView()
+        if BioMetricAuthenticator.shared.isFaceIdDevice() {
+            image.image = UIImage(named: "NOSMS_FaceID2")
+        } else {
+            image.image = UIImage(named: "NOSMS_TouchID")
+        }
+        image.isHidden = true
+        return image
+    }()
     
     let cancelButton: UIButton = {
         
@@ -36,7 +48,7 @@ class NoSMSAlertView: UIView {
     }()
     
     let messageLabel: UILabel = {
-           
+        
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 14))
             .setTextColor(.alertTextColor)
@@ -53,6 +65,8 @@ class NoSMSAlertView: UIView {
         addSubview(messageLabel)
         addSubview(cancelButton)
         addSubview(confirmButton)
+        addSubview(confirmButton)
+        addSubview(bioImageView)
         titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
         titleLabel.snp.makeConstraints {
             
@@ -81,6 +95,14 @@ class NoSMSAlertView: UIView {
             $0.top.size.bottom.equalTo(cancelButton)
             $0.right.equalTo(ScaleWidth(at: -12))
         }
+        
+        bioImageView.snp.makeConstraints {
+            
+            $0.top.equalToSuperview().offset(30)
+            $0.centerX.equalToSuperview()
+            $0.height.equalTo(ScaleWidth(at: 40))
+            $0.width.equalTo(ScaleWidth(at: 40))
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -108,11 +130,30 @@ extension UIViewController {
         present(vc, animated: true, completion: nil)
     }
     
+    func showFaceIDAlert(title: String? = nil,
+                         message: String? = nil,
+                         confirmTitle: String = "确认",
+                         cancelTitle: String = "取消",
+                         confirmAction: (() -> Void)? = nil,
+                         cancelAction: (() -> Void)? = nil) {
+        
+        
+        let vc = NoSMSAlertViewController()
+        vc.isOTPShareFaceIDCheck = true
+        vc.showAlertSetting(title: title, message: message, confirmTitle: confirmTitle,
+                            cancelTitle: cancelTitle, confirmAction: confirmAction, cancelAction: cancelAction)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
+    }
+    
     func showAlertOneButton(title: String? = nil,
                             actionTitle: String? = "我知道了",
+                            alertCase: OneButtonAlertCase = .normal,
                             confirmAction: (() -> Void)? = nil) {
         
         let vc = NoSMSAlertOneButtonViewController()
+        vc.alertCase = alertCase
         vc.showAlertSetting(title: title, actionTitle: actionTitle,confirmAction: confirmAction)
         vc.modalPresentationStyle = .overCurrentContext
         vc.modalTransitionStyle = .crossDissolve
@@ -156,14 +197,65 @@ extension UIViewController {
     }
 }
 
-
+class NoSMSScreenShotAlertOneButtonView: UIView {
+    
+    let confirmButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.titleLabel?.setTextAlignment(.center)
+        button.addCornerRadius(at: ScaleWidth(at: 4))
+        button.backgroundColor = .getColor(red: 98, green: 112, blue: 255, alpha: 1)
+        button.setTitle("知道了", for: .normal)
+        return button
+    }()
+    
+    let titleLabel: UILabel = {
+        
+        let label = UILabel()
+        label.text = "此功能用于验证码分享，请不要将二维码发送给他人。"
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setTextColor(.otpScanHintTextColor)
+            .setNumberOfLine(0)
+            .setTextAlignment(.center)
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        backgroundColor = .otpScanHintColor
+        addSubview(titleLabel)
+        addSubview(confirmButton)
+        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
+        titleLabel.snp.makeConstraints {
+            $0.top.equalToSuperview().offset(ScaleWidth(at: 83))
+            $0.left.equalToSuperview().offset(20)
+            $0.right.equalToSuperview().offset(-20)
+            $0.height.equalTo(62)
+        }
+        
+        confirmButton.snp.makeConstraints {
+            
+            $0.height.equalTo(ScaleWidth(at: 42))
+            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 30))
+            $0.left.equalToSuperview().offset(20)
+            $0.right.equalToSuperview().offset(-20)
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
 
 class NoSMSAlertOneButtonView: UIView {
-
+    
+    var oneButtonAlertCase: OneButtonAlertCase = .normal
+    
     let confirmButton: UIButton = {
         
         let button = UIButton()
-//        button.setBackgroundColor(.alertActionButtonBackgroundColor)
         button.setTitleColor(.alertActionButtonBackgroundColor, for: .normal)
         button.titleLabel?.font = .pingFangMediumFont(size: 15)
         button.titleLabel?.setTextAlignment(.center)
@@ -181,40 +273,66 @@ class NoSMSAlertOneButtonView: UIView {
             .setTextAlignment(.center)
         return label
     }()
-
+    
+    func setAlertCase(alertCase: OneButtonAlertCase) {
+        oneButtonAlertCase = alertCase
+    }
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         backgroundColor = .alertsBackgroundColor
         addSubview(titleLabel)
         addSubview(confirmButton)
-        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
-        titleLabel.snp.makeConstraints {
+        
+        switch  oneButtonAlertCase {
+        case .normal:
+            titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
+            titleLabel.snp.makeConstraints {
+                
+                $0.top.equalTo(ScaleWidth(at: 20))
+                $0.centerX.equalToSuperview()
+            }
             
-            $0.top.equalTo(ScaleWidth(at: 20))
-            $0.centerX.equalToSuperview()
+            let underLine = UIView()
+            addSubview(underLine)
+            
+            underLine.snp.makeConstraints {
+                
+                $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 17))
+                $0.left.right.equalToSuperview()
+                $0.height.equalTo(0.5)
+            }
+            
+            underLine.setBackgroundColor(.menuUnderLineColor)
+            
+            confirmButton.snp.makeConstraints {
+                
+                $0.height.equalTo(ScaleWidth(at: 21))
+                $0.top.equalTo(underLine.snp.bottom).offset(ScaleWidth(at: 10))
+                $0.leading.right.equalToSuperview().inset(ScaleWidth(at: 12))
+                $0.bottom.equalToSuperview().offset(ScaleWidth(at: -11))
+                $0.width.equalTo(ScaleWidth(at: 40))
+            }
+        case .screenShot:
+            titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
+            titleLabel.snp.makeConstraints {
+                $0.top.equalToSuperview().offset(ScaleWidth(at: 83))
+                $0.left.equalToSuperview().offset(20)
+                $0.right.equalToSuperview().offset(-20)
+                $0.height.equalTo(62)
+            }
+            
+            confirmButton.snp.makeConstraints {
+                
+                $0.height.equalTo(ScaleWidth(at: 42))
+                $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 30))
+                $0.left.equalToSuperview().offset(20)
+                $0.right.equalToSuperview().offset(-20)
+            }
         }
         
-        let underLine = UIView()
-        addSubview(underLine)
         
-        underLine.snp.makeConstraints {
-            
-            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 17))
-            $0.left.right.equalToSuperview()
-            $0.height.equalTo(0.5)
-        }
-        
-        underLine.setBackgroundColor(.menuUnderLineColor)
-        
-        confirmButton.snp.makeConstraints {
-            
-            $0.height.equalTo(ScaleWidth(at: 21))
-            $0.top.equalTo(underLine.snp.bottom).offset(ScaleWidth(at: 10))
-            $0.leading.right.equalToSuperview().inset(ScaleWidth(at: 12))
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -11))
-            $0.width.equalTo(ScaleWidth(at: 40))
-        }
     }
     
     required init?(coder: NSCoder) {
@@ -224,10 +342,19 @@ class NoSMSAlertOneButtonView: UIView {
 
 class NoSMSAlertOneButtonViewController: UIViewController {
     
+    var alertCase: OneButtonAlertCase = .normal
     let alertView: NoSMSAlertOneButtonView = {
         
         let view = NoSMSAlertOneButtonView(frame: .zero)
         view.setBackgroundColor(.alertsBackgroundColor)
+            .addCornerRadius(at: ScaleWidth(at: 6))
+        //view.oneButtonAlertCase = alertCase
+        return view
+    }()
+    
+    let screenShotAlertView: NoSMSScreenShotAlertOneButtonView = {
+        let view = NoSMSScreenShotAlertOneButtonView(frame: .zero)
+        view.setBackgroundColor(.otpScanHintColor)
             .addCornerRadius(at: ScaleWidth(at: 6))
         return view
     }()
@@ -236,17 +363,27 @@ class NoSMSAlertOneButtonViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         view.addSubview(alertView)
+        view.addSubview(screenShotAlertView)
         
-        alertView.snp.makeConstraints {
-            
-            $0.center.equalToSuperview()
-            $0.width.equalTo(ScaleWidth(at: 276))
-            $0.top.equalTo(40).priorityLow()
-            $0.bottom.equalTo(-40).priorityLow()
+        switch alertCase {
+        case .normal :
+            alertView.snp.makeConstraints {
+                $0.center.equalToSuperview()
+                $0.width.equalTo(ScaleWidth(at: 276))
+                $0.top.equalTo(40).priorityLow()
+                $0.bottom.equalTo(-40).priorityLow()
+            }
+        case .screenShot :
+            screenShotAlertView.snp.makeConstraints {
+                $0.center.equalToSuperview()
+                $0.width.equalTo(ScaleWidth(at: 240))
+                $0.height.equalTo(ScaleWidth(at: 240))
+                self.view.backgroundColor = .clear
+            }
         }
+        
     }
     
     func showAlertSetting(title: String? = nil,
@@ -255,16 +392,28 @@ class NoSMSAlertOneButtonViewController: UIViewController {
         
         alertView.titleLabel.text = title
         alertView.confirmButton.setTitle(actionTitle, for: .normal)
-        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
+        switch alertCase {
+        case .normal:
+            alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                self.dismiss(animated: false, completion: confirmAction)
+            }).disposed(by: disposeBag)
+        case .screenShot:
+            screenShotAlertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
+                
+                guard let self = self else { return }
+                self.dismiss(animated: false, completion: confirmAction)
+            }).disposed(by: disposeBag)
+            
+        }
         
-            guard let self = self else { return }
-            self.dismiss(animated: false, completion: confirmAction)
-        }).disposed(by: disposeBag)
     }
 }
 
 
 class NoSMSAlertViewController: UIViewController {
+    
+    var isOTPShareFaceIDCheck = false
     
     let alertView: NoSMSAlertView = {
         
@@ -282,12 +431,22 @@ class NoSMSAlertViewController: UIViewController {
         view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
         view.addSubview(alertView)
         
-        alertView.snp.makeConstraints {
-            
-            $0.center.equalToSuperview()
-            $0.width.equalTo(ScaleWidth(at: 276))
-            $0.top.equalTo(40).priorityLow()
-            $0.bottom.equalTo(-40).priorityLow()
+        if !isOTPShareFaceIDCheck {
+            alertView.snp.makeConstraints {
+                $0.center.equalToSuperview()
+                $0.width.equalTo(ScaleWidth(at: 276))
+                $0.top.equalTo(40).priorityLow()
+                $0.bottom.equalTo(-40).priorityLow()
+            }
+        } else {
+            alertView.bioImageView.isHidden = false
+            alertView.cancelButton.setBackgroundColor(.alertActionButtonBackgroundColor)
+            alertView.cancelButton.setTitleColor(.white, for: .normal)
+            alertView.snp.makeConstraints {
+                $0.center.equalToSuperview()
+                $0.width.equalTo(ScaleWidth(at: 276))
+                $0.height.equalTo(ScaleWidth(at: 180))
+            }
         }
     }
     
@@ -310,7 +469,7 @@ class NoSMSAlertViewController: UIViewController {
         }).disposed(by: disposeBag)
         
         alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
-        
+            
             guard let self = self else { return }
             self.dismiss(animated: false, completion: confirmAction)
         }).disposed(by: disposeBag)
@@ -328,7 +487,7 @@ class NoSMSHUD {
     }
     
     static var toastLabel: UILabel {
-       
+        
         let label = UILabel()
         label.setFont(.pingFangSemiBoldFont(size: 15))
             .setTextColor(.toastTextColor)
@@ -341,7 +500,7 @@ class NoSMSHUD {
     static var toastLastView: UIView?
     
     static var toastLastLabel: UIView?
-
+    
     static func showToast(title: String,
                           contentView: UIView? = nil,
                           toastSecond: Double = 1,
@@ -375,7 +534,7 @@ class NoSMSHUD {
         toastLabel.setText(title)
         
         toastLabel.snp.makeConstraints {
-                  
+            
             $0.center.equalToSuperview()
         }
         toastView.snp.makeConstraints {
@@ -385,7 +544,7 @@ class NoSMSHUD {
             $0.left.equalTo(toastLabel).offset(ScaleWidth(at: -30))
             $0.right.equalTo(toastLabel).offset(ScaleWidth(at: 30))
         }
-    
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + toastSecond) {
             
             dismiss(toastView: toastView, toastLabel: toastLabel, completion: completion)
@@ -394,7 +553,7 @@ class NoSMSHUD {
     static func dismiss(toastView: UIView? = toastLastView, toastLabel: UIView? = toastLastLabel, completion: (() -> Void)? = nil) {
         
         if toastLabel?.superview != nil {
-           
+            
             toastLabel?.removeFromSuperview()
         }
         
@@ -437,7 +596,7 @@ class NoSMSStreetAlertViewController: UIViewController {
             .setTextAlignment(.left)
         return label
     }()
-
+    
     private let downCancelView: UIView = {
         
         let view = UIView()
@@ -474,7 +633,7 @@ class NoSMSStreetAlertViewController: UIViewController {
         tapGest.rx.event.subscribe(onNext: { [weak self] _ in
             
             self?.dismiss(animated: true, completion: nil)
-            }).disposed(by: disposeBag)
+        }).disposed(by: disposeBag)
         
         downCancelView.snp.makeConstraints {
             
@@ -539,7 +698,7 @@ class NoSMSStreetAlertViewController: UIViewController {
         }).disposed(by: disposeBag)
         
         confirmButton.rx.tap.subscribe(onNext: { [weak self] in
-        
+            
             guard let self = self else { return }
             self.dismiss(animated: false, completion: confirmAction)
         }).disposed(by: disposeBag)
@@ -708,4 +867,9 @@ class NoSMSAlertThreeButtonViewController: UIViewController {
             self.dismiss(animated: false, completion: replaceAction)
         }).disposed(by: disposeBag)
     }
+}
+
+enum OneButtonAlertCase {
+    case normal
+    case screenShot
 }

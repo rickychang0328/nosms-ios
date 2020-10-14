@@ -237,6 +237,8 @@ extension Reactive where Base: UITableViewCell {
 
 class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: BaseViewController<ViewModel>, UITableViewDelegate, UITableViewDataSource {
     
+    var isShareOTP = false
+    
     lazy var tableView: UITableView = {
       
         let tableView = UITableView(frame: .zero, style: self.viewModel.tableViewStyle)
@@ -271,7 +273,7 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cellFactoryType = viewModel.cellViewModels[indexPath.section][indexPath.row].cellFactoryType
-        return cellFactoryType.getCell(tableView: tableView)
+        return cellFactoryType.getCell(tableView: tableView, isShareOTP: isShareOTP)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -370,7 +372,7 @@ private extension TableViewCellFactoryType {
         return .default
     }
     
-    func getCell(tableView: UITableView) -> UITableViewCell {
+    func getCell(tableView: UITableView, isShareOTP: Bool = false) -> UITableViewCell {
 
         switch self {
             
@@ -385,7 +387,9 @@ private extension TableViewCellFactoryType {
                 
                 cell = TokenListTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
             }
-            
+            if isShareOTP {
+                cell.shareOTP()
+            }
             cell.bindData(viewModel: viewModel)
             return cell
             
@@ -503,8 +507,8 @@ private extension TableViewCellFactoryType {
 
 class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableViewDelegate, UITableViewDataSource {
     
-    private let baseTableViewModel: BaseTableViewVCViewModelProtocol
-    
+    let baseTableViewModel: BaseTableViewVCViewModelProtocol
+    var shareOTP = false
     private(set) lazy var tableView: CustomTableView = {
       
         let tableView = CustomTableView(frame: .zero, style: self.baseTableViewModel.tableViewStyle)
@@ -548,7 +552,7 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cellFactoryType = baseTableViewModel.cellViewModels[indexPath.section][indexPath.row].cellFactoryType
-        return cellFactoryType.getCell(tableView: tableView)
+        return cellFactoryType.getCell(tableView: tableView, isShareOTP: shareOTP)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
