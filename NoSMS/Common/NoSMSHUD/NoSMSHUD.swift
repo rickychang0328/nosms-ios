@@ -187,7 +187,7 @@ class NoSMSScreenShotAlertOneButtonView: UIView {
         button.titleLabel?.setTextAlignment(.center)
         button.addCornerRadius(at: ScaleWidth(at: 4))
         button.backgroundColor = .getColor(red: 98, green: 112, blue: 255, alpha: 1)
-        button.setTitle("确定", for: .normal)
+        button.setTitle("知道了", for: .normal)
         return button
     }()
     
@@ -196,7 +196,7 @@ class NoSMSScreenShotAlertOneButtonView: UIView {
         let label = UILabel()
         label.text = "此功能用于验证码分享，请不要将二维码发送给他人。"
         label.setFont(.pingFangMediumFont(size: 15))
-            .setTextColor(.white)
+            .setTextColor(.otpScanHintTextColor)
             .setNumberOfLine(0)
             .setTextAlignment(.center)
         return label
@@ -205,7 +205,7 @@ class NoSMSScreenShotAlertOneButtonView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = .getColor(red: 0, green: 0, blue: 0, alpha: 0.8)
+        backgroundColor = .otpScanHintColor
         addSubview(titleLabel)
         addSubview(confirmButton)
         titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
@@ -335,7 +335,7 @@ class NoSMSAlertOneButtonViewController: UIViewController {
     
     let screenShotAlertView: NoSMSScreenShotAlertOneButtonView = {
         let view = NoSMSScreenShotAlertOneButtonView(frame: .zero)
-        view.setBackgroundColor(.alertsBackgroundColor)
+        view.setBackgroundColor(.otpScanHintColor)
             .addCornerRadius(at: ScaleWidth(at: 6))
         return view
     }()

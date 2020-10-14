@@ -18,26 +18,26 @@ class OTPShareAndReceiveViewController: UIViewController {
     private lazy var exportOTPButton: UIButton = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
-        button.backgroundColor = .white
+        button.backgroundColor = .otpShareReceiveButtonColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             if !BioMetricAuthenticator.shared.faceIDAvailable() && !AuthIDStatusManager.touchIDAvailable() {
                 self.showFaceIDAlert(title: "",
-                               message: "您的设备尚未开启指纹识别",
-                               confirmTitle: "设置",
-                               cancelTitle: "取消", confirmAction: {
-                                guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                                    return
-                                }
-                                
-                                if UIApplication.shared.canOpenURL(settingsUrl) {
-                                    UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                                        print("Settings opened: \(success)")
-                                    })
-                                }
-                                
-                                
+                                     message: "您的设备尚未开启指纹识别",
+                                     confirmTitle: "设置",
+                                     cancelTitle: "取消", confirmAction: {
+                                        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                                            return
+                                        }
+                                        
+                                        if UIApplication.shared.canOpenURL(settingsUrl) {
+                                            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                                print("Settings opened: \(success)")
+                                            })
+                                        }
+                                        
+                                        
                 }, cancelAction: {
                     
                 })
@@ -72,8 +72,9 @@ class OTPShareAndReceiveViewController: UIViewController {
     private lazy var receiveOTPButton: UIButton = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
-        button.backgroundColor = .white
+        button.backgroundColor = .otpShareReceiveButtonColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
+        button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             
@@ -88,9 +89,12 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.setTitle("近期分享记录", for: .normal)
         button.setTitleColor(UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1), for: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
+        button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            
+            let newViewController = OTPShareRecordViewController()
+            newViewController.view.backgroundColor = .tokenListBackgroundColor
+            self.navigationController?.pushViewController(newViewController, animated: true)
         }).disposed(by: disposedBag)
         return button
     }()
@@ -110,7 +114,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         label.text = "导出验证码"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 16)
         label.textAlignment = .left
-        label.textColor = UIColor.getColor(red: 51, green: 51, blue: 51, alpha: 1)
+        label.textColor = .otpShareReceiveButtonTextColor
         label.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         return label
     }()
@@ -120,7 +124,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         label.text = "导入验证码"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 16)
         label.textAlignment = .left
-        label.textColor = UIColor.getColor(red: 51, green: 51, blue: 51, alpha: 1)
+        label.textColor = .otpShareReceiveButtonTextColor
         label.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         return label
     }()
@@ -148,26 +152,26 @@ class OTPShareAndReceiveViewController: UIViewController {
     private lazy var shareOTPImageView: UIImageView = {
         let view = UIImageView()
         view.image = UIImage(named: "NOSMS_sharecodeLightIcon")
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = .clear
         return view
     }()
     
     private lazy var shareOTPRecordImageView: UIImageView = {
         let view = UIImageView()
         view.image = UIImage(named: "NoSMS_historyIcon")
-        view.backgroundColor = UIColor.white
+        view.backgroundColor = UIColor.clear
         return view
     }()
     
     private lazy var exportButtonImageView: UIImageView = {
         let view = UIImageView()
-        view.backgroundColor = UIColor.black
+        view.image = UIImage(named: "NoSMS_narrow")
         return view
     }()
     
     private lazy var receiveButtonImageView: UIImageView = {
         let view = UIImageView()
-        view.backgroundColor = UIColor.black
+        view.image = UIImage(named: "NoSMS_narrow")
         return view
     }()
     
@@ -176,8 +180,44 @@ class OTPShareAndReceiveViewController: UIViewController {
         setLayOut()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        self.navigationItem.title = "验证码分享"
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        navigationController?.navigationBar.barTintColor = .navigationColor
+        self.navigationItem.title = ""
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setNavigate()
+    }
+    
+    func setNavigate() {
+        var color: UIColor
+        if #available(iOS 13.0, *) {
+            
+            if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
+                
+                color = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
+            } else {
+                
+                color = .navColorLight
+            }
+        } else {
+            color = .navColorLight
+            // Fallback on earlier versions
+        }
+        navigationController?.navigationBar.barTintColor = color
+    }
+    
     private func setLayOut() {
         self.navigationItem.title = "验证码分享"
+        self.navigationController?.navigationBar.topItem?.title = ""
+        setNavigate()
         self.view.backgroundColor = .tokenListBackgroundColor
         view.addSubview(shareOTPImageView)
         view.addSubview(topHint)
@@ -200,7 +240,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         }
         
         topHint.snp.makeConstraints {
-            $0.top.equalTo(ScaleWidth(at: 163.5))
+            $0.top.equalTo(shareOTPImageView.snp.bottom).offset(ScaleWidth(at: 20))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 18))
             $0.right.equalToSuperview().offset(ScaleWidth(at: -18))
             $0.height.equalTo(ScaleWidth(at: 80))
@@ -208,7 +248,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         }
         
         exportOTPButton.snp.makeConstraints {
-            $0.top.equalTo(topHint.snp.bottom).offset(ScaleWidth(at: 30))
+            $0.top.equalTo(topHint.snp.bottom).offset(ScaleWidth(at: 0))
             $0.height.equalTo(ScaleWidth(at: 80))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 15))
             $0.right.equalToSuperview().offset(ScaleWidth(at: -15))
@@ -230,7 +270,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         }
         
         exportButtonHint.snp.makeConstraints {
-            $0.centerY.equalTo(exportButtonLabel.snp.bottom).offset( ScaleWidth(at: 11))
+            $0.top.equalTo(exportButtonLabel.snp.bottom).offset(ScaleWidth(at: 11))
             $0.height.equalTo(ScaleWidth(at: 16.5))
             $0.width.equalTo(ScaleWidth(at: 216))
             $0.leading.equalTo(exportOTPButton.snp.leading).offset(21.5)
@@ -238,9 +278,9 @@ class OTPShareAndReceiveViewController: UIViewController {
         
         exportButtonImageView.snp.makeConstraints {
             $0.centerY.equalTo(exportOTPButton.snp.centerY)
-            $0.height.equalTo(ScaleWidth(at: 11))
-            $0.width.equalTo(ScaleWidth(at: 5.5))
-            $0.trailing.equalTo(exportOTPButton.snp.trailing).offset(-16)
+            $0.height.equalTo(ScaleWidth(at: 35))
+            $0.width.equalTo(ScaleWidth(at: 35))
+            $0.trailing.equalTo(exportOTPButton.snp.trailing).offset(-10)
         }
         
         receiveButtonLabel.snp.makeConstraints {
@@ -250,7 +290,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         }
         
         receiveButtonHint.snp.makeConstraints {
-            $0.centerY.equalTo(receiveButtonLabel.snp.bottom).offset( ScaleWidth(at: 11))
+            $0.top.equalTo(receiveButtonLabel.snp.bottom).offset( ScaleWidth(at: 11))
             $0.height.equalTo(ScaleWidth(at: 16.5))
             $0.width.equalTo(ScaleWidth(at: 216))
             $0.leading.equalTo(receiveOTPButton.snp.leading).offset(21.5)
@@ -258,9 +298,9 @@ class OTPShareAndReceiveViewController: UIViewController {
         
         receiveButtonImageView.snp.makeConstraints {
             $0.centerY.equalTo(receiveOTPButton.snp.centerY)
-            $0.height.equalTo(ScaleWidth(at: 11))
-            $0.width.equalTo(ScaleWidth(at: 5.5))
-            $0.trailing.equalTo(receiveOTPButton.snp.trailing).offset(-16)
+            $0.height.equalTo(ScaleWidth(at: 35))
+            $0.width.equalTo(ScaleWidth(at: 35))
+            $0.trailing.equalTo(receiveOTPButton.snp.trailing).offset(-10)
         }
         
         shareOTPRecordImageView.snp.makeConstraints {

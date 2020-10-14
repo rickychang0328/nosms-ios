@@ -14,7 +14,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private var groupVCs: [TokenListGroupViewController] = []
-    private var otpShareSelectedPhone = [String]()
+    private var otpShareSelectedAccount = [String]()
     
     private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
@@ -51,9 +51,19 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         button.backgroundColor = .exportOTPDisableTextColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.isEnabled = false
+        button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
+            let defaults = UserDefaults.standard
+            var shareOTPDicArray:Array = [Dictionary<String, String>]()
+            shareOTPDicArray = defaults.object(forKey: "shareOTPDicArray") as? [[String : String]] ?? [[String : String]]()
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            let time = dateFormatter.string(from: Date())
+            shareOTPDicArray.append(["shareInformation": "导出：\(self.otpShareSelectedAccount.count)个验证码", "time": time])
+            defaults.set(shareOTPDicArray, forKey: "shareOTPDicArray")
             let newViewController = QRcodeOTPShareViewController()
+            newViewController.otpShareSelectedAccount = self.otpShareSelectedAccount
             newViewController.view.backgroundColor = .tokenListBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
         }).disposed(by: disposedBag)
@@ -76,12 +86,17 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
                     self.exportOTPButton.isEnabled = true
                     self.exportOTPButton.backgroundColor = .exportOTPEnableTextColor
                     self.customSegmentView.selectIndex(at: 0)
+                    let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+                    self.otpShareSelectedAccount.removeAll()
+                    for token in tokenStore.tokenList {
+                        self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+                    }
                 } else {
                     NotificationCenter.default.post(name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil, userInfo: ["selectAll": false])
                     button.setTitle("全选", for: .normal)
                     self.exportOTPButton.isEnabled = false
                     self.exportOTPButton.backgroundColor = .exportOTPDisableTextColor
-                    self.otpShareSelectedPhone.removeAll()
+                    self.otpShareSelectedAccount.removeAll()
                 }
             }).disposed(by: disposedBag)
         
@@ -541,15 +556,15 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     }
     
     @objc func receivedOTPNotification(notification: Notification) {
-        let phone = notification.userInfo?["phone"] as? String ?? ""
-        if otpShareSelectedPhone.contains(phone) {
-            if let index = otpShareSelectedPhone.firstIndex(of: phone) {
-                otpShareSelectedPhone.remove(at: index)
+        let name = notification.userInfo?["name"] as? String ?? ""
+        if otpShareSelectedAccount.contains(name) {
+            if let index = otpShareSelectedAccount.firstIndex(of: name) {
+                otpShareSelectedAccount.remove(at: index)
             }
         } else {
-             otpShareSelectedPhone.append(phone)
+             otpShareSelectedAccount.append(name)
         }
-        if otpShareSelectedPhone.isEmpty {
+        if otpShareSelectedAccount.isEmpty {
             exportOTPButton.isEnabled = false
             exportOTPButton.backgroundColor = .exportOTPDisableTextColor
         } else {
@@ -848,7 +863,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        self.navigationItem.title = "选择验证码"
         wantToShowHomePageOrNot()
         
         viewModel.intoAppPastedAction.subscribe(onNext: { [weak self] pastedString in
@@ -926,7 +941,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+         self.navigationItem.title = ""
         lifeCycleDisposeBag = .init()
     }
     

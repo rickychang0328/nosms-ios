@@ -13,8 +13,8 @@ class QRcodeOTPShareViewController: UIViewController {
     
     var disposedBag: DisposeBag = .init()
     var secondsRemaining = 60
-    var page = 1
     var pageInex = 1
+    var otpShareSelectedAccount = [String]()
     
     private lazy var exportOTPButton: UIButton = {
         
@@ -24,7 +24,7 @@ class QRcodeOTPShareViewController: UIViewController {
         button.backgroundColor = UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1)
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.addCornerRadius(at: 6)
-        if self.page > 1 {
+        if self.otpShareSelectedAccount.count > 1 {
             button.isHidden = true
         }
         button.rx.tap.subscribe(onNext: { [weak self] _ in
@@ -42,7 +42,7 @@ class QRcodeOTPShareViewController: UIViewController {
         button.backgroundColor = UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1)
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.addCornerRadius(at: 6)
-        if page == 1 {
+        if otpShareSelectedAccount.count == 1 {
             button.isHidden = true
             exportOTPButton.isHidden = false
         }
@@ -50,11 +50,11 @@ class QRcodeOTPShareViewController: UIViewController {
             guard let self = self else { return }
             self.pageInex += 1
             self.previousButton.isHidden = false
-            if self.page == self.pageInex {
+            if self.otpShareSelectedAccount.count == self.pageInex {
                 button.isHidden = true
                 self.exportOTPButton.isHidden = false
             }
-            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
+            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.otpShareSelectedAccount.count)个二维码"
         }).disposed(by: disposedBag)
         return button
     }()
@@ -76,7 +76,7 @@ class QRcodeOTPShareViewController: UIViewController {
             if self.self.pageInex == 1 {
                 button.isHidden = true
             }
-            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
+            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.otpShareSelectedAccount.count)个二维码"
         }).disposed(by: disposedBag)
         return button
     }()
@@ -93,12 +93,12 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private lazy var qrCodeIndex: UILabel = {
         let label = UILabel()
-        label.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
+        label.text = "扫描第 \(self.pageInex)/\(self.otpShareSelectedAccount.count)个二维码"
         label.font = .pingFangSemiBoldFont(size: 16)
         label.textAlignment = .center
         label.textColor = UIColor.getColor(red: 102, green: 102, blue: 102, alpha: 1)
         label.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
-        if page == 1 {
+        if otpShareSelectedAccount.count == 1 {
             label.isHidden = true
         }
         return label
@@ -121,6 +121,7 @@ class QRcodeOTPShareViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let view = ShareSelectedOTPViewController()
+            view.otpValueArray = self.otpShareSelectedAccount
             view.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
                 guard let self = self else { return }
                 view.view.removeFromSuperview()
@@ -147,11 +148,34 @@ class QRcodeOTPShareViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        setNavigate()
         self.navigationItem.title = "扫描二维码"
         setLayOut()
         addNotification()
-        
         //addTimer()
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+           super.traitCollectionDidChange(previousTraitCollection)
+           setNavigate()
+       }
+    
+    func setNavigate() {
+        var color: UIColor
+        if #available(iOS 13.0, *) {
+            
+            if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
+                
+                color = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
+            } else {
+                
+                color = .navColorLight
+            }
+        } else {
+            color = .navColorLight
+            // Fallback on earlier versions
+        }
+        navigationController?.navigationBar.barTintColor = color
     }
     
     private func addTimer() {
@@ -189,7 +213,7 @@ class QRcodeOTPShareViewController: UIViewController {
         self.view.addSubview(previousButton)
         self.view.addSubview(qrCodeIndex)
         
-        if page == 1 {
+        if otpShareSelectedAccount.count == 1 {
             exportOTPButton.snp.makeConstraints {
                 $0.bottom.equalToSuperview().offset(ScaleWidth(at: -48))
                 $0.left.equalToSuperview().offset(ScaleWidth(at: 15))
@@ -302,7 +326,7 @@ class ShareSelectedOTPViewController: UIViewController, UITableViewDelegate, UIT
     private let disposeBag: DisposeBag = .init()
     var tableView = UITableView()
     
-    var otpValueArray = ["0901910102","0901910102","0901910102","0901910102","0901910102","0901910102","0901910102",]
+    var otpValueArray = [""]
     
     let containerView: UIView = {
         let view = UIView()
@@ -343,6 +367,7 @@ class ShareSelectedOTPViewController: UIViewController, UITableViewDelegate, UIT
         tableView.delegate = self
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
+        tableView.allowsSelection = false
         containerView.addSubview(tableView)
         containerView.addSubview(titleLabel)
         containerView.addSubview(confirmButton)

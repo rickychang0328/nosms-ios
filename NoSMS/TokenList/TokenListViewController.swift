@@ -2062,6 +2062,12 @@ class EditControllView: UIView {
         return label
     }()
     
+    private let shareOTPImage: UIImageView = {
+             
+           let label = UIImageView(image: UIImage(named: "NoSMS_share"))
+           return label
+    }()
+    
     private let editGroupLabel: UILabel = {
          
          let label = UILabel()
@@ -2109,6 +2115,7 @@ class EditControllView: UIView {
         backImageView.addSubview(editCodeImage)
         backImageView.addSubview(editCodeLabel)
         backImageView.addSubview(editGroupImage)
+        backImageView.addSubview(shareOTPImage)
         backImageView.addSubview(editGroupLabel)
         backImageView.addSubview(shareOTPLabel)
         addSubview(editCodeButton)
@@ -2168,11 +2175,18 @@ class EditControllView: UIView {
             $0.left.equalTo(editCodeLabel)
             $0.centerY.equalTo(editGroupImage)
         }
+        
 
         editGroupImage.snp.makeConstraints {
 
             $0.left.size.equalTo(editCodeImage)
             $0.top.equalTo(editCodeImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
+        }
+        
+        shareOTPImage.snp.makeConstraints {
+
+            $0.left.size.equalTo(editCodeImage)
+            $0.top.equalTo(editGroupImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
         }
         
         shareOTPLabel.snp.makeConstraints {

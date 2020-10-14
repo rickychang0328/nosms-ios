@@ -6,6 +6,7 @@ import RxSwift
 protocol TokenStoreProtocol {
     
     var tokenIsEmpty: Bool { get }
+    var tokenList: [AdapterTokenProtocol] { get } 
     var pinEvent: PublishSubject<KeychainTokenStore.PinListEvent> { get }
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
     var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
@@ -384,6 +385,11 @@ extension KeychainTokenStore: TokenStoreProtocol {
     var tokenIsEmpty: Bool {
         
         return adapterTokens.isEmpty
+    }
+    
+    var tokenList: [AdapterTokenProtocol]  {
+           
+        return adapterTokens
     }
     
     func deleteToken(index: Int) throws {

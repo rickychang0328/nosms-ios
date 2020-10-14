@@ -354,11 +354,26 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     
     @objc func itemClick(sender : UITapGestureRecognizer) {
+//        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+//
+//        let token = tokenStore.tokenList[0]
+//
+//        var adapterToken:URL
+//        do {
+//            adapterToken = try token.getMustAuthTokenURL()
+//        } catch {
+//            print("User creation failed with error: \(error)")
+//        }
+        let phone = self.baseTokenView.nameLabel.text ?? ""
+        let issuer = baseTokenView.issuerLabel.text ?? ""
+        let name = "[\(issuer)] \(phone)"
+
+       
         if baseTokenView.selectImageView.image == UIImage(named: "NoSMS_oval") {
-            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["phone": self.baseTokenView.nameLabel.text ?? "", "isSelect": true])
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": true])
             baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
         } else {
-            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["phone": self.baseTokenView.nameLabel.text ?? "", "isSelect": false])
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": false])
             baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
         }
       
@@ -727,10 +742,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     @objc func otpNotificationIdentifier(notification: Notification) {
         
-        let phone = notification.userInfo?["phone"] as? String
+        let name = notification.userInfo?["name"] as? String
         let isSelect = notification.userInfo?["isSelect"] as? Bool ?? false
+        let accountName = "[\(baseTokenView.issuerLabel.text!)] \(nameTextField.text!)"
          
-        if phone == nameTextField.text {
+        if accountName == name {
             if isSelect {
                  baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
             } else {
