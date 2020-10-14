@@ -14,7 +14,7 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
     private let disposeBag: DisposeBag = .init()
     var tableView = UITableView()
     
-    var otpValueDicArray: [ShareRecordObject] = ShareRecordStoreManager().getAllRecord()
+    var otpValueDicArray: [ShareRecordObject] = ShareRecordStoreManager().getAllRecord().reversed()
     let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .getColor(red: 41, green: 44, blue: 68, alpha: 1)
