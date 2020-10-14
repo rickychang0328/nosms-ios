@@ -17,6 +17,7 @@ class QRcodeOTPShareViewController: UIViewController {
     var page = 1
     var otpShareSelectedAccount = [String]()
     var otpShareSelectedAccountToken = [String]()
+    var timer : Timer?
    
     private lazy var exportOTPButton: UIButton = {
         
@@ -148,6 +149,11 @@ class QRcodeOTPShareViewController: UIViewController {
         return view
     }()
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(true)
+        timer?.invalidate()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigate()
@@ -231,7 +237,7 @@ class QRcodeOTPShareViewController: UIViewController {
     }
     
     private func addTimer() {
-        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { (Timer) in
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { (Timer) in
             if self.secondsRemaining > 0 {
                 self.secondsRemaining -= 1
                 if self.secondsRemaining >= 10 {
@@ -240,7 +246,7 @@ class QRcodeOTPShareViewController: UIViewController {
                     self.timeCount.text = "00:0"+self.secondsRemaining.description+" 请在倒数计时结束前完成扫码"
                 }
             } else {
-                Timer.invalidate()
+                self.timer?.invalidate()
                 self.popViewControllerss(popViews: 2)
             }
         }
