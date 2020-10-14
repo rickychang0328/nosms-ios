@@ -176,6 +176,25 @@ extension UIViewController {
         vc.modalTransitionStyle = .crossDissolve
         present(vc, animated: true, completion: nil)
     }
+    
+    func showReplaceAlert(message: String,
+                          confirmAction: (() -> Void)? = nil,
+                          replaceAction: (() -> Void)? = nil,
+                          cancelAction: (() -> Void)? = nil) {
+        
+        let vc = NoSMSAlertThreeButtonViewController()
+        vc.showAlertSetting(title: "验证码已存在，请确认导入",
+                            message: message,
+                            confirmTitle: "保留两者",
+                            replaceTitle: "替换",
+                            cancelTitle: "取消",
+                            confirmAction: confirmAction,
+                            replaceAction: replaceAction,
+                            cancelAction: cancelAction)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
+    }
 }
 
 class NoSMSScreenShotAlertOneButtonView: UIView {
@@ -682,6 +701,170 @@ class NoSMSStreetAlertViewController: UIViewController {
             
             guard let self = self else { return }
             self.dismiss(animated: false, completion: confirmAction)
+        }).disposed(by: disposeBag)
+    }
+}
+
+class NoSMSAlertThreeButtonView: UIView {
+    
+    let cancelButton: UIButton = {
+        
+        let button = UIButton()
+        button.setBackgroundColor(.alertCancelButtonBackgroundColor)
+        button.setTitleColor(.alertCancelButtonTextColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 14)
+        button.addCornerRadius(at: ScaleWidth(at: 4))
+        return button
+    }()
+    
+    let confirmButton: UIButton = {
+        
+        let button = UIButton()
+        button.setBackgroundColor(.alertActionButtonBackgroundColor)
+        button.setTitleColor(.alertActionButtonTextColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 14)
+        button.addCornerRadius(at: ScaleWidth(at: 4))
+        return button
+    }()
+    
+    let replaceButton: UIButton = {
+        
+        let button = UIButton()
+        button.setBackgroundColor(.alertActionButtonBackgroundColor)
+        button.setTitleColor(.alertActionButtonTextColor, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 14)
+        button.addCornerRadius(at: ScaleWidth(at: 4))
+        return button
+    }()
+
+    let titleLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangSemiBoldFont(size: 15))
+            .setTextColor(.alertTextColor)
+            .setNumberOfLine(0)
+            .setTextAlignment(.left)
+        return label
+    }()
+    
+    let messageLabel: UILabel = {
+           
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 14))
+            .setTextColor(.circleViewBackColorLight)
+            .setNumberOfLine(0)
+            .setTextAlignment(.center)
+        return label
+    }()
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        backgroundColor = .alertsBackgroundColor
+        addSubview(titleLabel)
+        addSubview(messageLabel)
+        addSubview(replaceButton)
+        addSubview(cancelButton)
+        addSubview(confirmButton)
+        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
+        titleLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 25))
+            $0.centerX.equalToSuperview()
+        }
+        
+        messageLabel.preferredMaxLayoutWidth = ScaleWidth(at: 240)
+        messageLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 15))
+            $0.centerX.equalToSuperview()
+        }
+        
+        confirmButton.snp.makeConstraints {
+            
+            $0.left.right.equalToSuperview().inset(ScaleWidth(at: 10.5))
+            $0.height.equalTo(ScaleWidth(at: 37))
+//            $0.width.equalTo(ScaleWidth(at: 255))
+            $0.top.equalTo(messageLabel.snp.bottom).offset(ScaleWidth(at: 25))
+        }
+        
+        replaceButton.snp.makeConstraints {
+            
+            $0.left.right.height.equalTo(confirmButton)
+            $0.top.equalTo(confirmButton.snp.bottom).offset(ScaleWidth(at: 10))
+        }
+        
+        cancelButton.snp.makeConstraints {
+            
+            $0.left.right.height.equalTo(confirmButton)
+            $0.top.equalTo(replaceButton.snp.bottom).offset(ScaleWidth(at: 10))
+            $0.bottom.equalTo(ScaleWidth(at: -10.5))
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class NoSMSAlertThreeButtonViewController: UIViewController {
+    
+    let alertView: NoSMSAlertThreeButtonView = {
+        
+        let view = NoSMSAlertThreeButtonView(frame: .zero)
+        view.setBackgroundColor(.alertsBackgroundColor)
+            .addCornerRadius(at: ScaleWidth(at: 6))
+        return view
+    }()
+    
+    private let disposeBag: DisposeBag = .init()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
+        view.addSubview(alertView)
+        
+        alertView.snp.makeConstraints {
+            
+            $0.center.equalToSuperview()
+            $0.width.equalTo(ScaleWidth(at: 276))
+            $0.top.equalTo(40).priorityLow()
+            $0.bottom.equalTo(-40).priorityLow()
+        }
+    }
+    
+    func showAlertSetting(title: String? = nil,
+                          message: String? = nil,
+                          confirmTitle: String = "ok",
+                          replaceTitle: String,
+                          cancelTitle: String = "取消",
+                          confirmAction: (() -> Void)? = nil,
+                          replaceAction: (() -> Void)? = nil,
+                          cancelAction: (() -> Void)? = nil) {
+        
+        
+        alertView.titleLabel.text = title
+        alertView.messageLabel.text = message
+        alertView.replaceButton.setTitle(replaceTitle, for: .normal)
+        alertView.cancelButton.setTitle(cancelTitle, for: .normal)
+        alertView.confirmButton.setTitle(confirmTitle, for: .normal)
+        alertView.cancelButton.rx.tap.subscribe(onNext: { [weak self] in
+            
+            guard let self = self else { return }
+            self.dismiss(animated: false, completion: cancelAction)
+        }).disposed(by: disposeBag)
+        
+        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
+        
+            guard let self = self else { return }
+            self.dismiss(animated: false, completion: confirmAction)
+        }).disposed(by: disposeBag)
+        
+        alertView.replaceButton.rx.tap.subscribe(onNext: { [weak self] in
+            
+            guard let self = self else { return }
+            self.dismiss(animated: false, completion: replaceAction)
         }).disposed(by: disposeBag)
     }
 }

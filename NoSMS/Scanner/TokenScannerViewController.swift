@@ -92,8 +92,9 @@ enum TokenEvent {
     
     case start
     case error(Error)
-    case endScanTask
+    case endScanTask(toast: String)
     case alertAction(title: String, message: String, completion: () -> Void)
+    case replaceAlertAction(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
 }
 
 protocol TokenScannerVCViewModelProtocol: BaseVCViewModelProtocol {
@@ -138,23 +139,46 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                 self.eventResult.onNext(.error(error))
             case .getQRCodeString(let string):
                 
-                self.tokenStore.addTokenWith(urlString: string, eventHandler: { [weak self] event in
-                        
-                    guard let self = self else { return }
+                if let mulitpleURL = try? string.mustAuth.parsingMulitple() {
                     
-                    switch event {
+                    self.tokenStore.mulitpleShareURLAction(urlString: mulitpleURL.urlStrings, eventHandler: { [weak self] event in
                         
-                    case .addSuccess:
+                        guard let self = self else { return }
+                        switch event {
                         
-                        self.eventResult.onNext(.endScanTask)
-                    case .haveTheSame(title: let title, message: let message, completion: let completion):
+                        case .success(toast: let toast):
+                            
+                            self.eventResult.onNext(.endScanTask(toast: toast))
+                        case .error(error: let error):
+                            
+                            self.eventResult.onNext(.error(error))
+                        case .haveSameToken(message: let message, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
                         
-                        self.eventResult.onNext(.alertAction(title: title, message: message, completion: completion))
-                    case .addError(let error):
+                            self.eventResult.onNext(.replaceAlertAction(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
                         
-                        self.eventResult.onNext(.error(error))
-                    }
-                })
+                        }
+                        
+                    })
+                } else {
+                    
+                    self.tokenStore.addTokenWith(urlString: string, eventHandler: { [weak self] event in
+                        
+                        guard let self = self else { return }
+                        
+                        switch event {
+                        
+                        case .addSuccess:
+                            
+                            self.eventResult.onNext(.endScanTask(toast: "识别成功！"))
+                        case .haveTheSame(title: let title, message: let message, completion: let completion):
+                            
+                            self.eventResult.onNext(.alertAction(title: title, message: message, completion: completion))
+                        case .addError(let error):
+                            
+                            self.eventResult.onNext(.error(error))
+                        }
+                    })
+                }
             }
         }).disposed(by: disposedBag)
     }
@@ -226,9 +250,9 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
             case .error(let error):
                 print(error)
                 self.errorAlertHandler()
-            case .endScanTask:
+            case .endScanTask(toast: let toast):
                 
-                NoSMSHUD.showToast(title: "识别成功！") { [weak self] in
+                NoSMSHUD.showToast(title: toast) { [weak self] in
                     
                     self?.navigationController?.popViewController(animated: true)
                 }
@@ -238,6 +262,11 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
                     self?.viewModel.startScan()
                 }
                 
+            case .replaceAlertAction(message: let message, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
+                
+                self.showReplaceAlert(message: message, confirmAction: newAddHandler, replaceAction: replaceHandler, cancelAction: { [weak self] in
+                    self?.viewModel.startScan()
+                })
             }
         }).disposed(by: disposedBag)
         

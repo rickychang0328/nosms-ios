@@ -19,6 +19,7 @@ protocol TokenStoreProtocol {
     func addTokenWith(urlString: String, eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
     func resetTokenSelected()
     func deleteSelectedToken() throws
+    func mulitpleShareURLAction(urlString: [String], eventHandler: @escaping (KeychainTokenStore.MulitpleShareEvent) -> Void)
 }
 
 protocol AdapterTokenProtocol {
@@ -219,7 +220,9 @@ class AdapterToken: AdapterTokenProtocol {
             .filter({ $0.tokens.contains(tokenID)})
             .map({$0.title})
             .map({URLQueryItem(name: "qroup", value: $0)})
-        urlComponents?.queryItems = baseQuerys + filtergroupsQuery
+        let secret = token.generator.secret.getMustAuthSecret()
+        let secretQuery = URLQueryItem(name: MustAuth.kQuerySecretKey, value: secret)
+        urlComponents?.queryItems = baseQuerys + filtergroupsQuery + [secretQuery]
         urlComponents?.scheme = MustAuth.kMustAuthScheme
         guard let result = urlComponents?.url else {
             
@@ -316,6 +319,24 @@ class KeychainTokenStore {
                             let generator = tokenArray[index].token.generator
                             let issuer = tokenArray[index].token.issuer
                             let newToken = Token(name: newName, issuer: issuer, generator: generator)
+                            
+                            try? self.saveToken(newToken, toPersistentToken: tokenArray[index].persistentToken)
+                            tokenArray[index].changeNewToken(token: newToken)
+                        }
+                    }).disposed(by: self.disposeBag)
+                }
+                
+                let issuerArray = tokenArray.map({$0.issuer})
+                
+                for index in issuerArray.indices {
+                    
+                    issuerArray[index].subscribe(onNext: { newIssuer in
+                        
+                        if self.persistentTokens[index].token.issuer != newIssuer {
+                            
+                            let generator = tokenArray[index].token.generator
+                            let name = tokenArray[index].token.name
+                            let newToken = Token(name: name, issuer: newIssuer, generator: generator)
                             
                             try? self.saveToken(newToken, toPersistentToken: tokenArray[index].persistentToken)
                             tokenArray[index].changeNewToken(token: newToken)
@@ -582,8 +603,8 @@ extension KeychainTokenStore: TokenStoreProtocol {
     
     enum MulitpleShareEvent {
         
-        case success
-        case haveSameToken(replaceHandler: () -> Void, newAddHandler: () -> Void)
+        case success(toast: String)
+        case haveSameToken(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
         case error(error: Error)
     }
     
@@ -615,7 +636,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
             return result
         })
         
-        guard mulitpleShareTokens.count != urlString.count else {
+        guard mulitpleShareTokens.count == urlString.count else {
             
             eventHandler(.error(error: NoSMSError.urlError))
             return
@@ -642,8 +663,10 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     return
                 }
             }
-            eventHandler(.success)
+            let toast = "已导入\(mulitpleShareTokens.count)个验证码"
+            eventHandler(.success(toast: toast))
         }
+        
         if dontHaveSame {
             
             mulitpleShareNewSaveHandler()
@@ -657,19 +680,72 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     
                     for index in filterToken.indices {
                         
-                        filterToken[index].changeNamePlus(index: "\(index + 1)")
+                        var plustValue = "\(index + 1)"
+                        
+                        while !self.getSameTokensWithType(name: filterToken[index].token.name + plustValue, issuer: filterToken[index].token.issuer, isOnTime: filterToken[index].token.isOnTime).isEmpty {
+                            
+                            plustValue += "1"
+                        }
+                        filterToken[index].changeNamePlus(index: plustValue)
                     }
                 }
                 mulitpleShareNewSaveHandler()
             }
-            newAddHandler()
-            
-            for mulitpleShareToken in mulitpleShareTokens {
+            let replaceHandler = {
                 
-                let sameTokens = sameTokens.filter({ $0.token.name == mulitpleShareToken.token.name && $0.token.issuer == mulitpleShareToken.token.issuer && $0.token.isOnTime == mulitpleShareToken.token.isOnTime })
-                //TODO:
-                
+                for mulitpleShareToken in mulitpleShareTokens {
+                    
+                    let sameTokens = sameTokens.filter({ $0.token.name == mulitpleShareToken.token.name && $0.token.issuer == mulitpleShareToken.token.issuer && $0.token.isOnTime == mulitpleShareToken.token.isOnTime })
+                    
+                    let samePersistentTokens = sameTokens.map({ $0.persistentToken })
+                    for samePersistentToken in samePersistentTokens {
+                        
+                        do {
+                            
+                            try self.saveToken(mulitpleShareToken.token, toPersistentToken: samePersistentToken)
+                            mulitpleShareToken.isAdded = true
+                        } catch {
+                            
+                            eventHandler(.error(error: error))
+                            return
+                        }
+                    }
+                }
+                mulitpleShareNewSaveHandler()
             }
+            
+            var filterTokens: [KeychainTokenStore.MulitpleShareToken] = []
+            
+            for sameToken in sameTokens {
+                
+                let filterToken = mulitpleShareTokens.filter({ $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime})
+                
+                if filterTokens.contains(where: { $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime }) {
+                    
+                } else {
+                    
+                    filterTokens += filterToken
+                }
+            }
+            
+            var message: String = ""
+            
+            for index in filterTokens.indices {
+                
+                if index == 0 {
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    
+                } else if index > 2 {
+                    
+                    message += "\n..."
+                    break
+                } else {
+                    
+                    message += "\n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                }
+            }
+            
+            eventHandler(.haveSameToken(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
         }
     }
 }
