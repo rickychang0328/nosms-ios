@@ -42,6 +42,7 @@ enum DeserializationError: Error {
 
 struct MustAuth {
     
+    static let kQuerySecretKey = "secret"
     static let kQueryActionKey = "action"
     static let kQueryActionGetValue = "get"
     static let kQueryActionSetValue = "set"

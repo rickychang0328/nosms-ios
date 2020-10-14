@@ -412,3 +412,12 @@ class JoinManuallyTOTPTypeViewController<ViewModel: JoinManuallyVCViewModelProto
            }).disposed(by: disposedBag)
     }
 }
+
+
+extension Data {
+    
+    func getMustAuthSecret() -> String {
+        
+        return MF_Base32Codec.base32String(from: self)
+    }
+}
