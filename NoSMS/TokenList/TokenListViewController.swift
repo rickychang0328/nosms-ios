@@ -955,6 +955,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 return
             }
             let newViewController = OTPShareAndReceiveViewController()
+            newViewController.view.backgroundColor = .tokenListBackgroundColor
             guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
             navigationController.pushViewController(newViewController, animated: true)
             self.editControllView.isHidden = true

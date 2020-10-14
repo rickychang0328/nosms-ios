@@ -162,7 +162,7 @@ class QRcodeOTPShareViewController: UIViewController {
         addNotification()
         initTokenArray()
         setQRcodeImageView(pageindex: 1)
-        //addTimer()
+        addTimer()
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
