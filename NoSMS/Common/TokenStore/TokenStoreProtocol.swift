@@ -6,11 +6,12 @@ import RxSwift
 protocol TokenStoreProtocol {
     
     var tokenIsEmpty: Bool { get }
+    var tokenList: [AdapterTokenProtocol] { get } 
     var pinEvent: PublishSubject<KeychainTokenStore.PinListEvent> { get }
     var persistentTokensBehavior: BehaviorSubject<[AdapterTokenProtocol]>  { get }
     var haveSelectTokenToDelete: BehaviorSubject<Bool> { get }
  
-    func addToken(_ token: Token, eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
+    func addToken(_ token: Token, groupNames: [String], eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
     func saveToken(_ token: Token, toPersistentToken persistentToken: PersistentToken) throws
     func updatePersistentToken(_ persistentToken: PersistentToken) throws
     func moveTokenFromIndex(_ origin: Int, toIndex destination: Int) throws
@@ -18,6 +19,7 @@ protocol TokenStoreProtocol {
     func addTokenWith(urlString: String, eventHandler: @escaping (KeychainTokenStore.AddTokenEvent) -> Void)
     func resetTokenSelected()
     func deleteSelectedToken() throws
+    func mulitpleShareURLAction(urlString: [String], eventHandler: @escaping (KeychainTokenStore.MulitpleShareEvent) -> Void)
 }
 
 protocol AdapterTokenProtocol {
@@ -44,7 +46,7 @@ protocol AdapterTokenProtocol {
     func changeNewToken(token: Token)
     func addPin()
     func removePin()
-    
+    func getMustAuthTokenURL() throws -> URL
 }
 
 class AdapterToken: AdapterTokenProtocol {
@@ -206,6 +208,28 @@ class AdapterToken: AdapterTokenProtocol {
         
         self.token = token
     }
+    //MARK: 拿 MustAuth 帶有 group 的 URL
+    func getMustAuthTokenURL() throws -> URL {
+        
+        let tokenURL = try token.toURL()
+        var urlComponents = URLComponents(url: tokenURL, resolvingAgainstBaseURL: true)
+        let baseQuerys = urlComponents?.queryItems ?? []
+        let groups = KeychainTokenStore.shared.groupList
+        let tokenID = uuid
+        let filtergroupsQuery = groups
+            .filter({ $0.tokens.contains(tokenID)})
+            .map({$0.title})
+            .map({URLQueryItem(name: "qroup", value: $0)})
+        let secret = token.generator.secret.getMustAuthSecret()
+        let secretQuery = URLQueryItem(name: MustAuth.kQuerySecretKey, value: secret)
+        urlComponents?.queryItems = baseQuerys + filtergroupsQuery + [secretQuery]
+        urlComponents?.scheme = MustAuth.kMustAuthScheme
+        guard let result = urlComponents?.url else {
+            
+            throw NoSMSError.urlError
+        }
+        return result
+    }
 }
 
 class KeychainTokenStore {
@@ -301,6 +325,24 @@ class KeychainTokenStore {
                         }
                     }).disposed(by: self.disposeBag)
                 }
+                
+                let issuerArray = tokenArray.map({$0.issuer})
+                
+                for index in issuerArray.indices {
+                    
+                    issuerArray[index].subscribe(onNext: { newIssuer in
+                        
+                        if self.persistentTokens[index].token.issuer != newIssuer {
+                            
+                            let generator = tokenArray[index].token.generator
+                            let name = tokenArray[index].token.name
+                            let newToken = Token(name: name, issuer: newIssuer, generator: generator)
+                            
+                            try? self.saveToken(newToken, toPersistentToken: tokenArray[index].persistentToken)
+                            tokenArray[index].changeNewToken(token: newToken)
+                        }
+                    }).disposed(by: self.disposeBag)
+                }
             })
     }
     
@@ -329,7 +371,6 @@ class KeychainTokenStore {
         
         adapterTokens = persistentTokens.map{ AdapterToken(persistentToken: $0, observerTimer: timerObserver) }
         persistentTokensBehavior.onNext(adapterTokens)
-
         if persistentTokens.count > sortedIdentifiers.count {
             // If lost tokens were found and appended, save the full list of tokens
             saveTokenOrder()
@@ -357,6 +398,7 @@ class KeychainTokenStore {
 enum KeyChainTokenError: Error {
     case cannotCreatURL
     case cannotCreatToken
+    case groupsError
 }
 
 extension KeychainTokenStore: TokenStoreProtocol {
@@ -364,6 +406,11 @@ extension KeychainTokenStore: TokenStoreProtocol {
     var tokenIsEmpty: Bool {
         
         return adapterTokens.isEmpty
+    }
+    
+    var tokenList: [AdapterTokenProtocol]  {
+           
+        return adapterTokens
     }
     
     func deleteToken(index: Int) throws {
@@ -417,31 +464,26 @@ extension KeychainTokenStore: TokenStoreProtocol {
             eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
             return
         }
-        addToken(token, eventHandler: eventHandler)
+        
+        guard let groupNames = try? urlComfirm.mustAuth.parsingSetURL().groups else {
+            
+            eventHandler(.addError(KeyChainTokenError.groupsError))
+            return
+        }
+        
+        addToken(token, groupNames: groupNames, eventHandler: eventHandler)
     }
     
     // MARK: Actions
 
-    func addToken(_ token: Token, eventHandler: @escaping (AddTokenEvent) -> Void) {
+    func addToken(_ token: Token, groupNames: [String], eventHandler: @escaping (AddTokenEvent) -> Void) {
         
         let haveSameToken = persistentTokens.map({$0.token}).contains(where: {$0.name == token.name && $0.issuer == token.issuer})
         
-        if haveSameToken {
-            
-            eventHandler(.haveTheSame(title: "此帐号已存在，请确认是否要继续添加", message: "[ \(token.issuer) ] \(token.name)", completion: {
-                do {
-                    try self.addTokenSure(token)
-                    eventHandler(.addSuccess)
-
-                } catch {
-                    
-                    eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
-                }
-            }))
-        } else {
+        let addTokenHalder: () -> Void = {
             
             do {
-                try self.addTokenSure(token)
+                try self.addTokenSure(token, groupNames: groupNames)
                 eventHandler(.addSuccess)
 
             } catch {
@@ -449,9 +491,17 @@ extension KeychainTokenStore: TokenStoreProtocol {
                 eventHandler(.addError(KeyChainTokenError.cannotCreatToken))
             }
         }
+        
+        if haveSameToken {
+            
+            eventHandler(.haveTheSame(title: "此帐号已存在，请确认是否要继续添加", message: "[ \(token.issuer) ] \(token.name)", completion: addTokenHalder))
+        } else {
+            
+            addTokenHalder()
+        }
     }
     
-    private func addTokenSure(_ token: Token) throws {
+    private func addTokenSure(_ token: Token, groupNames: [String]) throws {
         
         let newPersistentToken = try keychain.add(token)
         persistentTokens.append(newPersistentToken)
@@ -461,6 +511,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
         adapterToken.passwordShow.onNext(true)
         resetTimer()
         saveTokenOrder()
+        newTokenAddGroups(tokenID: newPersistentToken.identifier, groupsName: groupNames)
     }
 
     func saveToken(_ token: Token, toPersistentToken persistentToken: PersistentToken) throws {
@@ -547,6 +598,157 @@ extension KeychainTokenStore: TokenStoreProtocol {
     func getSameTokensWithType(name: String, issuer: String, isOnTime: Bool) -> [AdapterTokenProtocol] {
         
         return getAllSameTokens(name: name, issuer: issuer).filter({$0.isOnTime == isOnTime})
+    }
+    
+    
+    enum MulitpleShareEvent {
+        
+        case success(toast: String)
+        case haveSameToken(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
+        case error(error: Error)
+    }
+    
+    private class MulitpleShareToken {
+        
+        var token: Token
+        let groupNames: [String]
+        var isAdded: Bool = false
+        
+        internal init(token: Token, groupNames: [String]) {
+            self.token = token
+            self.groupNames = groupNames
+        }
+        
+        func changeNamePlus(index: String) {
+            
+            token = Token(name: token.name + index, issuer: token.issuer, generator: token.generator)
+        }
+    }
+    
+    func mulitpleShareURLAction(urlString: [String], eventHandler: @escaping (MulitpleShareEvent) -> Void) {
+        
+        let mulitpleShareTokens = urlString.compactMap({ (url) -> MulitpleShareToken? in
+            
+            guard let tokenURL = try? url.mustAuth.parsingSetURL() else { return nil }
+            guard let token = Token(customURL: tokenURL.url) else { return nil }
+            let group = tokenURL.groups
+            let result = MulitpleShareToken(token: token, groupNames: group)
+            return result
+        })
+        
+        guard mulitpleShareTokens.count == urlString.count else {
+            
+            eventHandler(.error(error: NoSMSError.urlError))
+            return
+        }
+        
+        let sameTokens = mulitpleShareTokens.map({self.getSameTokensWithType(name: $0.token.name, issuer: $0.token.issuer, isOnTime: $0.token.isOnTime)}).flatMap({$0})
+        
+        let dontHaveSame = sameTokens.isEmpty
+        
+        let mulitpleShareNewSaveHandler = {
+            
+            for mulitpleShareToken in mulitpleShareTokens {
+                
+                do {
+                    if mulitpleShareToken.isAdded {
+                        
+                    } else {
+                        
+                        try self.addTokenSure(mulitpleShareToken.token, groupNames: mulitpleShareToken.groupNames)
+                    }
+                } catch {
+                    
+                    eventHandler(.error(error: error))
+                    return
+                }
+            }
+            let toast = "已导入\(mulitpleShareTokens.count)个验证码"
+            eventHandler(.success(toast: toast))
+            let shareRecordManager = ShareRecordStoreManager()
+            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码")
+        }
+        
+        if dontHaveSame {
+            
+            mulitpleShareNewSaveHandler()
+        } else {
+                        
+            let newAddHandler = {
+                
+                for sameToken in sameTokens {
+                    
+                    let filterToken = mulitpleShareTokens.filter({ $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime})
+                    
+                    for index in filterToken.indices {
+                        
+                        var plustValue = "\(index + 1)"
+                        
+                        while !self.getSameTokensWithType(name: filterToken[index].token.name + plustValue, issuer: filterToken[index].token.issuer, isOnTime: filterToken[index].token.isOnTime).isEmpty {
+                            
+                            plustValue += "1"
+                        }
+                        filterToken[index].changeNamePlus(index: plustValue)
+                    }
+                }
+                mulitpleShareNewSaveHandler()
+            }
+            let replaceHandler = {
+                
+                for mulitpleShareToken in mulitpleShareTokens {
+                    
+                    let sameTokens = sameTokens.filter({ $0.token.name == mulitpleShareToken.token.name && $0.token.issuer == mulitpleShareToken.token.issuer && $0.token.isOnTime == mulitpleShareToken.token.isOnTime })
+                    
+                    let samePersistentTokens = sameTokens.map({ $0.persistentToken })
+                    for samePersistentToken in samePersistentTokens {
+                        
+                        do {
+                            
+                            try self.saveToken(mulitpleShareToken.token, toPersistentToken: samePersistentToken)
+                            mulitpleShareToken.isAdded = true
+                        } catch {
+                            
+                            eventHandler(.error(error: error))
+                            return
+                        }
+                    }
+                }
+                mulitpleShareNewSaveHandler()
+            }
+            
+            var filterTokens: [KeychainTokenStore.MulitpleShareToken] = []
+            
+            for sameToken in sameTokens {
+                
+                let filterToken = mulitpleShareTokens.filter({ $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime})
+                
+                if filterTokens.contains(where: { $0.token.name == sameToken.token.name && $0.token.issuer == sameToken.token.issuer && $0.token.isOnTime == sameToken.isOnTime }) {
+                    
+                } else {
+                    
+                    filterTokens += filterToken
+                }
+            }
+            
+            var message: String = ""
+            
+            for index in filterTokens.indices {
+                
+                if index == 0 {
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    
+                } else if index > 2 {
+                    
+                    message += "\n..."
+                    break
+                } else {
+                    
+                    message += "\n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                }
+            }
+            
+            eventHandler(.haveSameToken(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
+        }
     }
 }
 
@@ -835,6 +1037,39 @@ extension KeychainTokenStore {
     func getGroup(uuid: UUID) -> GroupObject? {
         
         return groupList.first(where: { $0.uuid == uuid})
+    }
+    
+    func getGroups(name: String) -> [GroupObject] {
+        
+        return groupList.filter({ $0.title == name })
+    }
+    
+    func newTokenAddGroups(tokenID: Data, groupsName: [String]) {
+        
+        if groupsName.isEmpty {
+            
+            return
+        }
+        
+        for groupName in groupsName {
+            
+            let groups = getGroups(name: groupName)
+            
+            if groups.isEmpty {
+                
+                var newGroup = GroupObject()
+                newGroup.title = groupName
+                newGroup.tokens.append(tokenID)
+                saveGroup(groupID: newGroup)
+            } else {
+                
+                for var group in groups {
+                    
+                    group.tokens.append(tokenID)
+                    saveGroup(groupID: group)
+                }
+            }
+        }
     }
     
     func moveGroup(_ origin: Int, toIndex destination: Int) {

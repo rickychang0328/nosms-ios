@@ -21,7 +21,7 @@ extension UIColor {
         return result
     }
     
-    private static func getColor(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) -> UIColor {
+    static func getColor(red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat) -> UIColor {
         
         return .init(red: red/255, green: green/255, blue: blue/255, alpha: alpha)
     }
@@ -158,6 +158,8 @@ extension UIColor {
     //MARK: Navigation
     static let navigationColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .navColorDark,
                                                                           lightColor: .navColorLight)
+    static let navigationOTPColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: getColor(red: 33, green: 33, blue: 33, alpha: 0.56),
+                                                                             lightColor: .navColorLight)
     static let navColorDark: UIColor = .getColor(red: 16.85, green: 16.85, blue: 16.85, alpha: 1)
     static let navColorLight: UIColor = .color_098_112_255
     
@@ -205,6 +207,10 @@ extension UIColor {
                                                                                            lightColor: .color_098_112_255)
     static let alertActionButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
                                                                                      lightColor: .white)
+    static let exportOTPDisableTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 153, green: 153, blue: 153, alpha: 1),
+                                                                                    lightColor: .getColor(red: 153, green: 153, blue: 153, alpha: 0.5))
+    static let exportOTPEnableTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 105, green: 128, blue: 252, alpha: 1),
+    lightColor: .getColor(red: 98, green: 112, blue: 255, alpha: 1))
     static let alertStreetActionButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_237_085_085,
     lightColor: .color_237_085_085)
     static let alertStreetCancelButtonBackGroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030, lightColor: .color_057_060_080)
@@ -279,4 +285,9 @@ extension UIColor {
     static let faceIDSettingTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
                                                                                      lightColor: .color_051_051_051)
     static let faceIDSettingHeaderTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06, lightColor: .color_102_102_102)
+    static let otpShareReceiveButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .getColor(red: 51, green: 51, blue: 51, alpha: 1))
+    static let otpShareReceiveButtonColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 26   , green: 26, blue: 28, alpha: 1), lightColor: .white)
+    static let otpShareReceiveButtonHintColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 136, green: 136, blue: 138, alpha: 1), lightColor: .getColor(red: 136, green: 136, blue: 138, alpha: 1))
+    static let otpScanHintColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 0, green: 0, blue: 0, alpha: 0.8), lightColor: .getColor(red: 255, green: 255, blue: 255, alpha: 0.8))
+    static let otpScanHintTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .getColor(red: 51, green: 51, blue: 51, alpha: 1))
 }

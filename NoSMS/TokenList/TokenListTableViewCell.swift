@@ -35,7 +35,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     var isPin: Bool = false
     
     let tokenID: Data
-
+    
     var passwordColor: Observable<UIColor> {
         
         return warningTime.map({ if self.isOnTime {
@@ -70,7 +70,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     
     let password: Observable<String>
     
-    let issuer: Observable<String>
+    let issuer: BehaviorSubject<String>
     
     let lastTime: BehaviorSubject<String>
     
@@ -83,7 +83,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     internal init(baseViewModelItem: BaseTableViewCellViewModelItemProtocol,
                   name: BehaviorSubject<String>,
                   password: Observable<String>,
-                  issuer: Observable<String>,
+                  issuer: BehaviorSubject<String>,
                   lastTime: BehaviorSubject<String>,
                   haveSelectToDelete: BehaviorSubject<Bool>,
                   passwordCount: Int,
@@ -116,15 +116,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
             string.insert(" ", at: index)
             return string
         })
-        self.issuer = issuer.map({
-            if $0.isEmpty {
-                
-                return " "
-            } else {
-                
-                return $0
-            }
-        })
+        self.issuer = issuer
         self.lastTime = lastTime
         self.haveSelectToDelete = haveSelectToDelete
         self.passwordCount = passwordCount
@@ -138,6 +130,8 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
 
 
 class BaseTokenListView: UIView {
+    
+    let selectImageView: UIImageView = .init(image: .noSmsNoSelected)
     
     let nameLabel: UILabel = {
        
@@ -169,11 +163,12 @@ class BaseTokenListView: UIView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
+        selectImageView.isHidden = true
         addSubview(issuerLabel)
         addSubview(passwordLabel)
         addSubview(nameLabel)
         addSubview(digitsView)
+        addSubview(selectImageView)
         
         issuerLabel.snp.makeConstraints {
             
@@ -199,6 +194,14 @@ class BaseTokenListView: UIView {
             
             $0.edges.equalTo(passwordLabel)
         }
+        
+        selectImageView.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 59))
+            $0.right.equalToSuperview().inset(ScaleWidth(at: 20))
+            $0.size.equalTo(ScaleWidth(at: 18))
+        }
+        
         digitsView.isHidden = true
         
     }
@@ -209,6 +212,11 @@ class BaseTokenListView: UIView {
     
     func bindData(viewModel: BaseTokenListViewType) {
         disposedBag = .init()
+        do {
+                let a = try viewModel.name.value()
+               } catch {
+                   print("User creation failed with error: \(error)")
+        }
         //MARK: 給空白讓 label 的 auto 高不會跑掉
         let name = viewModel.name.map({ string -> String in
           
@@ -220,14 +228,24 @@ class BaseTokenListView: UIView {
                 return string
             }
         })
-            
+        
+        let issuer = viewModel.issuer.map({ string -> String in
+          
+            if string.isEmpty {
+                
+                return " "
+            } else {
+                
+                return string
+            }
+        })
+        
         name.bind(to: nameLabel.rx.text)
             .disposed(by: disposedBag)
 
-        viewModel.issuer
+        issuer
             .bind(to: issuerLabel.rx.text)
             .disposed(by: disposedBag)
-        
         viewModel.password
             .bind(to: passwordLabel.rx.text)
             .disposed(by: disposedBag)
@@ -243,7 +261,7 @@ protocol BaseTokenListViewType {
     
     var name: BehaviorSubject<String> { get }
     var password: Observable<String> { get }
-    var issuer: Observable<String> { get }
+    var issuer: BehaviorSubject<String> { get }
     var passwordColor: Observable<UIColor> { get }
     var passwordCount: Int { get }
 }
@@ -281,6 +299,8 @@ class SwipeManager {
  
 class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate, SwipeType {
     
+    var isShareOTP = false
+
     private let pinImageView: UIImageView = {
        
         let view = UIImageView.init(image: .noSMStokenListPin)
@@ -305,7 +325,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     private let swipeWidth: CGFloat = ScaleWidth(at: 73)
     
     private let actionWidth: CGFloat = UIScreen.main.bounds.width / 3
-    
+        
     func swipeOn() {
         
         UIView.animate(withDuration: 0.2) {
@@ -326,6 +346,46 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         swipeStatus = .off
         SwipeManager.shared.removeSwipeType(swipe: self)
+    }
+    
+    func shareOTP() {
+
+        let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.itemClick))
+        self.addGestureRecognizer(gesture)
+        isShareOTP = true
+        pinImageView.isHidden = true
+        tapGetPasswordButton.isHidden = true
+        circleView.alpha = 0
+        baseTokenView.passwordLabel.alpha = 0
+        baseTokenView.selectImageView.isHidden = false
+        baseTokenView.digitsView.isHidden = false
+        baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+    }
+    
+    @objc func itemClick(sender : UITapGestureRecognizer) {
+//        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+//
+//        let token = tokenStore.tokenList[0]
+//
+//        var adapterToken:URL
+//        do {
+//            adapterToken = try token.getMustAuthTokenURL()
+//        } catch {
+//            print("User creation failed with error: \(error)")
+//        }
+        let phone = self.baseTokenView.nameLabel.text ?? ""
+        let issuer = baseTokenView.issuerLabel.text ?? ""
+        let name = "[\(issuer)] \(phone)"
+
+       
+        if baseTokenView.selectImageView.image == UIImage(named: "NoSMS_oval") {
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": true])
+            baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+        } else {
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": false])
+            baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+        }
+      
     }
     
     private let swipeLabel: UILabel = {
@@ -393,7 +453,13 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.top.width.bottom.equalTo(swipebackCardView)
             $0.right.equalTo(swipebackCardView.snp.left)
         }
-
+        
+        deletedButton.snp.makeConstraints {
+            
+            $0.top.bottom.left.equalToSuperview()
+            $0.right.equalTo(gestView)
+        }
+        
         let tapGest = UITapGestureRecognizer()
         tapGest.rx.event.subscribe(onNext: { [weak self] tapGest in
             self?.swipeAction()
@@ -601,6 +667,15 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     
     private let baseTokenView: BaseTokenListView = .init(frame: .zero)
 
+    private let issuerTextField: UITextField = {
+        
+        let textField = UITextField()
+        textField.font = .pingFangSemiBoldFont(size: 18)
+        textField.textColor = .tokenListIssuerColor
+        textField.isUserInteractionEnabled = true
+        return textField
+    }()
+    
     private let nameTextField: UITextField = {
         
         let textField = UITextField()
@@ -639,6 +714,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return button
     }()
     
+    private let deletedButtonInContentView: UIButton = {
+       
+        let button = UIButton()
+        return button
+    }()
+    
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
         
     private var isOnTime: Bool = false
@@ -662,7 +743,36 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         layoutView()
         addSwipeLeft()
+        NotificationCenter.default.addObserver(self, selector: #selector(self.choseAllNotificationIdentifier(notification:)), name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.otpNotificationIdentifier(notification:)), name: Notification.Name("OTPNotificationIdentifier"), object: nil)
+
     }
+    
+    @objc func choseAllNotificationIdentifier(notification: Notification) {
+        if let isSelectAll = notification.userInfo?["selectAll"] as? Bool {
+            if isSelectAll {
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+            } else {
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+            }
+        }
+    }
+    
+    @objc func otpNotificationIdentifier(notification: Notification) {
+        
+        let name = notification.userInfo?["name"] as? String
+        let isSelect = notification.userInfo?["isSelect"] as? Bool ?? false
+        let accountName = "[\(baseTokenView.issuerLabel.text!)] \(nameTextField.text!)"
+      
+        if accountName == name {
+            if isSelect {
+                 baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+            } else {
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+            }
+        }
+        
+       }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -679,9 +789,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         addSubview(backCardView)
         sendSubviewToBack(backCardView)
+        contentView.addSubview(deletedButtonInContentView)
         backCardView.addSubview(swipebackCardView)
         swipebackCardView.addSubview(baseTokenView)
         contentView.addSubview(nameTextField)
+        contentView.addSubview(issuerTextField)
         swipebackCardView.addSubview(circleView)
         circleView.addSubview(countTimeLabel)
         contentView.addSubview(tapGetPasswordButton)
@@ -701,12 +813,28 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.width.equalTo(ScaleWidth(at: 18))
         }
         
-        deletedButton.snp.makeConstraints {
+        deletedButtonInContentView.snp.makeConstraints {
             
             $0.top.bottom.left.equalToSuperview()
-            $0.right.equalTo(contentView.snp.left).offset(20)
+            $0.right.equalTo(contentView).offset(20)
         }
         
+        issuerTextField.snp.makeConstraints {
+            
+            $0.left.centerY.equalTo(baseTokenView.issuerLabel).offset(1)
+            $0.right.equalTo(ScaleWidth(at: -16))
+        }
+        
+        let textFieldUnderLineIssuer = UIView()
+        textFieldUnderLineIssuer.setBackgroundColor(.tokenListCellTextFieldUnderLineColor)
+        issuerTextField.addSubview(textFieldUnderLineIssuer)
+        textFieldUnderLineIssuer.snp.makeConstraints {
+            
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(ScaleWidth(at: 4))
+            $0.height.equalTo(1)
+        }
+
         nameTextField.snp.makeConstraints {
                         
             $0.left.centerY.equalTo(baseTokenView.nameLabel).offset(1)
@@ -760,6 +888,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         
         nameTextField.delegate = self
+        issuerTextField.delegate = self
     }
     func runBackCardAnimation() {
         UIView.animate(withDuration: 0.3, animations: {
@@ -818,9 +947,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         UIView.animate(withDuration: 0.1, animations: {
             
             self.baseTokenView.nameLabel.isHidden = self.isEditing
+            self.baseTokenView.issuerLabel.isHidden = self.isEditing
             self.baseTokenView.passwordLabel.isHidden = self.isEditing
             self.nameTextField.isHidden = !self.isEditing
+            self.issuerTextField.isHidden = !self.isEditing
             self.deletedButton.isEnabled = self.isEditing
+            self.deletedButtonInContentView.isEnabled = self.isEditing
             self.baseTokenView.digitsView.isHidden = !self.isEditing
             self.deleteImageView.isHidden = !self.isEditing
 
@@ -894,12 +1026,19 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let isPinColor = viewModel?.isPin ?? false ? UIColor.tokenListCellBackCardPinColor : UIColor.tokenListBackCardColor
         swipebackCardView.backgroundColor = isPinColor
         backCardView.backgroundColor = isPinColor
+        if isShareOTP == true {
+            pinImageView.isHidden = true
+            tapGetPasswordButton.isHidden = true
+        }
     }
     
     override func setEditing(_ editing: Bool, animated: Bool) {
         super.setEditing(editing, animated: true)
-        
         changeLayout()
+        if baseTokenView.passwordLabel.alpha == 0 {
+             self.baseTokenView.digitsView.isHidden = false
+             baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+        }
     }
     
     override func bindData(viewModel: ViewModel) {
@@ -907,6 +1046,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         baseTokenView.bindData(viewModel: viewModel)
         viewModel.name.bind(to:nameTextField.rx.text)
+            .disposed(by: disposedBag)
+        viewModel.issuer.bind(to: issuerTextField.rx.text)
             .disposed(by: disposedBag)
 
 
@@ -970,9 +1111,21 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             haveSeletToDelete?.onNext(self.deletedButton.isSelected)
         }).disposed(by: disposedBag)
         
+        deletedButtonInContentView.rx.tap.subscribe(onNext: { [weak self, weak haveSeletToDelete] in
+            
+            guard let self = self else { return }
+            self.deletedButton.isSelected = !self.deletedButton.isSelected
+            haveSeletToDelete?.onNext(self.deletedButton.isSelected)
+        }).disposed(by: disposedBag)
+        
         nameTextField.rx.controlEvent(.editingDidEnd)
             .flatMapLatest({[unowned self] in return self.nameTextField.rx.text.orEmpty })
             .bind(to: viewModel.name)
+            .disposed(by: disposedBag)
+        
+        issuerTextField.rx.controlEvent(.editingDidEnd)
+            .flatMapLatest({[unowned self] in return self.issuerTextField.rx.text.orEmpty })
+            .bind(to: viewModel.issuer)
             .disposed(by: disposedBag)
         
         if isOnTime {

@@ -3,6 +3,9 @@ import UIKit
 import RxSwift
 import RxCocoa
 import DynamicBlurView
+import LocalAuthentication
+import BiometricAuthentication
+
 enum TokenListViewModelEvent {
     
     case reloadData
@@ -23,7 +26,7 @@ protocol TokenListVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     var customSegmentControlViewModel: CustomSegmentControlViewModelType { get }
     var groupViewModels: Observable<[TokenListInGroupVCViewModel]> { get }
     var haveGroup: Observable<Bool> { get }
-
+    
     func deleteToken()
     func swapToken(beforeIndex: Int, afterIndex: Int)
     func tableViewEndEdit()
@@ -68,7 +71,7 @@ class TokenListSupportPin {
             
             allTokenViewModel = tokens
         }
-            
+        
         reloadPin()
     }
     
@@ -169,7 +172,7 @@ class TokenListSectionItem: TokenListSectionItemProtocol {
     var sectionFooterViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol?
     
     var numberOfRow: Int {
-  
+        
         return searchItems.count
     }
     
@@ -193,7 +196,7 @@ class TokenListSectionItem: TokenListSectionItemProtocol {
         
         searchString = input
         searchItems = []
-    
+        
         if input.isEmpty {
             
             for index in rowItems.indices {
@@ -305,7 +308,7 @@ struct CustomSegmentControlViewModel: CustomSegmentControlViewModelType {
 }
 
 class TokenListInGroupVCViewModel: BaseVCViewModel, BaseTableViewVCViewModelProtocol {
-        
+    
     var cellViewModels: [BaseTableViewSectionItemsProtocol] {
         
         return tokenListSupportPin.sections
@@ -370,7 +373,7 @@ class TokenListInGroupVCViewModel: BaseVCViewModel, BaseTableViewVCViewModelProt
         }
         return observer
     }
-
+    
 }
 
 class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
@@ -393,7 +396,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     }
     
     let customSegmentControlViewModel: CustomSegmentControlViewModelType
-
+    
     var tokenIsEmpty: Bool {
         
         return tokenStore.tokenIsEmpty
@@ -401,7 +404,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     
     let deleteIsEnable: Observable<Bool>
     let eventResult: BehaviorSubject<TokenListViewModelEvent> = .init(value: .reloadData)
-
+    
     var tableViewStyle: UITableView.Style {
         
         return .grouped
@@ -417,7 +420,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     private var isFirstOpen: Bool = true
     
     private let tokenListSupportPin: TokenListSupportPin
-            
+    
     init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
          tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
          backgroundColor: UIColor = .tokenListBackgroundColor,
@@ -461,14 +464,14 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                 }
                 
                 if count == viewModels.count {
-                   if self.isFirstOpen {
+                    if self.isFirstOpen {
                         self.isFirstOpen = false
                         return
                     }
-                // 當變多的時候就增加成功 所以重置搜索狀態
+                    // 當變多的時候就增加成功 所以重置搜索狀態
                 } else if count < viewModels.count {
                     
-                  
+                    
                     self.eventResult.onNext(.resetSearch)
                     self.eventResult.onNext(.reloadData)
                     //初始化時就不觸發新增效果
@@ -481,13 +484,13 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     let indexPath = self.tokenListSupportPin.getIndexPath(id: viewModels[viewModels.count - 1].tokenID)
                     
                     self.eventResult.onNext(.scrollToIndex(indexPath))
-                        
+                    
                 } else {
                     if self.isFirstOpen {
                         self.isFirstOpen = false
                     }
                     self.eventResult.onNext(.reloadData)
-
+                    
                 }
             })
             .disposed(by: disposedBag)
@@ -496,7 +499,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
             guard let self = self else { return }
             
             switch event {
-            
+                
             case .addPin(let id):
                 
                 self.tokenListSupportPin.reloadPin()
@@ -504,7 +507,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                 self.eventResult.onNext(.addPin(id: id))
                 self.eventResult.onNext(.empty)
             case .remove(let id):
-
+                
                 //MARK: 壞了只能先硬幹一下
                 self.eventResult.onNext(.removePin(id: id))
                 self.eventResult.onNext(.empty)
@@ -515,7 +518,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     }
     
     func deleteToken() {
-            
+        
         do {
             try tokenStore.deleteSelectedToken()
             
@@ -540,7 +543,7 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
     func selectItem(indexPath: IndexPath) -> Observable<String> {
         
         let realIndex = tokenListSupportPin.getRealIndex(indexPath: indexPath)
-
+        
         let observer: Observable<String> = .create { anyObserver -> Disposable in
             
             let disposed = self.tokenStore.persistentTokensBehavior
@@ -552,7 +555,6 @@ class TokenListVCViewModel: BaseVCViewModel, TokenListVCViewModelProtocol {
                     if showPassword ?? true {
                         
                         UIPasteboard.general.string = try? adapterToken.password.value()
-                        
                         anyObserver.onNext("[ \(adapterToken.token.issuer) ]\n\(adapterToken.token.name)\n验证码已复制")
                         anyObserver.onCompleted()
                     } else {
@@ -610,7 +612,7 @@ class HomePageView: UIView {
     }()
     
     private let button: UIButton = {
-       
+        
         let button = UIButton()
         button.setTitle("开始设置", for: .normal)
         button.addCornerAndBorder(backgroundColor: .clear, cornerRadius: ScaleWidth(at: 6), masksToBounds: false, borderColor: .homePageButtonBroderColor, borderWidth: 1)
@@ -631,7 +633,7 @@ class HomePageView: UIView {
     }
     
     private func setCGColor() {
-  
+        
         button.layer.borderColor = UIColor.homePageButtonBroderColor.cgColor
     }
     
@@ -677,7 +679,6 @@ class HomePageView: UIView {
 class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
     
     private let viewModel: TokenListInGroupVCViewModel
-    
     init(viewModel: TokenListInGroupVCViewModel) {
         
         self.viewModel = viewModel
@@ -686,14 +687,13 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         tableView.showsVerticalScrollIndicator = false
         tableView.rx.itemSelected
             .flatMapLatest(viewModel.selectItem(indexPath:))
             .subscribe(onNext: { [weak self] string in
-            guard self != nil else { return }
-            NoSMSHUD.showToast(title: string)
-            
+                guard self != nil else { return }
+                NoSMSHUD.showToast(title: string)
+                
             }).disposed(by: disposedBag)
     }
     
@@ -702,7 +702,7 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
         let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
         
         var haveCellVisible = false
-
+        
         for cell in cells {
             
             if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
@@ -713,7 +713,7 @@ class TokenListGroupViewController: BaseTableViewControllerNoGeneric {
                 tableView.endUpdates()
                 haveCellVisible = true
                 break
-
+                
             }
         }
         
@@ -767,12 +767,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
-
+        
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setImage(.noSmsAdd, for: .normal)
         button.frame = CGRect(x: 0, y: 0, width: 40, height: 25)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
-                   
+            
             guard let self = self else { return }
             self.tokenListMenuVC.preferredContentSize = CGSize(width: ScaleWidth(at: 144),height: ScaleWidth(at: 144))
             self.tokenListMenuVC.modalPresentationStyle = .popover
@@ -782,16 +782,16 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             popover.barButtonItem = self.addTokenBarButton
             self.present(self.tokenListMenuVC, animated: true)
             if self.searchTextField.isFirstResponder {
-                              
+                
                 self.searchTextField.resignFirstResponder()
             }
-                   
+            
         }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
         return barBtn
     }()
-
+    
     private lazy var beforeEditTableViewBarButton: UIBarButtonItem = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -805,7 +805,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     self.searchTextField.resignFirstResponder()
                 }
                 self.editControllView.isHidden = false
-        }).disposed(by: disposedBag)
+            }).disposed(by: disposedBag)
         
         let barBtn = UIBarButtonItem(customView: button)
         return barBtn
@@ -814,7 +814,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private let inEditTableViewBarButton: UIBarButtonItem = .init(image: .noSmsDone, style: .plain, target: nil, action: nil)
     
     private lazy var leftBarButton: UIBarButtonItem = {
-
+        
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setImage(.noSmsMore, for: .normal)
         button.frame = .init(x: 0, y: 0, width: 25, height: 25)
@@ -823,7 +823,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.menuView.showView()
                 if self.searchTextField.isFirstResponder {
-                                  
+                    
                     self.searchTextField.resignFirstResponder()
                 }
             }).disposed(by: disposedBag)
@@ -842,20 +842,20 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         let view = UIView()
         view.frame = .init(x: 25, y: 0, width: 8, height: 8)
         view.setBackgroundColor(.mustAuthRedColor)
-        .addCornerRadius(at: 4)
+            .addCornerRadius(at: 4)
         view.isHidden = true
         return view
     }()
     
     private let bottomView: UIView = {
-       
+        
         let view = UIView()
         view.setBackgroundColor(.tokenListBottomViewBackgroundColor)
         return view
     }()
     
     private let deleteTokenButton: UIButton = {
-       
+        
         let button = UIButton()
         button.setTitle("删除", for: .normal)
         button.backgroundColor = .mustAuthRedColor
@@ -878,15 +878,15 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         textField.placeholder = "搜索"
         textField.font = .pingFangMediumFont(size: 15)
         textField.addCornerRadius(at: ScaleWidth(at: 6))
-
+        
         textField.addCustomLeftView(image: .noSmsSearch, textViewMode: .always)
         textField.addCustomClearButton()
         textField.clearButton?.rx.tap.subscribe(onNext: { [weak self] in
-
+            
             self?.cleanTextField()
         }).disposed(by: self.disposedBag)
         textField.returnKeyType = .search
-
+        
         textField.delegate = self
         return textField
     }()
@@ -907,7 +907,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
         navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
         navigationController?.navigationBar.layer.shadowRadius = 4.0
@@ -927,8 +926,42 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         navigationController?.view.addSubview(editControllView)
         tableView.showsVerticalScrollIndicator = false
         
+        editControllView.shareOTPButton.rx.tap.subscribe(onNext: { [weak self] in
+            guard let self = self else { return }
+            if !BioMetricAuthenticator.shared.faceIDAvailable() && !AuthIDStatusManager.touchIDAvailable() {
+                self.showFaceIDAlert(title: "",
+                                     message: "您的设备尚未开启指纹识别",
+                                     confirmTitle: "设置",
+                                     cancelTitle: "取消", confirmAction: {
+                                        let newViewController = FaceIDSettingViewController()
+                                        guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
+                                        navigationController.pushViewController(newViewController, animated: true)
+                                        self.editControllView.isHidden = true
+                                        //                                    guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                                        //                                        return
+                                        //                                    }
+                                        //
+                                        //                                    if UIApplication.shared.canOpenURL(settingsUrl) {
+                                        //                                        UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                                        //                                            print("Settings opened: \(success)")
+                                        //                                        })
+                                        //                                    }
+                                        
+                                        
+                }, cancelAction: {
+                    
+                })
+                
+                return
+            }
+            let newViewController = OTPShareAndReceiveViewController()
+            newViewController.view.backgroundColor = .tokenListBackgroundColor
+            guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
+            navigationController.pushViewController(newViewController, animated: true)
+            self.editControllView.isHidden = true
+        }).disposed(by: disposedBag)
+        
         editControllView.snp.makeConstraints {
-            
             $0.edges.equalToSuperview()
         }
         
@@ -944,7 +977,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             case .code:
                 
                 if self.searchTextField.isFirstResponder {
-
+                    
                     self.searchTextField.resignFirstResponder()
                 }
                 SwipeManager.shared.swipeOff()
@@ -955,7 +988,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
                 self.scrollView.setContentOffset(.init(x: 0, y: 0), animated: false)
                 self.scrollView.isScrollEnabled = false
-//                self.groupVCs.forEach({$0.tableView.setEditing(true, animated: true)})
+                //                self.groupVCs.forEach({$0.tableView.setEditing(true, animated: true)})
                 self.navigationItem.leftBarButtonItem?.isEnabled = false
                 self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
             case .group:
@@ -989,7 +1022,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         bottomView.addSubview(deleteTokenButton)
         bottomViewSetup()
-
+        
         homePageView.snp.makeConstraints {
             
             $0.top.equalTo(view.snp.topMargin)
@@ -1028,16 +1061,16 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         view.addSubview(bottomView)
         bottomView.addSubview(deleteTokenButton)
         bottomViewSetup()
-                        
+        
         navigationItem.leftBarButtonItem = leftBarButton
-            
+        
         inEditTableViewBarButton.rx.tap
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
-            
+                
                 self.navigationItem.leftBarButtonItem?.isEnabled = true
                 if self.searchTextField.isFirstResponder {
-                                  
+                    
                     self.searchTextField.resignFirstResponder()
                 }
                 self.tableView.endEditing(true)
@@ -1050,14 +1083,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                         $0.height.equalTo(ScaleWidth(at: 41))
                     }
                 }
-//                self.groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
+                //                self.groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
                 
             }).disposed(by: disposedBag)
-    
+        
         navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
-
+        
         tableView.rx.itemMoved
             .map({($0.sourceIndex.row, $0.destinationIndex.row)})
             .subscribe(onNext: self.viewModel.swapToken)
@@ -1075,14 +1108,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard self != nil else { return }
                 NoSMSHUD.showToast(title: string)
             }).disposed(by: disposedBag)
-
+        
         tableView.rx.didScrollToTop.subscribe(onNext: {[weak self] in
-                guard let self = self else { return }
-                if (self.searchTextField.text?.isEmpty ?? true){
-                    self.showSearchTextAnimation()
-                }
-            }).disposed(by: disposedBag)
-
+            guard let self = self else { return }
+            if (self.searchTextField.text?.isEmpty ?? true){
+                self.showSearchTextAnimation()
+            }
+        }).disposed(by: disposedBag)
+        
         tableView.rx.didScroll.subscribe { [weak self] _ in
             guard let self = self else { return }
             
@@ -1097,12 +1130,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         menuView.choseEvent.subscribe(onNext: { [weak self] event in
             
-                guard let self = self else { return }
-                let nextVC = event.nextVC
-                
-                self.navigationController?.pushViewController(nextVC, animated: true)
-                
-            }).disposed(by: disposedBag)
+            guard let self = self else { return }
+            let nextVC = event.nextVC
+            
+            self.navigationController?.pushViewController(nextVC, animated: true)
+            
+        }).disposed(by: disposedBag)
         
         searchTextField.rx.text
             .orEmpty
@@ -1114,8 +1147,8 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.resetSearch()
             }).disposed(by: disposedBag)
-
-
+        
+        
         self.tokenListMenuVC.choseToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
             guard let self = self else { return }
             self.tokenListMenuVC.dismiss(animated: false, completion: nil)
@@ -1153,7 +1186,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
                 let width = self.scrollView.bounds.width
                 let allContent = CGFloat(lastPage) * width
-
+                
                 let contentWidth = self.scrollView.contentOffset.x
                 
                 if contentWidth > allContent {
@@ -1168,10 +1201,10 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 } else {
                     
                     if lastPage == 0 {
-                                           
-                                           
+                        
+                        
                     } else {
-                                           
+                        
                         self.customSegmentView.selectIndex(at: lastPage - 1)
                     }
                 }
@@ -1206,7 +1239,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     guard let self = self else { return }
                     
                     if (self.searchTextField.text?.isEmpty ?? true) {
-
+                        
                         self.showSearchTextAction(tableView: tableView)
                     }
                 }).disposed(by: self.groupDisposedBag)
@@ -1268,14 +1301,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
             }
             
-            }).disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         self.callVersionAPI()
     }
     private func showSearchTextAction(tableView: UITableView){
-       
+        
         if !self.searchTextField.isEditing && tableView.contentSize.height > tableView.frame.height {
             if tableView.panGestureRecognizer.translation(in: tableView).y < 0 || ( tableView.contentOffset.y > tableView.panGestureRecognizer.translation(in: tableView).y) {
-
+                
                 DispatchQueue.main.async {[weak self] in
                     guard let self = self else {return}
                     UIView.animate(withDuration: 0.3, delay: 0.0,
@@ -1338,9 +1371,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 }
                 
             case .failure(_):
-
+                
                 DispatchQueue.main.async {
-                        
+                    
                     self?.setupRedView()
                 }
             }
@@ -1362,7 +1395,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             customSegmentView.selectIndex(at: 0)
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {[weak self] in
-                 guard let self = self else { return }
+                guard let self = self else { return }
                 self.tableView.reloadData()
                 self.wantToShowHomePageOrNot()
                 self.resetSearch()
@@ -1412,7 +1445,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
             
             var haveCellVisible = false
-
+            
             for cell in cells {
                 
                 if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
@@ -1453,7 +1486,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             }
             handler(.completed)
             return Disposables.create {
-
+                
             }
         }
     }
@@ -1491,7 +1524,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         let resetSearchButtonIsHidden: Bool
         
         if !(searchTextField.text?.isEmpty ?? true) || searchTextField.isFirstResponder {
-                
+            
             textFieldWidth = ScaleWidth(at: -52)
             resetSearchButtonIsHidden = false
         } else {
@@ -1523,7 +1556,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     private func wantToShowHomePageOrNot() {
         
         if viewModel.tokenIsEmpty {
-                   
+            
             navigationItem.rightBarButtonItems = []
             homePageView.isHidden = false
             
@@ -1538,16 +1571,16 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 self.deleteTokenButton.isEnabled = false
                 self.bottomView.isHidden = true
                 self.bottomView.snp.updateConstraints {
-                                       
+                    
                     $0.height.equalTo(0)
                 }
             }
             
         } else {
-                   
+            
             if tableView.isEditing {
                 
-               
+                
             } else {
                 
                 navigationItem.rightBarButtonItems = [beforeEditTableViewBarButton, addTokenBarButton]
@@ -1562,47 +1595,47 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         wantToShowHomePageOrNot()
         
         viewModel.intoAppPastedAction.subscribe(onNext: { [weak self] pastedString in
-                   
+            
             self?.showPastedStringAlert(pastedString: pastedString)
         }).disposed(by: lifeCycleDisposeBag)
-
-       NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
-                guard let self = self else { return }
-    //            if self.tokenListMenuVC.isViewLoaded {
-                    self.tokenListMenuVC.dismiss(animated: false, completion: nil)
-    //            }
-                }).disposed(by: lifeCycleDisposeBag)
+        
+        NotificationCenter.default.rx.notification(UIApplication.willResignActiveNotification).subscribe({[weak self] _ in
+            guard let self = self else { return }
+            //            if self.tokenListMenuVC.isViewLoaded {
+            self.tokenListMenuVC.dismiss(animated: false, completion: nil)
+            //            }
+        }).disposed(by: lifeCycleDisposeBag)
         
         NotificationCenter.default.rx
-           .notification(UIWindow.keyboardWillShowNotification)
-           .compactMap({$0.userInfo})
-           .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
-           .map({$0.height})
-           .subscribe(onNext: { [weak self] height in
+            .notification(UIWindow.keyboardWillShowNotification)
+            .compactMap({$0.userInfo})
+            .compactMap({$0[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect})
+            .map({$0.height})
+            .subscribe(onNext: { [weak self] height in
                 guard let self = self else { return }
                 if UIApplication.shared.applicationState == .active  {
                     UIView.animate(withDuration: 0.1) {
-                                      
+                        
                         self.bottomView.changeBottom(to: -height)
                         self.view.layoutIfNeeded()
                     }
                 }
-           }).disposed(by: lifeCycleDisposeBag)
-       
+            }).disposed(by: lifeCycleDisposeBag)
+        
         NotificationCenter.default.rx
             .notification(UIWindow.keyboardWillHideNotification)
             .subscribe(onNext: { [weak self] _ in
                 guard let self = self else { return }
-              
+                
                 UIView.animate(withDuration: 0.1) {
-                  
+                    
                     self.bottomView.changeBottom(to: 0)
                     self.view.layoutIfNeeded()
-
+                    
                 }
-          }).disposed(by: lifeCycleDisposeBag)
+            }).disposed(by: lifeCycleDisposeBag)
         viewModel.eventResult.subscribe(onNext: { [weak self] event in
-                
+            
             self?.viewModelEventWorking(event: event)
         }).disposed(by: lifeCycleDisposeBag)
         
@@ -1639,7 +1672,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         lifeCycleDisposeBag = .init()
     }
- 
+    
     private func bottomViewSetup() {
         
         deleteTokenButton.snp.makeConstraints {
@@ -1651,7 +1684,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         }
         
         bottomView.snp.remakeConstraints {
-    
+            
             $0.bottom.left.right.equalToSuperview()
             $0.height.equalTo(0)
         }
@@ -1659,19 +1692,19 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         viewModel.deleteIsEnable.subscribe(onNext: { [weak self] canDelete in
             
             guard let self = self else { return }
-                
+            
             self.deleteTokenButton.isEnabled = canDelete
             self.bottomView.isHidden = !canDelete
             if canDelete {
-                    
+                
                 self.bottomView.snp.updateConstraints {
-                        
+                    
                     $0.height.equalTo(ScaleWidth(at: 87))
                 }
             } else {
-                    
+                
                 self.bottomView.snp.updateConstraints {
-                        
+                    
                     $0.height.equalTo(0)
                 }
             }
@@ -1682,14 +1715,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self?.showDeleteAlert()
         }).disposed(by: disposedBag)
     }
-   
+    
     private func showPastedStringAlert(pastedString: String) {
         
         showAlert(title: "是否要通过此验证码进行添加",
                   message: pastedString,
                   confirmTitle: "前往添加", confirmAction: { [weak self] in
-            guard let self = self else { return }
-            self.showKeyinTokenVC(string: pastedString)
+                    guard let self = self else { return }
+                    self.showKeyinTokenVC(string: pastedString)
         })
     }
     
@@ -1710,7 +1743,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         } else {
             
             let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
-                 
+            
             navigationController?.pushViewController(nextVC, animated: true)
         }
     }
@@ -1725,7 +1758,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             if status == .authorized || status == .notDetermined {
                 
                 self.present(photoVC, animated: true, completion: nil)
-
+                
             } else {
                 
                 self.showAlertToOpenSettingURL(title: "相簿读取失败", message: "相簿权限未开启")
@@ -1739,18 +1772,18 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         let cancelAction = UIAlertAction(title: "确认", style: .default, handler: nil)
         alertController.addAction(cancelAction)
         let settingsAction = UIAlertAction(title: "设定", style: .default) { _ in
-
+            
             guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
                 return
             }
-
+            
             if UIApplication.shared.canOpenURL(settingsUrl) {
                 
                 UIApplication.shared.open(settingsUrl, completionHandler: nil)
             }
         }
         alertController.addAction(settingsAction)
-
+        
         self.present(alertController, animated: true, completion: nil)
     }
     
@@ -1759,14 +1792,14 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         showAlert(title: "删除此账号并不会影响已设置的身份验证功能\n您可能因此无法登录自己的帐号",
                   message: nil, confirmTitle: "删除帐号",
                   confirmAction: { [weak self] in
-                
-            self?.viewModel.deleteToken()
+                    
+                    self?.viewModel.deleteToken()
         })
     }
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         return .none
     }
-
+    
     private lazy var customSegmentView = CustomSegmentControl(viewModel: viewModel.customSegmentControlViewModel)
 }
 
@@ -1797,20 +1830,28 @@ class CustomSegmentControl: UIView {
     var selectIndex: Int = 0
     
     private let scrollView: UIScrollView = {
-       
+        
         let view = UIScrollView()
         view.showsHorizontalScrollIndicator = false
         return view
     }()
     
     private let underLine: UIView = {
-       
+        
         let view = UIView()
         view.setBackgroundColor(.customSegmentControlUnderLineColor)
         view.addCornerRadius(at: ScaleWidth(at: 2))
         return view
     }()
-
+    
+    private let secondUnderLine: UIView = {
+        
+        let view = UIView()
+        view.setBackgroundColor(.customSegmentControlUnderLineColor)
+        view.addCornerRadius(at: ScaleWidth(at: 2))
+        return view
+    }()
+    
     private let disposedBag: DisposeBag = .init()
     
     private var gestDisposedBag: DisposeBag = .init()
@@ -1861,7 +1902,7 @@ class CustomSegmentControl: UIView {
                 label.addGestureRecognizer(tapGest)
                 label.isUserInteractionEnabled = true
                 self.gests.append(tapGest)
-
+                
                 
                 tapGest.rx.event.subscribe(onNext: { [weak self] gest in
                     
@@ -1874,7 +1915,7 @@ class CustomSegmentControl: UIView {
                     self.selectIndex(at: index)
                     
                 }).disposed(by: self.gestDisposedBag)
-            
+                
             }
             
             let subViews = self.scrollView.subviews
@@ -1918,12 +1959,12 @@ class CustomSegmentControl: UIView {
             $0.bottom.equalToSuperview().inset(ScaleWidth(at: 1))
         }
     }
-
+    
     
     func selectIndex(at index: Int) {
         
         let oldIndex = selectIndex
-
+        
         for label in labels {
             
             label.setTextColor(.customSegmentControlDisnableTextColor)
@@ -1934,14 +1975,14 @@ class CustomSegmentControl: UIView {
         UIView.animate(withDuration: 0.2, animations: {
             
             self.underLine.snp.remakeConstraints {
-            
+                
                 $0.left.width.equalTo(self.scrollView.subviews[index])
                 $0.height.equalTo(ScaleWidth(at: 4))
                 $0.bottom.equalToSuperview().inset(ScaleWidth(at: 1))
             }
             self.layoutIfNeeded()
         }, completion: { _ in
-                            
+            
             let viewframeX = self.scrollView.subviews[index].frame.origin.x
             let contentOffsetX = self.scrollView.contentOffset.x
             let scrollViewWidth = self.scrollView.bounds.width
@@ -1957,7 +1998,7 @@ class CustomSegmentControl: UIView {
                 self.scrollView.setContentOffset(.init(x: contentX, y: 0), animated: true)
             }
         })
- 
+        
         selectIndex = index
         indexBehaiver.onNext(index)
     }
@@ -1977,14 +2018,14 @@ class CustomTextField: UITextField {
     }
     
     private lazy var customTextBehavior: BehaviorSubject<String?> = {
-      
+        
         let behavior = BehaviorSubject<String?>(value: "")
         self.rx.text.bind(to: behavior).disposed(by: self.disposedBag)
         return behavior
     }()
     
     private let disposedBag: DisposeBag = .init()
-
+    
     func addCustomLeftView(image: UIImage, textViewMode: UITextField.ViewMode) {
         
         let leftViewWidth = ScaleWidth(at: 18)
@@ -2011,10 +2052,10 @@ class CustomTextField: UITextField {
         self.rightView = rightView
         self.rightViewMode = .whileEditing
         rx.text
-        .compactMap({$0})
-        .map({!($0.count > 0)})
-        .bind(to: rightView.rx.isHidden)
-        .disposed(by: disposedBag)
+            .compactMap({$0})
+            .map({!($0.count > 0)})
+            .bind(to: rightView.rx.isHidden)
+            .disposed(by: disposedBag)
         clearButton.rx.tap
             .subscribe(onNext: { [weak self, weak rightView] _ in
                 rightView?.isHidden = true
@@ -2027,7 +2068,7 @@ class CustomTextField: UITextField {
 class EditControllView: UIView {
     
     private let backImageView: UIImageView = {
-       
+        
         let view = UIImageView(image: .noSMSchoseEditControl)
         return view
     }()
@@ -2042,33 +2083,54 @@ class EditControllView: UIView {
     }()
     
     private let editCodeImage: UIImageView = {
-          
+        
         let label = UIImageView(image: UIImage.noSMSchoseEditCode)
         return label
     }()
     
     private let editCodeButton: UIButton = {
-         
+        
         let button = UIButton()
         return button
     }()
     
     private let editGroupImage: UIImageView = {
-          
+        
         let label = UIImageView(image: UIImage.noSMSchoseEditGroup)
         return label
     }()
     
+    private let shareOTPImage: UIImageView = {
+        
+        let label = UIImageView(image: UIImage(named: "NoSMS_share"))
+        return label
+    }()
+    
     private let editGroupLabel: UILabel = {
-         
-         let label = UILabel()
-         label.setFont(.pingFangMediumFont(size: 15))
-             .setText("分组管理")
-             .setTextColor(.tokenListIssuerColor)
-         return label
-     }()
+        
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setText("分组管理")
+            .setTextColor(.tokenListIssuerColor)
+        return label
+    }()
+    
+    private let shareOTPLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangMediumFont(size: 15))
+            .setText("驗證碼分享")
+            .setTextColor(.tokenListIssuerColor)
+        return label
+    }()
     
     private let editGroupButton: UIButton = {
+        
+        let button = UIButton()
+        return button
+    }()
+    
+    let shareOTPButton: UIButton = {
         
         let button = UIButton()
         return button
@@ -2091,14 +2153,19 @@ class EditControllView: UIView {
         backImageView.addSubview(editCodeImage)
         backImageView.addSubview(editCodeLabel)
         backImageView.addSubview(editGroupImage)
+        backImageView.addSubview(shareOTPImage)
         backImageView.addSubview(editGroupLabel)
+        backImageView.addSubview(shareOTPLabel)
         addSubview(editCodeButton)
         addSubview(editGroupButton)
-
-        let underLine = UIView()
-        underLine.setBackgroundColor(.alertStreetUnderLineColor)
-        backImageView.addSubview(underLine)
+        addSubview(shareOTPButton)
         
+        let underLine = UIView()
+        let secondUnderLine = UIView()
+        underLine.setBackgroundColor(.alertStreetUnderLineColor)
+        secondUnderLine.setBackgroundColor(.alertStreetUnderLineColor)
+        backImageView.addSubview(underLine)
+        backImageView.addSubview(secondUnderLine)
         
         //適應各種奇怪的尺寸 layout
         let withWidth: CGFloat
@@ -2125,54 +2192,80 @@ class EditControllView: UIView {
             $0.right.equalTo(0)
             $0.topMargin.equalTo(topY)
             $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-            $0.height.equalTo(ScaleWidth(at: 136.7, with: withWidth))
+            $0.height.equalTo(ScaleWidth(at: 136.7/2*3, with: withWidth))
         }
-
+        
         editCodeLabel.snp.makeConstraints {
-
+            
             $0.centerY.equalTo(editCodeImage)
             $0.left.equalTo(ScaleWidth(at: 58, with: withWidth))
         }
-
+        
         editCodeImage.snp.makeConstraints {
-
+            
             $0.size.equalTo(ScaleWidth(at: 20, with: withWidth))
             $0.top.equalTo(ScaleWidth(at: 36, with: withWidth))
             $0.left.equalTo(ScaleWidth(at: 26, with: withWidth))
         }
-
+        
         editGroupLabel.snp.makeConstraints {
-
+            
             $0.left.equalTo(editCodeLabel)
             $0.centerY.equalTo(editGroupImage)
         }
-
+        
+        
         editGroupImage.snp.makeConstraints {
-
+            
             $0.left.size.equalTo(editCodeImage)
             $0.top.equalTo(editCodeImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
         }
-
+        
+        shareOTPImage.snp.makeConstraints {
+            
+            $0.left.size.equalTo(editCodeImage)
+            $0.top.equalTo(editGroupImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
+        }
+        
+        shareOTPLabel.snp.makeConstraints {
+            $0.left.equalTo(editCodeLabel)
+            $0.top.equalTo(editGroupImage.snp.bottom).offset(ScaleWidth(at: 31.5, with: withWidth))
+        }
+        
         underLine.snp.makeConstraints {
-
+            
             $0.top.equalTo(editCodeImage.snp.bottom).offset(ScaleWidth(at: 15, with: withWidth))
             $0.height.equalTo(0.5)
             $0.left.equalTo(ScaleWidth(at: 22, with: withWidth))
             $0.right.equalTo(ScaleWidth(at: -17, with: withWidth))
         }
-
+        
+        secondUnderLine.snp.makeConstraints {
+            
+            $0.top.equalTo(editGroupImage.snp.bottom).offset(ScaleWidth(at: 15, with: withWidth))
+            $0.height.equalTo(0.5)
+            $0.left.equalTo(ScaleWidth(at: 22, with: withWidth))
+            $0.right.equalTo(ScaleWidth(at: -17, with: withWidth))
+        }
+        
         editCodeButton.snp.makeConstraints {
-
+            
             $0.left.right.equalTo(backImageView)
             $0.top.equalTo(editCodeImage).offset(ScaleWidth(at: -10, with: withWidth))
             $0.bottom.equalTo(underLine.snp.top)
         }
-
+        
         editGroupButton.snp.makeConstraints {
-
+            
             $0.bottom.left.right.equalTo(backImageView)
             $0.top.equalTo(underLine.snp.bottom)
-        }        
+        }
+        
+        shareOTPButton.snp.makeConstraints {
+            
+            $0.bottom.left.right.equalTo(backImageView)
+            $0.top.equalTo(secondUnderLine.snp.bottom)
+        }
         
         editCodeButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
@@ -2182,7 +2275,7 @@ class EditControllView: UIView {
         
         editGroupButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
-
+            
             self.eventPublish.onNext(.group)
         }).disposed(by: disposedBag)
         
@@ -2191,7 +2284,7 @@ class EditControllView: UIView {
         
         tapGest.rx.event.subscribe(onNext: { [weak self] gest in
             self?.isHidden = true
-            }).disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
     }
     
     required init?(coder: NSCoder) {
