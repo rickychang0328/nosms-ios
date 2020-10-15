@@ -13,7 +13,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private var groupVCs: [TokenListGroupViewController] = []
-    private var otpShareSelectedAccount = [String]()
+  
     
     private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
@@ -170,7 +170,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     override func viewDidLoad() {
         super.viewDidLoad()
         isShareOTP = true
-        //tableView.allowsSelection = false
         self.navigationItem.title = "选择验证码"
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
         navigationController?.navigationBar.layer.shadowOffset = CGSize(width: 0.0, height: 2.0)
@@ -408,7 +407,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
             
             $0.top.equalTo(customSegmentView.snp.bottom)
             $0.left.right.equalToSuperview()
-            $0.bottom.equalTo(bottomView.snp.top)
+            $0.bottom.equalTo(bottomView.snp.top).offset(-100)
         }
         
         tableView.removeFromSuperview()
@@ -689,7 +688,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
                     tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
                     tableView.endUpdates()
                     haveCellVisible = true
-                    cell.shareOTP()
                     break
                 }
             }
@@ -716,7 +714,6 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
                     tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
                     tableView.endUpdates()
                     haveCellVisible = true
-                    cell.shareOTP()
                     break
                 }
             }
@@ -1063,6 +1060,8 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     }
     
     private lazy var customSegmentView = CustomSegmentControl(viewModel: viewModel.customSegmentControlViewModel)
+    
+    
 }
 
 
