@@ -22,26 +22,8 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            let context = LAContext()
-            context.localizedCancelTitle = "Cancel"
-            var error: NSError?
-            if context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &error) {
-                
-                let reason = "Log in to your account"
-                context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: reason) { (success, error) in
-                    if success {
-                        DispatchQueue.main.async { [unowned self] in
-                            let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
-                            self.navigationController?.pushViewController(newViewController, animated: true)
-                        }
-                    } else {
-                        DispatchQueue.main.async { [unowned self] in
-                        }
-                    }
-                }
-            } else {
-                
-            }
+            let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
+            self.navigationController?.pushViewController(newViewController, animated: true)
             
         }).disposed(by: disposedBag)
         return button
@@ -73,7 +55,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let newViewController = OTPShareRecordViewController()
-            newViewController.view.backgroundColor = .tokenListBackgroundColor
+            newViewController.view.backgroundColor = .optShareRecordBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
         }).disposed(by: disposedBag)
         return button
@@ -111,7 +93,7 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     private lazy var exportButtonHint: UILabel = {
         let label = UILabel()
-        label.text = "选择欲导出的验证码，并创建您的二维码"
+        label.text = "选择欲导出的验证码，并创建您的二维码。"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 12)
         label.textAlignment = .left
         label.textColor = UIColor.getColor(red: 136, green: 136, blue: 138, alpha: 1)
@@ -121,7 +103,7 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     private lazy var receiveButtonHint: UILabel = {
         let label = UILabel()
-        label.text = "选择欲导出的验证码，并创建您的二维码"
+        label.text = "扫描设备的二维码即可导入验证码。"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 12)
         label.textAlignment = .left
         label.textColor = UIColor.getColor(red: 136, green: 136, blue: 138, alpha: 1)
@@ -157,7 +139,7 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .tokenListBackgroundColor
+        //self.view.backgroundColor = .tokenListBackgroundColor
         setLayOut()
     }
     
@@ -197,7 +179,7 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     private func setLayOut() {
         self.navigationItem.title = "验证码分享"
-        self.navigationController?.navigationBar.topItem?.title = ""
+        self.navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: self, action: nil)
         setNavigate()
         self.view.backgroundColor = .tokenListBackgroundColor
         view.addSubview(shareOTPImageView)

@@ -80,6 +80,7 @@ extension UIColor {
                                                                                  lightColor: .color_081_095_242)
     static let tokenListBackCardColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_028_028_030,
                                                                                  lightColor: .white)
+    
     static let tokenListIssuerColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
                                                                                lightColor: .color_051_051_051)
     
@@ -89,6 +90,12 @@ extension UIColor {
                                                                               lightColor: .color_098_112_255)
     static let tokenListBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_033_033_033_056,
                                                                                    lightColor: .color_249_249_249)
+    static let otpshareRecordCellLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
+                                                                                      lightColor: .color_249_249_249)
+    static let optShareBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 33, green: 33, blue: 33, alpha: 1),
+                                                                                      lightColor: .color_249_249_249)
+    static let optShareRecordBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
+                                                                                         lightColor: .color_249_249_249)
     static let tokenListHidePasswordInEditColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_06,
                                                                                            lightColor: .color_000_000_000_01)
     static let tokenListTableViewBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,

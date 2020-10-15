@@ -40,7 +40,6 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
         super.viewDidLoad()
         setNavigate()
         navigationController?.navigationBar.barTintColor = .navigationColor
-        view.backgroundColor = .clear
         self.navigationController?.navigationBar.topItem?.title = ""
         self.navigationItem.title = "近期分享记录"
         tableView.register(ShareOTPRecordTableViewCell.self, forCellReuseIdentifier: "cell")
@@ -142,7 +141,7 @@ class ShareOTPRecordTableViewCell: UITableViewCell {
     
     var lineView: UIView = {
           let view = UIView()
-          view.backgroundColor = .tokenListBackgroundColor
+          view.backgroundColor = .otpshareRecordCellLineColor
           return view
     }()
     
