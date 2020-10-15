@@ -92,7 +92,7 @@ extension UIColor {
                                                                                    lightColor: .color_249_249_249)
     static let otpshareRecordCellLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
                                                                                       lightColor: .color_249_249_249)
-    static let optShareBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 33, green: 33, blue: 33, alpha: 1),
+    static let optShareBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
                                                                                       lightColor: .color_249_249_249)
     static let optShareRecordBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
                                                                                          lightColor: .color_249_249_249)
