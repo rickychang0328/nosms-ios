@@ -51,6 +51,7 @@ struct MustAuth {
     static let kQueryActionMulitpleshare = "mulitpleshare"
     static let kQueryGroupKey = "group"
     static let kQueryMulitpleURLKey = "mulitpleURL"
+    static let issuerAndAccountLimit = 30
     
     struct MulitpleURLParsing {
         

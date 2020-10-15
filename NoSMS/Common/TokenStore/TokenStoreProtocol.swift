@@ -312,7 +312,9 @@ class KeychainTokenStore {
                 
                 for index in nameArray.indices {
                                
-                    nameArray[index].subscribe(onNext: { newName in
+                    nameArray[index]
+                        .filter({$0.count <= MustAuth.issuerAndAccountLimit})
+                        .subscribe(onNext: { newName in
                                    
                         if self.persistentTokens[index].token.name != newName {
                             
@@ -330,7 +332,9 @@ class KeychainTokenStore {
                 
                 for index in issuerArray.indices {
                     
-                    issuerArray[index].subscribe(onNext: { newIssuer in
+                    issuerArray[index]
+                        .filter({$0.count <= MustAuth.issuerAndAccountLimit})
+                        .subscribe(onNext: { newIssuer in
                         
                         if self.persistentTokens[index].token.issuer != newIssuer {
                             
