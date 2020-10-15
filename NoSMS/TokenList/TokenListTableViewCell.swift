@@ -300,6 +300,7 @@ class SwipeManager {
 class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate, SwipeType {
     
     var isShareOTP = false
+    //var otpShareAccount = [String]()
 
     private let pinImageView: UIImageView = {
        
@@ -348,7 +349,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         SwipeManager.shared.removeSwipeType(swipe: self)
     }
     
-    func shareOTP() {
+    func shareOTP(otpShareAccount: [String]) {
 
         let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.itemClick))
         self.addGestureRecognizer(gesture)
@@ -360,6 +361,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         baseTokenView.selectImageView.isHidden = false
         baseTokenView.digitsView.isHidden = false
         baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+        let name = "[\(baseTokenView.issuerLabel.text!)] \(baseTokenView.nameLabel.text!)"
+        if otpShareAccount.contains(name) {
+            baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+        } else {
+            baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
+        }
     }
     
     @objc func itemClick(sender : UITapGestureRecognizer) {
@@ -665,7 +672,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     private let cellDeinitDisposedBag: DisposeBag = .init()
     
-    private let baseTokenView: BaseTokenListView = .init(frame: .zero)
+    let baseTokenView: BaseTokenListView = .init(frame: .zero)
 
     private let issuerTextField: UITextField = {
         
@@ -917,6 +924,22 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         
         textField.resignFirstResponder()
         return true
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if string.isEmpty {
+            
+            return true
+        }
+        
+        if (textField.text?.count ?? 0) + string.count > MustAuth.issuerAndAccountLimit {
+            
+            return false
+        } else {
+            
+            return true
+        }
     }
     
     

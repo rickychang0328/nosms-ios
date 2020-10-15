@@ -761,6 +761,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private var groupDisposedBag: DisposeBag = .init()
     private var lifeCycleDisposeBag: DisposeBag = .init()
+    
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private var groupVCs: [TokenListGroupViewController] = []
@@ -928,26 +929,17 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         editControllView.shareOTPButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
+            let bioTitle = BioMetricAuthenticator.shared.isFaceIdDevice() ? "您的设备尚未开启面容ID识别" : "您的设备尚未开启指纹识别"
             if !BioMetricAuthenticator.shared.faceIDAvailable() && !AuthIDStatusManager.touchIDAvailable() {
                 self.showFaceIDAlert(title: "",
-                                     message: "您的设备尚未开启指纹识别",
+                                     message: bioTitle,
                                      confirmTitle: "设置",
                                      cancelTitle: "取消", confirmAction: {
                                         let newViewController = FaceIDSettingViewController()
                                         guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
                                         navigationController.pushViewController(newViewController, animated: true)
                                         self.editControllView.isHidden = true
-                                        //                                    guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                                        //                                        return
-                                        //                                    }
-                                        //
-                                        //                                    if UIApplication.shared.canOpenURL(settingsUrl) {
-                                        //                                        UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
-                                        //                                            print("Settings opened: \(success)")
-                                        //                                        })
-                                        //                                    }
-                                        
-                                        
+                                 
                 }, cancelAction: {
                     
                 })
@@ -955,9 +947,9 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 return
             }
             let newViewController = OTPShareAndReceiveViewController()
-            newViewController.view.backgroundColor = .tokenListBackgroundColor
-            guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
-            navigationController.pushViewController(newViewController, animated: true)
+            newViewController.view.backgroundColor = .optShareBackgroundColor
+//            guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
+            self.navigationController?.pushViewController(newViewController, animated: true)
             self.editControllView.isHidden = true
         }).disposed(by: disposedBag)
         
@@ -1147,7 +1139,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 guard let self = self else { return }
                 self.resetSearch()
             }).disposed(by: disposedBag)
-        
         
         self.tokenListMenuVC.choseToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
             guard let self = self else { return }
@@ -1591,7 +1582,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        self.navigationItem.title = "MustAuth"
         wantToShowHomePageOrNot()
         
         viewModel.intoAppPastedAction.subscribe(onNext: { [weak self] pastedString in
@@ -1669,7 +1660,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     }
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        
+        self.navigationItem.title = ""
         lifeCycleDisposeBag = .init()
     }
     
@@ -2119,7 +2110,7 @@ class EditControllView: UIView {
         
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
-            .setText("驗證碼分享")
+            .setText("验证码分享")
             .setTextColor(.tokenListIssuerColor)
         return label
     }()
@@ -2192,7 +2183,7 @@ class EditControllView: UIView {
             $0.right.equalTo(0)
             $0.topMargin.equalTo(topY)
             $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-            $0.height.equalTo(ScaleWidth(at: 136.7/2*3, with: withWidth))
+            $0.height.equalTo(ScaleWidth(at: 136.7/2*3 - 12, with: withWidth))
         }
         
         editCodeLabel.snp.makeConstraints {

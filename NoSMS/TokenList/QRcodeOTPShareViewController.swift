@@ -18,6 +18,7 @@ class QRcodeOTPShareViewController: UIViewController {
     var otpShareSelectedAccount = [String]()
     var otpShareSelectedAccountToken = [String]()
     var timer : Timer?
+    let alertVc = NoSMSAlertOneButtonViewController()
    
     private lazy var exportOTPButton: UIButton = {
         
@@ -90,6 +91,8 @@ class QRcodeOTPShareViewController: UIViewController {
         
         let label = UILabel()
         label.text = "在您的新设备上，开启 MustAuth 扫描二维码"
+        label.adjustsFontSizeToFitWidth = true
+        label.sizeToFit()
         label.textAlignment = .center
         label.textColor = UIColor.getColor(red: 102, green: 102, blue: 102, alpha: 1)
         label.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
@@ -152,6 +155,7 @@ class QRcodeOTPShareViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(true)
         timer?.invalidate()
+        alertVc.dismiss(animated: true, completion: nil)
     }
     
     override func viewDidLoad() {
@@ -254,8 +258,11 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private func addNotification() {
         NotificationCenter.default.addObserver(forName: UIApplication.userDidTakeScreenshotNotification, object: nil, queue: OperationQueue.main) { notification in
-            self.showAlertOneButton(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle: "确定", alertCase:
-                .screenShot, confirmAction: {})
+            self.alertVc.alertCase = .screenShot
+            self.alertVc.showAlertSetting(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle:"确定",confirmAction: nil)
+            self.alertVc.modalPresentationStyle = .overCurrentContext
+            self.alertVc.modalTransitionStyle = .crossDissolve
+            self.present(self.alertVc, animated: true, completion: nil)
         }
         
     }
@@ -304,8 +311,7 @@ class QRcodeOTPShareViewController: UIViewController {
         
         topHint.snp.makeConstraints {
             $0.top.equalTo(ScaleWidth(at: 124.5))
-            $0.left.equalToSuperview().offset(ScaleWidth(at: 17))
-            $0.right.equalToSuperview().offset(ScaleWidth(at: -17))
+            $0.width.equalToSuperview()
             $0.height.equalTo(ScaleWidth(at: 21))
             $0.centerX.equalToSuperview()
         }
@@ -352,33 +358,6 @@ class QRcodeOTPShareViewController: UIViewController {
 
 extension String {
     
-//    func createQRCode() -> UIImage?{
-//        let sureQRString = self
-//
-//        let stringData = sureQRString.data(using: String.Encoding.utf8, allowLossyConversion: false)
-//
-//        //建立一個二維碼的濾鏡
-//        let qrFilter = CIFilter(name: "CIQRCodeGenerator")
-//
-//        //inputMessage為轉換成 QR Code 圖片的初始資料
-//        qrFilter?.setValue(stringData, forKey: "inputMessage")
-//
-//        /*
-//         inputCorrectionLevel表示有多少額外的錯誤更正資料要被附加到輸出到 QR Code 圖片中
-//         其數值是 4 種字串之一： L 、 M 、 Q 、 H ，
-//         分別對應到不同的錯誤復原能力，
-//         依序為 7% 、 15% 、 25% 、 30%
-//         數值越大，輸出的 QR Code 圖片也就越大
-//         */
-//        qrFilter?.setValue("H", forKey: "inputCorrectionLevel")
-//
-//        let qrCIImage = qrFilter?.outputImage
-//
-//        // 返回二維碼的image
-//        let codeImage = UIImage(ciImage: qrCIImage!)
-//
-//        return codeImage
-//    }
     func generateQRCode() -> UIImage? {
         let data = self.data(using: String.Encoding.ascii)
 

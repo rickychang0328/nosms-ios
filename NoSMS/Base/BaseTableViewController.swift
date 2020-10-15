@@ -238,6 +238,7 @@ extension Reactive where Base: UITableViewCell {
 class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: BaseViewController<ViewModel>, UITableViewDelegate, UITableViewDataSource {
     
     var isShareOTP = false
+    var otpShareSelectedAccount = [String]()
     
     lazy var tableView: UITableView = {
       
@@ -273,7 +274,7 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cellFactoryType = viewModel.cellViewModels[indexPath.section][indexPath.row].cellFactoryType
-        return cellFactoryType.getCell(tableView: tableView, isShareOTP: isShareOTP)
+        return cellFactoryType.getCell(tableView: tableView, isShareOTP: isShareOTP, otpShareAccount: otpShareSelectedAccount)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -368,14 +369,12 @@ private extension TableViewCellFactoryType {
         }
     }
     var cellStyle: UITableViewCell.CellStyle {
-        
         return .default
     }
     
-    func getCell(tableView: UITableView, isShareOTP: Bool = false) -> UITableViewCell {
+    func getCell(tableView: UITableView, isShareOTP: Bool = false, otpShareAccount: [String]) -> UITableViewCell {
 
         switch self {
-            
         case .tokenListWithTime(let viewModel):
             
             let cell: TokenListTableViewCell<TokenListTableViewCellViewModel>
@@ -387,10 +386,10 @@ private extension TableViewCellFactoryType {
                 
                 cell = TokenListTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
             }
-            if isShareOTP {
-                cell.shareOTP()
-            }
             cell.bindData(viewModel: viewModel)
+            if isShareOTP {
+                cell.shareOTP(otpShareAccount: otpShareAccount)
+            }
             return cell
             
         case .joinManuallyTextIn(let viewModel):
@@ -509,6 +508,7 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
     
     let baseTableViewModel: BaseTableViewVCViewModelProtocol
     var shareOTP = false
+    var otpShareSelectedAccount = [String]()
     private(set) lazy var tableView: CustomTableView = {
       
         let tableView = CustomTableView(frame: .zero, style: self.baseTableViewModel.tableViewStyle)
@@ -552,7 +552,7 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cellFactoryType = baseTableViewModel.cellViewModels[indexPath.section][indexPath.row].cellFactoryType
-        return cellFactoryType.getCell(tableView: tableView, isShareOTP: shareOTP)
+        return cellFactoryType.getCell(tableView: tableView, isShareOTP: shareOTP, otpShareAccount: otpShareSelectedAccount)
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
