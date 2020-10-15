@@ -12,7 +12,7 @@ import RxCocoa
 class QRcodeOTPShareViewController: UIViewController {
     
     var disposedBag: DisposeBag = .init()
-    var secondsRemaining = 10
+    var secondsRemaining = 60
     var pageInex = 1
     var page = 1
     var otpShareSelectedAccount = [String]()
