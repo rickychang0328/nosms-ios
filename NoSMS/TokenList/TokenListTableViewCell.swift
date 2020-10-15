@@ -919,6 +919,22 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         return true
     }
     
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if string.isEmpty {
+            
+            return true
+        }
+        
+        if (textField.text?.count ?? 0) + string.count > MustAuth.issuerAndAccountLimit {
+            
+            return false
+        } else {
+            
+            return true
+        }
+    }
+    
     
     var viewModel: TokenListTableViewCellViewModelProtocol?
     
