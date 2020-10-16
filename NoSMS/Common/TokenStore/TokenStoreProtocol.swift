@@ -220,7 +220,7 @@ class AdapterToken: AdapterTokenProtocol {
             .filter({ $0.tokens.contains(tokenID)})
             .map({$0.title})
             .map({URLQueryItem(name: "qroup", value: $0)})
-        let secret = token.generator.secret.getMustAuthSecret()
+        let secret = token.generator.secret.getMustAuthSecret().replacingOccurrences(of: "=", with: "")
         let secretQuery = URLQueryItem(name: MustAuth.kQuerySecretKey, value: secret)
         urlComponents?.queryItems = baseQuerys + filtergroupsQuery + [secretQuery]
         urlComponents?.scheme = MustAuth.kMustAuthScheme
