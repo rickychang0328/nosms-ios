@@ -200,6 +200,13 @@ class QRcodeOTPShareViewController: UIViewController {
        }
     
     func setNavigate() {
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+
+                 leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+                     
+                     self?.navigationController?.popViewController(animated: true)
+                 }).disposed(by: disposedBag)
+        navigationItem.leftBarButtonItem = leftbarItem
         var color: UIColor
         if #available(iOS 13.0, *) {
             

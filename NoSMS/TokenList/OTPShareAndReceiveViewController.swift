@@ -148,7 +148,14 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //self.view.backgroundColor = .tokenListBackgroundColor
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+
+               leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+                   
+                   self?.navigationController?.popViewController(animated: true)
+               }).disposed(by: disposedBag)
+               
+               navigationItem.leftBarButtonItem = leftbarItem
         setLayOut()
     }
     
