@@ -220,7 +220,7 @@ class AdapterToken: AdapterTokenProtocol {
             .filter({ $0.tokens.contains(tokenID)})
             .map({$0.title})
             .map({URLQueryItem(name: "qroup", value: $0)})
-        let secret = token.generator.secret.getMustAuthSecret()
+        let secret = token.generator.secret.getMustAuthSecret().replacingOccurrences(of: "=", with: "")
         let secretQuery = URLQueryItem(name: MustAuth.kQuerySecretKey, value: secret)
         urlComponents?.queryItems = baseQuerys + filtergroupsQuery + [secretQuery]
         urlComponents?.scheme = MustAuth.kMustAuthScheme
@@ -686,13 +686,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     
                     for index in filterToken.indices {
                         
-                        var plustValue = "\(index + 1)"
-                        
-                        while !self.getSameTokensWithType(name: filterToken[index].token.name + plustValue, issuer: filterToken[index].token.issuer, isOnTime: filterToken[index].token.isOnTime).isEmpty {
-                            
-                            plustValue += "1"
-                        }
-                        filterToken[index].changeNamePlus(index: plustValue)
+                        filterToken[index].changeNamePlus(index: "\(index + 1)")
                     }
                 }
                 mulitpleShareNewSaveHandler()
