@@ -55,7 +55,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
             shareRecordManager.addNewRecord(description: "导出：\(self.otpShareSelectedAccount.count)个验证码")
             let newViewController = QRcodeOTPShareViewController()
             newViewController.otpShareSelectedAccount = self.otpShareSelectedAccount
-            newViewController.view.backgroundColor = .tokenListBackgroundColor
+            newViewController.view.backgroundColor = .optShareBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
         }).disposed(by: disposedBag)
         return button

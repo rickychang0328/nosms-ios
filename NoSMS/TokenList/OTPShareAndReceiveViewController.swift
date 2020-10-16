@@ -23,6 +23,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
+            newViewController.view.backgroundColor = .optShareBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
             
         }).disposed(by: disposedBag)
@@ -49,7 +50,11 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.backgroundColor = .clear
         button.titleLabel?.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 15)
         button.setTitle("近期分享记录", for: .normal)
+        button.sizeToFit()
+        button.contentHorizontalAlignment = .left
         button.setTitleColor(UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1), for: .normal)
+        let shareCount = ShareRecordStoreManager().getAllRecord()
+        button.isHidden = shareCount.isEmpty
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
@@ -93,9 +98,11 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     private lazy var exportButtonHint: UILabel = {
         let label = UILabel()
-        label.text = "选择欲导出的验证码，并创建您的二维码。"
+        label.text = "选择欲导出的验证码，并创建您的二维码"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 12)
         label.textAlignment = .left
+        label.sizeToFit()
+        label.adjustsFontSizeToFitWidth = true
         label.textColor = UIColor.getColor(red: 136, green: 136, blue: 138, alpha: 1)
         label.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
         return label
@@ -103,7 +110,7 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     private lazy var receiveButtonHint: UILabel = {
         let label = UILabel()
-        label.text = "扫描设备的二维码即可导入验证码。"
+        label.text = "扫描设备的二维码即可导入验证码"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 12)
         label.textAlignment = .left
         label.textColor = UIColor.getColor(red: 136, green: 136, blue: 138, alpha: 1)
@@ -122,6 +129,8 @@ class OTPShareAndReceiveViewController: UIViewController {
         let view = UIImageView()
         view.image = UIImage(named: "NoSMS_historyIcon")
         view.backgroundColor = UIColor.clear
+        let shareCount = ShareRecordStoreManager().getAllRecord()
+        view.isHidden = shareCount.isEmpty
         return view
     }()
     
@@ -235,7 +244,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         exportButtonHint.snp.makeConstraints {
             $0.top.equalTo(exportButtonLabel.snp.bottom).offset(ScaleWidth(at: 11))
             $0.height.equalTo(ScaleWidth(at: 16.5))
-            $0.width.equalTo(ScaleWidth(at: 216))
+            $0.width.equalTo(ScaleWidth(at: 260))
             $0.leading.equalTo(exportOTPButton.snp.leading).offset(21.5)
         }
         
@@ -276,7 +285,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         shareOTPRecordButton.snp.makeConstraints {
             $0.top.equalTo(receiveOTPButton.snp.bottom).offset(25)
             $0.height.equalTo(ScaleWidth(at: 21))
-            $0.width.equalTo(ScaleWidth(at: 93.5))
+            $0.width.equalTo(ScaleWidth(at: 150))
             $0.left.equalTo(shareOTPRecordImageView.snp.right).offset(12)
         }
         
