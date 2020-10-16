@@ -19,6 +19,16 @@ class QRcodeOTPShareViewController: UIViewController {
     var otpShareSelectedAccountToken = [String]()
     var timer : Timer?
     let alertVc = NoSMSAlertOneButtonViewController()
+    
+    let alertView: NoSMSAlertOneButtonView = {
+        
+        let view = NoSMSAlertOneButtonView(frame: .zero)
+        view.setBackgroundColor(.alertsBackgroundColor)
+            .addCornerRadius(at: ScaleWidth(at: 6))
+        view.oneButtonAlertCase = .screenShot
+        view.isHidden = true
+        return view
+    }()
    
     private lazy var exportOTPButton: UIButton = {
         
@@ -59,7 +69,7 @@ class QRcodeOTPShareViewController: UIViewController {
                 button.isHidden = true
                 self.exportOTPButton.isHidden = false
             }
-            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
+            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page) 个二维码"
         }).disposed(by: disposedBag)
         return button
     }()
@@ -129,7 +139,16 @@ class QRcodeOTPShareViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let view = ShareSelectedOTPViewController()
-            view.otpValueArray = self.otpShareSelectedAccount
+                var startIndex = 10 * (self.pageInex-1)
+                var endIndex = startIndex + 9
+            if self.otpShareSelectedAccount.count - 1 < endIndex {
+                endIndex = self.otpShareSelectedAccount.count - 1
+            }
+            var thisPageQRCodeAccount = [String]()
+            for index in startIndex...endIndex {
+                thisPageQRCodeAccount.append(self.otpShareSelectedAccount[index])
+            }
+            view.otpValueArray = thisPageQRCodeAccount
             view.confirmButton.rx.tap.subscribe(onNext: { [weak self] in
                 guard let self = self else { return }
                 view.view.removeFromSuperview()
@@ -258,11 +277,12 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private func addNotification() {
         NotificationCenter.default.addObserver(forName: UIApplication.userDidTakeScreenshotNotification, object: nil, queue: OperationQueue.main) { notification in
-            self.alertVc.alertCase = .screenShot
-            self.alertVc.showAlertSetting(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle:"确定",confirmAction: nil)
-            self.alertVc.modalPresentationStyle = .overCurrentContext
-            self.alertVc.modalTransitionStyle = .crossDissolve
-            self.present(self.alertVc, animated: true, completion: nil)
+            self.alertView.isHidden = false
+//            self.alertVc.alertCase = .screenShot
+//            self.alertVc.showAlertSetting(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle:"确定",confirmAction: nil)
+//            self.alertVc.modalPresentationStyle = .overCurrentContext
+//            self.alertVc.modalTransitionStyle = .crossDissolve
+//            self.present(self.alertVc, animated: true, completion: nil)
         }
         
     }
@@ -271,12 +291,21 @@ class QRcodeOTPShareViewController: UIViewController {
         self.view.addSubview(exportOTPButton)
         self.view.addSubview(topHint)
         self.view.addSubview(qrCodeView)
+        qrCodeImageView.addSubview(alertView)
         self.view.addSubview(qrCodeImageView)
         self.view.addSubview(timeCount)
         self.view.addSubview(checkOTPButton)
         self.view.addSubview(nextButton)
         self.view.addSubview(previousButton)
         self.view.addSubview(qrCodeIndex)
+        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] _ in
+            guard let self = self else { return }
+            self.alertView.isHidden = true
+        }).disposed(by: disposedBag)
+        
+        alertView.snp.makeConstraints{
+            $0.edges.equalToSuperview()
+        }
         
         if page == 1 {
             exportOTPButton.snp.makeConstraints {
@@ -425,7 +454,7 @@ class ShareSelectedOTPViewController: UIViewController, UITableViewDelegate, UIT
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .clear
+        view.backgroundColor = .getColor(red: 0, green: 0, blue: 0, alpha: 0.4)
         tableView.register(ShareOTPTableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.dataSource = self
         tableView.delegate = self
@@ -501,7 +530,7 @@ class ShareOTPTableViewCell: UITableViewCell {
         label.setFont(.pingFangMediumFont(size: 13))
             .setTextColor(.getColor(red: 216, green: 216, blue: 216, alpha: 1))
             .setNumberOfLine(0)
-            .setTextAlignment(.center)
+            .setTextAlignment(.left)
         return label
     }()
     

@@ -377,7 +377,8 @@ class NoSMSAlertOneButtonViewController: UIViewController {
             }
         case .screenShot :
             screenShotAlertView.snp.makeConstraints {
-                $0.center.equalToSuperview()
+                $0.centerX.equalToSuperview()
+                $0.centerY.equalToSuperview()
                 $0.width.equalTo(ScaleWidth(at: 240))
                 $0.height.equalTo(ScaleWidth(at: 240))
                 self.view.backgroundColor = .clear
