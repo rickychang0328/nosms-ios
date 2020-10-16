@@ -50,6 +50,8 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.backgroundColor = .clear
         button.titleLabel?.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 15)
         button.setTitle("近期分享记录", for: .normal)
+        button.sizeToFit()
+        button.contentHorizontalAlignment = .left
         button.setTitleColor(UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1), for: .normal)
         let shareCount = ShareRecordStoreManager().getAllRecord()
         button.isHidden = shareCount.isEmpty
@@ -283,7 +285,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         shareOTPRecordButton.snp.makeConstraints {
             $0.top.equalTo(receiveOTPButton.snp.bottom).offset(25)
             $0.height.equalTo(ScaleWidth(at: 21))
-            $0.width.equalTo(ScaleWidth(at: 93.5))
+            $0.width.equalTo(ScaleWidth(at: 150))
             $0.left.equalTo(shareOTPRecordImageView.snp.right).offset(12)
         }
         
