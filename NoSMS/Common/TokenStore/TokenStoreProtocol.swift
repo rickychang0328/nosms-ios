@@ -686,13 +686,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     
                     for index in filterToken.indices {
                         
-                        var plustValue = "\(index + 1)"
-                        
-                        while !self.getSameTokensWithType(name: filterToken[index].token.name + plustValue, issuer: filterToken[index].token.issuer, isOnTime: filterToken[index].token.isOnTime).isEmpty {
-                            
-                            plustValue += "1"
-                        }
-                        filterToken[index].changeNamePlus(index: plustValue)
+                        filterToken[index].changeNamePlus(index: "\(index + 1)")
                     }
                 }
                 mulitpleShareNewSaveHandler()
