@@ -93,6 +93,7 @@ enum TokenEvent {
     case start
     case error(Error)
     case endScanTask(toast: String)
+    case endScanTaskRemoveVCAndShowToastSameTime(toast: String)
     case alertAction(title: String, message: String, completion: () -> Void)
     case replaceAlertAction(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
 }
@@ -148,7 +149,7 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                         
                         case .success(toast: let toast):
                             
-                            self.eventResult.onNext(.endScanTask(toast: toast))
+                            self.eventResult.onNext(.endScanTaskRemoveVCAndShowToastSameTime(toast: toast))
                         case .error(error: let error):
                             
                             self.eventResult.onNext(.error(error))
@@ -267,6 +268,10 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
                 self.showReplaceAlert(message: message, confirmAction: newAddHandler, replaceAction: replaceHandler, cancelAction: { [weak self] in
                     self?.viewModel.startScan()
                 })
+            case .endScanTaskRemoveVCAndShowToastSameTime(toast: let toast):
+                
+                self.navigationController?.popViewController(animated: true)
+                NoSMSHUD.showToast(title: toast)
             }
         }).disposed(by: disposedBag)
         
