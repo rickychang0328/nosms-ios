@@ -930,7 +930,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         editControllView.shareOTPButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
             let bioTitle = BioMetricAuthenticator.shared.isFaceIdDevice() ? "您的设备尚未开启面容ID识别" : "您的设备尚未开启指纹识别"
-            if !BioMetricAuthenticator.shared.faceIDAvailable() && !AuthIDStatusManager.touchIDAvailable() {
+            if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) {
                 self.showFaceIDAlert(title: "",
                                      message: bioTitle,
                                      confirmTitle: "设置",
