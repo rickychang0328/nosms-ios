@@ -816,8 +816,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             
             $0.centerY.equalTo(baseTokenView.passwordLabel)
             $0.right.equalTo(contentView.snp.left)
-            $0.height.equalTo(ScaleWidth(at: 18))
-            $0.width.equalTo(ScaleWidth(at: 18))
+            $0.height.equalTo(ScaleWidth(at: 27))
+            $0.width.equalTo(ScaleWidth(at: 27))
         }
         
         deletedButtonInContentView.snp.makeConstraints {
