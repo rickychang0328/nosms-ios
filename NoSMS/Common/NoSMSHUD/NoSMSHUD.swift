@@ -793,6 +793,7 @@ class NoSMSAlertThreeButtonView: UIView {
         messageLabel.preferredMaxLayoutWidth = NoSMSAlertThreeButtonView.messageWidth
         messageLabel.snp.makeConstraints {
             
+            $0.width.equalTo(NoSMSAlertThreeButtonView.messageWidth)
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 15))
             $0.centerX.equalToSuperview()
         }
