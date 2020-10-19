@@ -23,7 +23,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
+            let newViewController = ShareOTPViewController(viewModel: ShareOTPVCViewModel())
             newViewController.view.backgroundColor = .optShareBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
             
@@ -68,6 +68,8 @@ class OTPShareAndReceiveViewController: UIViewController {
         
         let label = UILabel()
         label.text = "您可以将验证码分享到已安装MustAuth的新设备中"
+        label.sizeToFit()
+        label.adjustsFontSizeToFitWidth = true
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 15)
         label.textAlignment = .center
         label.textColor = UIColor.getColor(red: 102, green: 102, blue: 102, alpha: 1)

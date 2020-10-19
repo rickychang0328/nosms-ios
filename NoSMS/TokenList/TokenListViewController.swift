@@ -2158,11 +2158,20 @@ class EditControllView: UIView {
             topY = 46
         }
         
-        backImageView.snp.makeConstraints {
-            $0.right.equalTo(0)
-            $0.topMargin.equalTo(topY - 10)
-            $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-            $0.height.equalTo(ScaleWidth(at: 175 + 15))
+        if UIScreen.main.nativeBounds.height <= 1334 {
+            backImageView.snp.makeConstraints {
+                $0.right.equalTo(0)
+                $0.topMargin.equalTo(topY)
+                $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
+                $0.height.equalTo(ScaleWidth(at: 175 + 25))
+            }
+        } else {
+            backImageView.snp.makeConstraints {
+                $0.right.equalTo(0)
+                $0.topMargin.equalTo(topY)
+                $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
+                $0.height.equalTo(ScaleWidth(at: 175 + 15))
+            }
         }
         
         editCodeLabel.snp.makeConstraints {
@@ -2260,5 +2269,32 @@ class EditControllView: UIView {
     required init?(coder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+enum DeviceTypeModel{
+    case iphoneX
+    case iphone8Plus
+    case iphone8
+    case iphoneSE //SE is the like iphone 5 and iphone 5s
+    case iphone4s
+}
+
+extension UIView{
+    func runOnTheDeviceType(_ completion: (DeviceTypeModel) -> Void) {
+        if UIDevice().userInterfaceIdiom == .phone{
+            switch UIScreen.main.nativeBounds.height{
+            case 2436:
+                completion(.iphoneX)
+            case 1920:
+                completion(.iphone8Plus)
+            case 1334:
+                completion(.iphone8)
+            case 1136:
+                completion(.iphoneSE)
+            default:
+                completion(.iphone4s)
+            }
+        }
     }
 }
