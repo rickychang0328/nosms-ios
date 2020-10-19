@@ -12,7 +12,8 @@ import RxCocoa
 class QRcodeOTPShareViewController: UIViewController {
     
     var disposedBag: DisposeBag = .init()
-    var secondsRemaining = 60
+    private let startTime = Date().timeIntervalSince1970
+    private let timeCounter: TimeInterval = 61
     var pageInex = 1
     var page = 1
     var otpShareSelectedAccount = [String]()
@@ -273,16 +274,28 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private func addTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { (Timer) in
-            if self.secondsRemaining > 0 {
-                self.secondsRemaining -= 1
-                if self.secondsRemaining >= 10 {
-                    self.timeCount.text = "00:"+self.secondsRemaining.description+" 请在倒数计时结束前完成扫码"
-                } else {
-                    self.timeCount.text = "00:0"+self.secondsRemaining.description+" 请在倒数计时结束前完成扫码"
-                }
-            } else {
+            
+            let lastTime = Date().timeIntervalSince1970 - self.startTime
+            
+            if lastTime > self.timeCounter {
+                
                 self.timer?.invalidate()
                 self.popViewControllerss(popViews: 2)
+            } else {
+                
+                let displayTime = self.timeCounter - lastTime
+                
+                let firstTime: String
+                
+                if displayTime >= 10 {
+                    
+                    firstTime = "00:"
+                } else {
+                    
+                    firstTime = "00:0"
+                }
+                
+                self.timeCount.text =  firstTime + "\(Int(displayTime))" + " 请在倒数计时结束前完成扫码"
             }
         }
     }
