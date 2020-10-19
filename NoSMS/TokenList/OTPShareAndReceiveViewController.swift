@@ -23,7 +23,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
+            let newViewController = ShareOTPViewController(viewModel: ShareOTPVCViewModel())
             newViewController.view.backgroundColor = .optShareBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
             

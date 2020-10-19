@@ -65,7 +65,7 @@ class GroupAddCodeTableViewCell: BaseTableViewCellNoGeneric {
             
             $0.top.equalTo(ScaleWidth(at: 59))
             $0.right.equalToSuperview().inset(ScaleWidth(at: 20))
-            $0.size.equalTo(ScaleWidth(at: 18))
+            $0.size.equalTo(ScaleWidth(at: 27))
         }
     }
     

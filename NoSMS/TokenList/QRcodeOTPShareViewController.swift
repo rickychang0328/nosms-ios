@@ -82,7 +82,7 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private lazy var previousButton: UIButton = {
         let button = UIButton(type: UIButton.ButtonType.custom)
-        button.setTitle("上一頁", for: .normal)
+        button.setTitle("上一页", for: .normal)
         button.setTitleColor(UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1), for: .normal)
         button.backgroundColor = .tokenListBackgroundColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)

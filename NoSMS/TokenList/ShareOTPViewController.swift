@@ -7,7 +7,7 @@ import DynamicBlurView
 
 
 
-class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
+class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTableViewController<VCViewModel>, UITextFieldDelegate, UIPopoverPresentationControllerDelegate {
     private var groupDisposedBag: DisposeBag = .init()
     private var lifeCycleDisposeBag: DisposeBag = .init()
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
@@ -173,10 +173,9 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     private let scrollView: UIScrollView = .init()
     
     private let editControllView: EditControllView = .init(frame: .zero)
-    
+        
     override func viewDidLoad() {
         super.viewDidLoad()
-      
         isShareOTP = true
         self.navigationItem.title = "选择验证码"
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
@@ -348,14 +347,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
             //MARK: tableview 拖曳的各種坑盡量 reloadData 保持正常
             self.tableView.reloadData()
         }).disposed(by: disposedBag)
-        
-        tableView.rx.itemSelected
-            .flatMapLatest(self.viewModel.selectItem)
-            .subscribe(onNext: { [weak self] string in
-                guard self != nil else { return }
-                NoSMSHUD.showToast(title: string)
-            }).disposed(by: disposedBag)
-        
+                
         tableView.rx.didScrollToTop.subscribe(onNext: {[weak self] in
             guard let self = self else { return }
             if (self.searchTextField.text?.isEmpty ?? true){
@@ -1056,8 +1048,206 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     
 }
 
+class ShareOTPVCViewModel: BaseVCViewModel, ShareOTPVCViewModelProtocol {
+    
+    let haveGroup: Observable<Bool>
+    
+    var groupViewModels: Observable<[TokenListInGroupVCViewModel]> {
+        
+        return groupViewModelsBehavior.asObservable()
+    }
+    
+    private let groupViewModelsBehavior: BehaviorSubject<[TokenListInGroupVCViewModel]> = .init(value: [])
+    
+    private var _groupViewModels: [TokenListInGroupVCViewModel] = [] {
+        
+        didSet {
+            
+            groupViewModelsBehavior.onNext(_groupViewModels)
+        }
+    }
+    
+    let customSegmentControlViewModel: CustomSegmentControlViewModelType
+    
+    var tokenIsEmpty: Bool {
+        
+        return tokenStore.tokenIsEmpty
+    }
+    
+    let deleteIsEnable: Observable<Bool>
+    let eventResult: BehaviorSubject<TokenListViewModelEvent> = .init(value: .reloadData)
+    
+    var tableViewStyle: UITableView.Style {
+        
+        return .grouped
+    }
+    
+    var cellViewModels: [BaseTableViewSectionItemsProtocol] {
+        
+        return tokenListSupportPin.sections
+    }
+    
+    private let tokenStore: TokenStoreProtocol
+    
+    private var isFirstOpen: Bool = true
+    
+    private let tokenListSupportPin: TokenListSupportPin
+    
+    init(navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "MustAuth")),
+         tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
+         backgroundColor: UIColor = .tokenListBackgroundColor,
+         tokenListSupportPin: TokenListSupportPin = TokenListSupportPin()) {
+        
+        self.tokenStore = tokenStore
+        self.deleteIsEnable = tokenStore.haveSelectTokenToDelete
+        self.tokenListSupportPin = tokenListSupportPin
+        
+        //TODO:
+        let groupListTitleObserber = KeychainTokenStore.shared.groupListBehavior.map({ $0.map { $0.title } }).asObservable()
+        self.customSegmentControlViewModel = CustomSegmentControlViewModel(titles: groupListTitleObserber)
+        self.haveGroup = KeychainTokenStore.shared.groupListBehavior.map({!$0.isEmpty})
+        super.init(navigationItem: navigationItemViewModel, backgroundColor: backgroundColor)
+        
+        KeychainTokenStore.shared.groupListBehavior.subscribe(onNext: { [weak self] groups in
+            guard let self = self else { return }
+            self._groupViewModels = groups.map({ TokenListInGroupVCViewModel(tokenListSupportPin: TokenListSupportPin(), groupID: $0.uuid)})
+            
+            for groupViewModel in self._groupViewModels {
+                
+                groupViewModel.setCellViewModel(viewModels: self.tokenListSupportPin.allTokenViewModel)
+            }
+        }).disposed(by: disposedBag)
+        
+        tokenStore.persistentTokensBehavior
+            .map( {
+                $0.map({
+                    TableViewCellViewModelFactory.getCellViewModel(type: .tokenList($0))
+                })
+            }).subscribe(onNext: { [weak self] viewModels in
+                guard let self = self else { return }
+                
+                //轉換變動不需要重新load, 不是新增 也不是刪除
+                let count = self.tokenListSupportPin.allTokenViewModel.count
+                self.tokenListSupportPin.setupTokens(tokens: viewModels)
+                
+                for groupViewModel in self._groupViewModels {
+                    
+                    groupViewModel.setCellViewModel(viewModels: viewModels)
+                }
+                
+                if count == viewModels.count {
+                    if self.isFirstOpen {
+                        self.isFirstOpen = false
+                        return
+                    }
+                    // 當變多的時候就增加成功 所以重置搜索狀態
+                } else if count < viewModels.count {
+                    
+                    
+                    self.eventResult.onNext(.resetSearch)
+                    self.eventResult.onNext(.reloadData)
+                    //初始化時就不觸發新增效果
+                    
+                    if self.isFirstOpen {
+                        self.isFirstOpen = false
+                        return
+                    }
+                    
+                    let indexPath = self.tokenListSupportPin.getIndexPath(id: viewModels[viewModels.count - 1].tokenID)
+                    
+                    self.eventResult.onNext(.scrollToIndex(indexPath))
+                    
+                } else {
+                    if self.isFirstOpen {
+                        self.isFirstOpen = false
+                    }
+                    self.eventResult.onNext(.reloadData)
+                    
+                }
+            })
+            .disposed(by: disposedBag)
+        
+        tokenStore.pinEvent.subscribe(onNext: { [weak self] event in
+            guard let self = self else { return }
+            
+            switch event {
+                
+            case .addPin(let id):
+                
+                self.tokenListSupportPin.reloadPin()
+                self._groupViewModels.forEach({$0.tokenListSupportPin.reloadPin()})
+                self.eventResult.onNext(.addPin(id: id))
+                self.eventResult.onNext(.empty)
+            case .remove(let id):
+                
+                //MARK: 壞了只能先硬幹一下
+                self.eventResult.onNext(.removePin(id: id))
+                self.eventResult.onNext(.empty)
+            case .emtpy:
+                break
+            }
+        }).disposed(by: disposedBag)
+    }
+    
+    func deleteToken() {
+        
+        do {
+            try tokenStore.deleteSelectedToken()
+            
+        } catch {
+            
+            eventResult.onNext(.error(error))
+        }
+    }
+    
+    func swapToken(beforeIndex: Int, afterIndex: Int) {
+        
+        do {
+            let bef = tokenListSupportPin.getRealIndex(indexPath: IndexPath(row: beforeIndex, section: 1))
+            let after = tokenListSupportPin.getRealIndex(indexPath: IndexPath(row: afterIndex, section: 1))
+            try tokenStore.moveTokenFromIndex(bef, toIndex: after)
+        } catch {
+            
+            eventResult.onNext(.error(error))
+        }
+    }
+    
+    func tableViewEndEdit() {
+        
+        tokenStore.resetTokenSelected()
+    }
+    
+    func searchText(input: String) {
+        
+        if tokenListSupportPin.isSameString(input: input) {
+            
+        } else {
+            
+            tokenListSupportPin.setSearchString(input: input)
+            _groupViewModels.forEach({ $0.setSearchText(input: input) })
+            eventResult.onNext(.reloadData)
+        }
+    }
+    func viewDidAppear() {
+        eventResult.onNext(.empty)
+    }
+}
 
-
+protocol ShareOTPVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
+    
+    var eventResult: BehaviorSubject<TokenListViewModelEvent> { get }
+    var deleteIsEnable: Observable<Bool> { get }
+    var tokenIsEmpty: Bool { get }
+    var customSegmentControlViewModel: CustomSegmentControlViewModelType { get }
+    var groupViewModels: Observable<[TokenListInGroupVCViewModel]> { get }
+    var haveGroup: Observable<Bool> { get }
+    
+    func deleteToken()
+    func swapToken(beforeIndex: Int, afterIndex: Int)
+    func tableViewEndEdit()
+    func searchText(input: String)
+    func viewDidAppear()
+}
 
 
 
