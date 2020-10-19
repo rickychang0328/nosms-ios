@@ -45,9 +45,14 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setTitle("导出验证码", for: .normal)
         button.titleLabel?.textColor = .white
-        button.backgroundColor = .exportOTPDisableTextColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
-        button.isEnabled = false
+        if otpShareSelectedAccount.isEmpty {
+            button.isEnabled = false
+            button.backgroundColor = .exportOTPDisableTextColor
+        } else {
+            button.isEnabled = true
+            button.backgroundColor = .exportOTPEnableTextColor
+        }
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
@@ -60,40 +65,42 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         }).disposed(by: disposedBag)
         return button
     }()
+    private lazy var selectAllButton: UIButton = {
+        let button = UIButton(type: UIButton.ButtonType.custom)
+               button.frame = CGRect(x: 0, y: 0, width: 60, height: 25)
+               button.setTitle("取消全选", for: .normal)
+               button.titleLabel?.textAlignment = .right
+               button.titleLabel?.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 15)
+               button.rx.tap
+                   .subscribe(onNext: { [weak self] _ in
+                       guard let self = self else { return }
+                       if button.titleLabel?.text == "全选" {
+                           NotificationCenter.default.post(name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil, userInfo: ["selectAll": true])
+                           button.setTitle("取消全选", for: .normal)
+                           self.exportOTPButton.isEnabled = true
+                           self.exportOTPButton.backgroundColor = .exportOTPEnableTextColor
+                           self.customSegmentView.selectIndex(at: 0)
+                           let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+                           self.otpShareSelectedAccount.removeAll()
+                           for token in tokenStore.tokenList {
+                               self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+                           }
+                       } else {
+                           NotificationCenter.default.post(name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil, userInfo: ["selectAll": false])
+                           button.setTitle("全选", for: .normal)
+                           self.exportOTPButton.isEnabled = false
+                           self.exportOTPButton.backgroundColor = .exportOTPDisableTextColor
+                           self.otpShareSelectedAccount.removeAll()
+                       }
+                       
+
+                   }).disposed(by: disposedBag)
+        return button
+    }()
+    
     
     private lazy var selectAllBarButton: UIBarButtonItem = {
-        
-        let button = UIButton(type: UIButton.ButtonType.custom)
-        button.frame = CGRect(x: 0, y: 0, width: 60, height: 25)
-        button.setTitle("全选", for: .normal)
-        button.titleLabel?.textAlignment = .right
-        button.titleLabel?.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 15)
-        button.rx.tap
-            .subscribe(onNext: { [weak self] _ in
-                guard let self = self else { return }
-                if button.titleLabel?.text == "全选" {
-                    NotificationCenter.default.post(name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil, userInfo: ["selectAll": true])
-                    button.setTitle("取消全选", for: .normal)
-                    self.exportOTPButton.isEnabled = true
-                    self.exportOTPButton.backgroundColor = .exportOTPEnableTextColor
-                    self.customSegmentView.selectIndex(at: 0)
-                    let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
-                    self.otpShareSelectedAccount.removeAll()
-                    for token in tokenStore.tokenList {
-                        self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
-                    }
-                } else {
-                    NotificationCenter.default.post(name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil, userInfo: ["selectAll": false])
-                    button.setTitle("全选", for: .normal)
-                    self.exportOTPButton.isEnabled = false
-                    self.exportOTPButton.backgroundColor = .exportOTPDisableTextColor
-                    self.otpShareSelectedAccount.removeAll()
-                }
-                
-
-            }).disposed(by: disposedBag)
-        
-        let barBtn = UIBarButtonItem(customView: button)
+        let barBtn = UIBarButtonItem(customView: selectAllButton)
         return barBtn
     }()
     
@@ -135,7 +142,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     private lazy var searchTextField: UITextField = {
         
         let textField = CustomTextField(frame: .zero)
-        textField.textColor = .tokenListSearchTextFieldTextColor
+        textField.textColor = .otpShareSearchTextColor
         textField.backgroundColor = .tokenListSearchTextFieldBackgroundColor
         textField.placeholder = "搜索"
         textField.font = .pingFangMediumFont(size: 15)
@@ -169,6 +176,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     
     override func viewDidLoad() {
         super.viewDidLoad()
+      
         isShareOTP = true
         self.navigationItem.title = "选择验证码"
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
@@ -560,6 +568,11 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         } else {
             exportOTPButton.isEnabled = true
             exportOTPButton.backgroundColor = .exportOTPEnableTextColor
+        }
+        if KeychainTokenStore.shared.tokenList.count != otpShareSelectedAccount.count {
+            selectAllButton.setTitle("全选", for: .normal)
+        } else {
+            selectAllButton.setTitle("取消全选", for: .normal)
         }
     }
 
@@ -1024,28 +1037,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
             }
         }).disposed(by: disposedBag)
     }
-    
-    private func showAlertToOpenSettingURL(title: String?, message: String?) {
         
-        let alertController = UIAlertController (title: title, message: message, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "确认", style: .default, handler: nil)
-        alertController.addAction(cancelAction)
-        let settingsAction = UIAlertAction(title: "设定", style: .default) { _ in
-            
-            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                return
-            }
-            
-            if UIApplication.shared.canOpenURL(settingsUrl) {
-                
-                UIApplication.shared.open(settingsUrl, completionHandler: nil)
-            }
-        }
-        alertController.addAction(settingsAction)
-        
-        self.present(alertController, animated: true, completion: nil)
-    }
-    
     private func showDeleteAlert() {
         
         showAlert(title: "删除此账号并不会影响已设置的身份验证功能\n您可能因此无法登录自己的帐号",

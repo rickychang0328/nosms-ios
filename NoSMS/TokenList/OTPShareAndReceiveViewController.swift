@@ -20,6 +20,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.backgroundColor = .otpShareReceiveButtonColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
+        button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
@@ -38,9 +39,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            
-            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
-            self.navigationController?.pushViewController(nextVC, animated: true)
+            self.showTokenScannerVC()
         }).disposed(by: disposedBag)
         return button
     }()
@@ -148,13 +147,24 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        //self.view.backgroundColor = .tokenListBackgroundColor
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+
+               leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+                   
+                   self?.navigationController?.popViewController(animated: true)
+               }).disposed(by: disposedBag)
+               
+               navigationItem.leftBarButtonItem = leftbarItem
         setLayOut()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         self.navigationItem.title = "验证码分享"
+        let shareCount = ShareRecordStoreManager().getAllRecord()
+        shareOTPRecordButton.isHidden = shareCount.isEmpty
+        shareOTPRecordImageView.isHidden = shareCount.isEmpty
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -291,6 +301,17 @@ class OTPShareAndReceiveViewController: UIViewController {
         
     }
     
-    
-    
+    private func showTokenScannerVC() {
+        
+        let status = AuthorizationManager.cameraStatus()
+        
+        if status == .restricted || status == .denied {
+            
+            showAlertToOpenSettingURL(title: "相机启用失败", message: "相机权限未开启")
+        } else {
+            
+            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
+    }
 }
