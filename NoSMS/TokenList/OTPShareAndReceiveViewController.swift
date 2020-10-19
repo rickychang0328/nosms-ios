@@ -20,6 +20,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.backgroundColor = .otpShareReceiveButtonColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
+        button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let newViewController = ShareOTPViewController(viewModel: TokenListVCViewModel())
@@ -162,6 +163,10 @@ class OTPShareAndReceiveViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         self.navigationItem.title = "验证码分享"
+        let shareCount = ShareRecordStoreManager().getAllRecord()
+        shareOTPRecordButton.isHidden = shareCount.isEmpty
+        shareOTPRecordImageView.isHidden = shareCount.isEmpty
+        
     }
     
     override func viewWillDisappear(_ animated: Bool) {

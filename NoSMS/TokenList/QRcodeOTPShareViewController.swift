@@ -20,16 +20,21 @@ class QRcodeOTPShareViewController: UIViewController {
     var timer : Timer?
     let alertVc = NoSMSAlertOneButtonViewController()
     
-    let alertView: NoSMSAlertOneButtonView = {
+    lazy var alertView: NoSMSAlertScanOneButtonView = {
         
-        let view = NoSMSAlertOneButtonView(frame: .zero)
-        view.setBackgroundColor(.alertsBackgroundColor)
-            .addCornerRadius(at: ScaleWidth(at: 6))
+        let view = NoSMSAlertScanOneButtonView(frame: .zero)
+            .addCornerRadius(at: ScaleWidth(at: 20))
         view.oneButtonAlertCase = .screenShot
         view.isHidden = true
+        view.confirmButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
+        view.titleLabel.text = "此功能用于验证码分享，请不要将二维码发送给他人。"
         return view
     }()
-   
+    
+    @objc func buttonAction(sender: UIButton!) {
+        alertView.isHidden = true
+    }
+    
     private lazy var exportOTPButton: UIButton = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -139,8 +144,8 @@ class QRcodeOTPShareViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let view = ShareSelectedOTPViewController()
-                var startIndex = 10 * (self.pageInex-1)
-                var endIndex = startIndex + 9
+            var startIndex = 10 * (self.pageInex-1)
+            var endIndex = startIndex + 9
             if self.otpShareSelectedAccount.count - 1 < endIndex {
                 endIndex = self.otpShareSelectedAccount.count - 1
             }
@@ -183,9 +188,9 @@ class QRcodeOTPShareViewController: UIViewController {
         self.navigationItem.title = "扫描二维码"
         page = self.otpShareSelectedAccount.count / 10
         if page == 0 {
-           page = 1
+            page = 1
         } else if self.otpShareSelectedAccount.count % 10 > 0 {
-           page += 1
+            page += 1
         }
         setLayOut()
         addNotification()
@@ -195,17 +200,17 @@ class QRcodeOTPShareViewController: UIViewController {
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-           super.traitCollectionDidChange(previousTraitCollection)
-           setNavigate()
-       }
+        super.traitCollectionDidChange(previousTraitCollection)
+        setNavigate()
+    }
     
     func setNavigate() {
         let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
-
-                 leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
-                     
-                     self?.navigationController?.popViewController(animated: true)
-                 }).disposed(by: disposedBag)
+        
+        leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+            
+            self?.navigationController?.popViewController(animated: true)
+        }).disposed(by: disposedBag)
         navigationItem.leftBarButtonItem = leftbarItem
         var color: UIColor
         if #available(iOS 13.0, *) {
@@ -247,7 +252,7 @@ class QRcodeOTPShareViewController: UIViewController {
         if endIndex >= otpShareSelectedAccount.count {
             endIndex = otpShareSelectedAccount.count - 1
         }
-
+        
         var urlcom = URLComponents()
         urlcom.scheme = MustAuth.kMustAuthScheme
         urlcom.host = MustAuth.kQueryActionMulitpleshare
@@ -255,12 +260,12 @@ class QRcodeOTPShareViewController: UIViewController {
         
         let action = URLQueryItem(name: MustAuth.kQueryActionKey, value: MustAuth.kQueryActionMulitpleshare)
         var mulitpleURLArray = [URLQueryItem]()
-       
+        
         for index in startIndex...endIndex {
-             let token = otpShareSelectedAccountToken[index]
-             let mulitpleURL = URLQueryItem(name: MustAuth.kQueryMulitpleURLKey, value: token)
-             mulitpleURLArray.append(mulitpleURL)
-             //url += "&\(token)"
+            let token = otpShareSelectedAccountToken[index]
+            let mulitpleURL = URLQueryItem(name: MustAuth.kQueryMulitpleURLKey, value: token)
+            mulitpleURLArray.append(mulitpleURL)
+            //url += "&\(token)"
         }
         urlcom.queryItems = [action] + mulitpleURLArray
         qrCodeImageView.image =  urlcom.url?.debugDescription.generateQRCode()
@@ -285,11 +290,11 @@ class QRcodeOTPShareViewController: UIViewController {
     private func addNotification() {
         NotificationCenter.default.addObserver(forName: UIApplication.userDidTakeScreenshotNotification, object: nil, queue: OperationQueue.main) { notification in
             self.alertView.isHidden = false
-//            self.alertVc.alertCase = .screenShot
-//            self.alertVc.showAlertSetting(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle:"确定",confirmAction: nil)
-//            self.alertVc.modalPresentationStyle = .overCurrentContext
-//            self.alertVc.modalTransitionStyle = .crossDissolve
-//            self.present(self.alertVc, animated: true, completion: nil)
+            //            self.alertVc.alertCase = .screenShot
+            //            self.alertVc.showAlertSetting(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle:"确定",confirmAction: nil)
+            //            self.alertVc.modalPresentationStyle = .overCurrentContext
+            //            self.alertVc.modalTransitionStyle = .crossDissolve
+            //            self.present(self.alertVc, animated: true, completion: nil)
         }
         
     }
@@ -298,20 +303,23 @@ class QRcodeOTPShareViewController: UIViewController {
         self.view.addSubview(exportOTPButton)
         self.view.addSubview(topHint)
         self.view.addSubview(qrCodeView)
-        qrCodeImageView.addSubview(alertView)
         self.view.addSubview(qrCodeImageView)
+        self.view.addSubview(alertView)
         self.view.addSubview(timeCount)
         self.view.addSubview(checkOTPButton)
         self.view.addSubview(nextButton)
         self.view.addSubview(previousButton)
         self.view.addSubview(qrCodeIndex)
-        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] _ in
-            guard let self = self else { return }
-            self.alertView.isHidden = true
-        }).disposed(by: disposedBag)
+        //        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] _ in
+        //            guard let self = self else { return }
+        //            self.alertView.isHidden = true
+        //        }).disposed(by: disposedBag)
         
         alertView.snp.makeConstraints{
-            $0.edges.equalToSuperview()
+            $0.top.equalTo(topHint.snp.bottom).offset( ScaleWidth(at: 53))
+            $0.height.equalTo(ScaleWidth(at: 240))
+            $0.width.equalTo(ScaleWidth(at: 240))
+            $0.centerX.equalToSuperview()
         }
         
         if page == 1 {
@@ -353,6 +361,7 @@ class QRcodeOTPShareViewController: UIViewController {
         }
         
         qrCodeIndex.snp.makeConstraints {
+
             $0.top.equalTo(ScaleWidth(at: 72))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 17))
             $0.right.equalToSuperview().offset(ScaleWidth(at: -17))
@@ -373,12 +382,20 @@ class QRcodeOTPShareViewController: UIViewController {
             $0.centerX.equalTo(qrCodeView.snp.centerX)
             $0.centerY.equalTo(qrCodeView.snp.centerY)
         }
-        
-        timeCount.snp.makeConstraints {
-            $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 35))
-            $0.left.equalTo(ScaleWidth(at: 17))
-            $0.right.equalTo(ScaleWidth(at: -17))
-            $0.height.equalTo(ScaleWidth(at: 21))
+         if UIDevice.isIPhoneXUp {
+            timeCount.snp.makeConstraints {
+                $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 35))
+                $0.left.equalTo(ScaleWidth(at: 17))
+                $0.right.equalTo(ScaleWidth(at: -17))
+                $0.height.equalTo(ScaleWidth(at: 21))
+            }
+         } else {
+            timeCount.snp.makeConstraints {
+                $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 18))
+                $0.left.equalTo(ScaleWidth(at: 17))
+                $0.right.equalTo(ScaleWidth(at: -17))
+                $0.height.equalTo(ScaleWidth(at: 21))
+            }
         }
         
         checkOTPButton.snp.makeConstraints {
@@ -396,19 +413,19 @@ extension String {
     
     func generateQRCode() -> UIImage? {
         let data = self.data(using: String.Encoding.ascii)
-
+        
         if let filter = CIFilter(name: "CIQRCodeGenerator") {
             filter.setValue(data, forKey: "inputMessage")
             let transform = CGAffineTransform(scaleX: 3, y: 3)
-
+            
             if let output = filter.outputImage?.transformed(by: transform) {
                 return UIImage(ciImage: output)
             }
         }
-
+        
         return nil
     }
-
+    
 }
 
 extension UIViewController {
@@ -558,4 +575,71 @@ class ShareOTPTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+}
+
+class NoSMSAlertScanOneButtonView: UIView {
+    
+    var oneButtonAlertCase: OneButtonAlertCase = .normal
+    var disposedBag: DisposeBag = .init()
+    
+    lazy var confirmButton: UIButton = {
+        
+        let button = UIButton()
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.titleLabel?.setTextAlignment(.center)
+        button.addCornerRadius(at: ScaleWidth(at: 10))
+        button.setTitle("知道了", for: .normal)
+        button.backgroundColor = .getColor(red: 98, green: 112, blue: 255, alpha: 1)
+        return button
+    }()
+    
+    let titleLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangSemiBoldFont(size: 15))
+            .setTextColor(.alertScanTextColor)
+            .setNumberOfLine(0)
+            .setTextAlignment(.center)
+        return label
+    }()
+    
+    func setAlertCase(alertCase: OneButtonAlertCase) {
+        oneButtonAlertCase = alertCase
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        backgroundColor = .alertScanViewColor
+        alpha = 0.95
+        addSubview(titleLabel)
+        addSubview(confirmButton)
+        
+        titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
+        titleLabel.snp.makeConstraints {
+            
+            $0.top.equalTo(ScaleWidth(at: 83))
+            $0.centerX.equalToSuperview()
+            $0.left.equalToSuperview().offset(20)
+            $0.right.equalToSuperview().offset(-20)
+        }
+        
+        
+        confirmButton.snp.makeConstraints {
+            
+            $0.height.equalTo(ScaleWidth(at: 42))
+            $0.bottom.equalToSuperview().offset(-43)
+            $0.left.equalToSuperview().offset(13)
+            $0.right.equalToSuperview().offset(-13)
+            $0.centerX.equalToSuperview()
+            
+        }
+        
+        
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }

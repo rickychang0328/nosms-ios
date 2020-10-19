@@ -62,7 +62,7 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 25))
             $0.left.equalToSuperview()
             $0.right.equalToSuperview()
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -63.5))
+            $0.bottom.equalToSuperview()
         }
         
     }

@@ -45,9 +45,14 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
         let button = UIButton(type: UIButton.ButtonType.custom)
         button.setTitle("导出验证码", for: .normal)
         button.titleLabel?.textColor = .white
-        button.backgroundColor = .exportOTPDisableTextColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
-        button.isEnabled = false
+        if otpShareSelectedAccount.isEmpty {
+            button.isEnabled = false
+            button.backgroundColor = .exportOTPDisableTextColor
+        } else {
+            button.isEnabled = true
+            button.backgroundColor = .exportOTPEnableTextColor
+        }
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
@@ -63,7 +68,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     private lazy var selectAllButton: UIButton = {
         let button = UIButton(type: UIButton.ButtonType.custom)
                button.frame = CGRect(x: 0, y: 0, width: 60, height: 25)
-               button.setTitle("全选", for: .normal)
+               button.setTitle("取消全选", for: .normal)
                button.titleLabel?.textAlignment = .right
                button.titleLabel?.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 15)
                button.rx.tap
@@ -137,7 +142,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     private lazy var searchTextField: UITextField = {
         
         let textField = CustomTextField(frame: .zero)
-        textField.textColor = .red
+        textField.textColor = .otpShareSearchTextColor
         textField.backgroundColor = .tokenListSearchTextFieldBackgroundColor
         textField.placeholder = "搜索"
         textField.font = .pingFangMediumFont(size: 15)
@@ -171,6 +176,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
     
     override func viewDidLoad() {
         super.viewDidLoad()
+      
         isShareOTP = true
         self.navigationItem.title = "选择验证码"
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
