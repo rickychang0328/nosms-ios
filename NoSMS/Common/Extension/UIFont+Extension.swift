@@ -92,20 +92,27 @@ extension String {
         
         var result = self
         
+        var isDeleteString = false
+        
         while result.textWidth(font: font) >= width {
             
             result.removeLast()
+            isDeleteString = true
         }
         
-        for _ in 0 ... 2 {
-                        
-            result.removeLast()
-        }
-        
-        for _ in 0 ... 2 {
+        if isDeleteString {
             
-            result.append(".")
+            for _ in 0 ... 2 {
+                
+                result.removeLast()
+            }
+            
+            for _ in 0 ... 2 {
+                
+                result.append(".")
+            }
         }
+        
         return result
     }
 }
