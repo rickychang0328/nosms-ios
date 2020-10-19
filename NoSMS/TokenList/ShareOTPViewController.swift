@@ -59,7 +59,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
             let shareRecordManager = ShareRecordStoreManager()
             shareRecordManager.addNewRecord(description: "导出：\(self.otpShareSelectedAccount.count)个验证码")
             let newViewController = QRcodeOTPShareViewController()
-            newViewController.otpShareSelectedAccount = self.otpShareSelectedAccount
+            newViewController.otpShareSelectedAccountDatatoken = self.otpShareSelectedAccount
             newViewController.view.backgroundColor = .optShareBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)
         }).disposed(by: disposedBag)
@@ -83,7 +83,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
                            let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
                            self.otpShareSelectedAccount.removeAll()
                            for token in tokenStore.tokenList {
-                               self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+                            self.otpShareSelectedAccount.append(token.uuid)
                            }
                        } else {
                            NotificationCenter.default.post(name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil, userInfo: ["selectAll": false])
@@ -546,13 +546,13 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
     }
     
     @objc func receivedOTPNotification(notification: Notification) {
-        let name = notification.userInfo?["name"] as? String ?? ""
-        if otpShareSelectedAccount.contains(name) {
-            if let index = otpShareSelectedAccount.firstIndex(of: name) {
+        let token = notification.userInfo?["token"] as? Data
+        if otpShareSelectedAccount.contains(token!) {
+            if let index = otpShareSelectedAccount.firstIndex(of: token!) {
                 otpShareSelectedAccount.remove(at: index)
             }
         } else {
-             otpShareSelectedAccount.append(name)
+             otpShareSelectedAccount.append(token!)
         }
         if otpShareSelectedAccount.isEmpty {
             exportOTPButton.isEnabled = false

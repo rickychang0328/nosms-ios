@@ -27,7 +27,7 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     func setPin(isPin: Bool) {
         self.isPin = isPin
     }
-
+    
     let addPin: () -> Void
     
     let removePin: () -> Void
@@ -39,12 +39,12 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     var passwordColor: Observable<UIColor> {
         
         return warningTime.map({ if self.isOnTime {
-        
-                return $0 ? UIColor.tokenListWarningPasswordColor : UIColor.tokenListPasswordColor
-
-            } else {
-                
-                return UIColor.tokenListPasswordColor
+            
+            return $0 ? UIColor.tokenListWarningPasswordColor : UIColor.tokenListPasswordColor
+            
+        } else {
+            
+            return UIColor.tokenListPasswordColor
             }
         })
     }
@@ -63,9 +63,9 @@ class TokenListTableViewCellViewModel: TokenListTableViewCellViewModelProtocol {
     let getTapPassword: () -> Void
     
     let haveSelectToDelete: BehaviorSubject<Bool>
-
+    
     let baseCellItem: BaseTableViewCellViewModelItemProtocol
-
+    
     let name: BehaviorSubject<String>
     
     let password: Observable<String>
@@ -134,7 +134,7 @@ class BaseTokenListView: UIView {
     let selectImageView: UIImageView = .init(image: .noSmsNoSelected)
     
     let nameLabel: UILabel = {
-       
+        
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 15))
             .setTextColor(.tokenListAccountColor)
@@ -142,7 +142,7 @@ class BaseTokenListView: UIView {
     }()
     
     let passwordLabel: UILabel = {
-          
+        
         let label = UILabel()
         label.setFont(.arialMTFont(size: 45))
             .setTextColor(.tokenListPasswordColor)
@@ -150,7 +150,7 @@ class BaseTokenListView: UIView {
     }()
     
     let issuerLabel: UILabel = {
-          
+        
         let label = UILabel()
         label.setTextColor(.tokenListIssuerColor)
             .setFont(.pingFangMediumFont(size: 15))
@@ -187,7 +187,7 @@ class BaseTokenListView: UIView {
             $0.left.equalTo(issuerLabel)
             $0.right.equalTo(ScaleWidth(at: -50))
             $0.top.equalTo(passwordLabel.snp.bottom).offset(ScaleWidth(at: 10)).priorityLow()
-//            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
+            //            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -20))
         }
         
         digitsView.snp.makeConstraints {
@@ -199,7 +199,7 @@ class BaseTokenListView: UIView {
             
             $0.top.equalTo(ScaleWidth(at: 59))
             $0.right.equalToSuperview().inset(ScaleWidth(at: 20))
-            $0.size.equalTo(ScaleWidth(at: 18))
+            $0.size.equalTo(ScaleWidth(at: 27))
         }
         
         digitsView.isHidden = true
@@ -213,13 +213,13 @@ class BaseTokenListView: UIView {
     func bindData(viewModel: BaseTokenListViewType) {
         disposedBag = .init()
         do {
-                let a = try viewModel.name.value()
-               } catch {
-                   print("User creation failed with error: \(error)")
+            let a = try viewModel.name.value()
+        } catch {
+            print("User creation failed with error: \(error)")
         }
         //MARK: 給空白讓 label 的 auto 高不會跑掉
         let name = viewModel.name.map({ string -> String in
-          
+            
             if string.isEmpty {
                 
                 return " "
@@ -230,7 +230,7 @@ class BaseTokenListView: UIView {
         })
         
         let issuer = viewModel.issuer.map({ string -> String in
-          
+            
             if string.isEmpty {
                 
                 return " "
@@ -242,7 +242,7 @@ class BaseTokenListView: UIView {
         
         name.bind(to: nameLabel.rx.text)
             .disposed(by: disposedBag)
-
+        
         issuer
             .bind(to: issuerLabel.rx.text)
             .disposed(by: disposedBag)
@@ -280,7 +280,7 @@ class SwipeManager {
     private init() {}
     
     func swipeOff() {
-     
+        
         swipes.forEach( { $0.swipeOff() })
         swipes = []
     }
@@ -296,25 +296,25 @@ class SwipeManager {
         swipes.remove(at: index)
     }
 }
- 
+
 class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate, SwipeType {
     
     var isShareOTP = false
     //var otpShareAccount = [String]()
-
+    
     private let pinImageView: UIImageView = {
-       
+        
         let view = UIImageView.init(image: .noSMStokenListPin)
         return view
     }()
     
     private var nowGesX: CGFloat = 0
-        
+    
     private var nowCellX: CGFloat {
         
         return swipebackCardView.frame.origin.x
     }
-
+    
     enum SwipeStatus {
         
         case on
@@ -322,11 +322,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     
     private var swipeStatus: SwipeStatus = .off
-
+    
     private let swipeWidth: CGFloat = ScaleWidth(at: 73)
     
     private let actionWidth: CGFloat = UIScreen.main.bounds.width / 3
-        
+    
     func swipeOn() {
         
         UIView.animate(withDuration: 0.2) {
@@ -349,8 +349,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         SwipeManager.shared.removeSwipeType(swipe: self)
     }
     
-    func shareOTP(otpShareAccount: [String]) {
-
+    func shareOTP(otpShareAccount: [Data]) {
+        
         let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.itemClick))
         self.addGestureRecognizer(gesture)
         isShareOTP = true
@@ -362,7 +362,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         baseTokenView.digitsView.isHidden = false
         baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
         let name = "[\(baseTokenView.issuerLabel.text!)] \(baseTokenView.nameLabel.text!)"
-        if otpShareAccount.contains(name) {
+        if otpShareAccount.contains(viewModel!.tokenID) {
             baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
         } else {
             baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
@@ -370,33 +370,35 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     
     @objc func itemClick(sender : UITapGestureRecognizer) {
-//        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
-//
-//        let token = tokenStore.tokenList[0]
-//
-//        var adapterToken:URL
-//        do {
-//            adapterToken = try token.getMustAuthTokenURL()
-//        } catch {
-//            print("User creation failed with error: \(error)")
-//        }
+        //        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+        //
+        //        let token = tokenStore.tokenList[0]
+        //
+        //        var adapterToken:URL
+        //        do {
+        //            adapterToken = try token.getMustAuthTokenURL()
+        //        } catch {
+        //            print("User creation failed with error: \(error)")
+        //        }
         let phone = self.baseTokenView.nameLabel.text ?? ""
         let issuer = baseTokenView.issuerLabel.text ?? ""
         let name = "[\(issuer)] \(phone)"
-
-       
+        
+        
+        let token = viewModel?.tokenID
         if baseTokenView.selectImageView.image == UIImage(named: "NoSMS_oval") {
-            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": true])
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": true, "token": token!])
             baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
         } else {
-            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": false])
+            NotificationCenter.default.post(name: Notification.Name("OTPNotificationIdentifier"), object: nil, userInfo: ["name": name, "isSelect": false, "token": token!])
             baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
         }
-      
+        
+        
     }
     
     private let swipeLabel: UILabel = {
-       
+        
         let label = UILabel()
         label.setFont(.pingFangMediumFont(size: 13))
             .setTextColor(.white)
@@ -411,24 +413,24 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let view = UIView()
         view.addSubview(swipeImageView)
         view.addSubview(swipeLabel)
-
+        
         swipeImageView.snp.makeConstraints {
-
+            
             $0.right.equalToSuperview().inset(ScaleWidth(at: 16.5))
             $0.top.equalTo(ScaleWidth(at: 42.5))
             $0.size.equalTo(ScaleWidth(at: 40))
         }
         swipeLabel.snp.makeConstraints {
-
+            
             $0.centerX.equalTo(swipeImageView)
             $0.top.equalTo(swipeImageView.snp.bottom)
         }
         
         return view
     }()
-        
-    private let swipeLeftView: UIView = {
     
+    private let swipeLeftView: UIView = {
+        
         let view = UIView()
         view.setBackgroundColor(.tokenListCellSwipeBackgroundColor)
         return view
@@ -448,7 +450,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     
     private var isShock: Bool = false
-        
+    
     private func addSwipeLeft() {
         
         let gestView = UIView()
@@ -471,7 +473,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         tapGest.rx.event.subscribe(onNext: { [weak self] tapGest in
             self?.swipeAction()
             
-            }).disposed(by: cellDeinitDisposedBag)
+        }).disposed(by: cellDeinitDisposedBag)
         swipeLeftView.addGestureRecognizer(tapGest)
         
         gestView.snp.makeConstraints {
@@ -487,7 +489,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             
             $0.edges.equalToSuperview()
         }
-         
+        
         let ges = UIPanGestureRecognizer()
         let copy = UIPanGestureRecognizer()
         ges.rx.event
@@ -504,7 +506,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                 case .began:
                     
                     if self.nowCellX == 0 {
-                
+                        
                         SwipeManager.shared.swipeOff()
                     }
                     self.swipeLeftView.isHidden = false
@@ -553,14 +555,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                         self.swipeOn()
                     } else {
                         
-                    
+                        
                         switch self.swipeStatus {
                             
                         case .on:
                             
                             self.swipeOff()
                         case .off:
-                           
+                            
                             if self.nowCellX == 0 {
                                 
                                 self.swipeOff()
@@ -572,7 +574,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
                     }
                     
                     self.isShock = false
-
+                    
                 default:
                     break
                 }
@@ -580,100 +582,100 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .disposed(by: cellDeinitDisposedBag)
         
         copy.rx.event
-           .subscribe(onNext: { [weak self] panGestureRecognizer in
-               guard let self = self else { return }
-               
-               if self.isEditing {
-                   
-                   return
-               }
-               
-               switch panGestureRecognizer.state {
-                   
-               case .began:
-                   
-                   if self.nowCellX == 0 {
-               
-                       SwipeManager.shared.swipeOff()
-                   }
-                   self.swipeLeftView.isHidden = false
-               case .changed:
-                   
-                   let transLationX = panGestureRecognizer.translation(in: self).x
-                   let moveX = self.nowGesX - transLationX
-                   self.nowGesX = transLationX
-                   let newX: CGFloat = self.swipebackCardView.frame.origin.x - moveX
-                   
-                   let resultX: CGFloat
-                   
-                   if newX < 0 {
-                       
-                       resultX = 0
-                   } else {
-                       
-                       resultX = newX
-                   }
-                   
-                   self.swipebackCardView.changeLeft(to: resultX)
-                   
-                   if self.nowCellX > self.actionWidth, !self.isShock {
-                       
-                       //MARK: 震動
-                       let generator = UIImpactFeedbackGenerator(style: .light)
-                       generator.prepare()
-                       generator.impactOccurred()
-                       self.isShock = true
-                       
-                   } else if self.nowCellX < self.actionWidth, self.isShock {
-                       
-                       let generator = UIImpactFeedbackGenerator(style: .medium)
-                       generator.prepare()
-                       generator.impactOccurred()
-                       self.isShock = false
-                   }
-                   
-               case .ended:
-                   if self.nowCellX > self.actionWidth {
-                       
-                       //MARK: swipe 行動
-                       self.swipeAction()
-                   } else if self.nowCellX < self.actionWidth, self.nowCellX > self.swipeWidth {
-                       
-                       self.swipeOn()
-                   } else {
-                       
-                   
-                       switch self.swipeStatus {
-                           
-                       case .on:
-                           
-                           self.swipeOff()
-                       case .off:
-                          
-                           if self.nowCellX == 0 {
-                               
-                               self.swipeOff()
-                           } else {
-                               
-                               self.swipeOn()
-                           }
-                       }
-                   }
-                   
-                   self.isShock = false
-
-               default:
-                   break
-               }
-           }).disposed(by: cellDeinitDisposedBag)
-
+            .subscribe(onNext: { [weak self] panGestureRecognizer in
+                guard let self = self else { return }
+                
+                if self.isEditing {
+                    
+                    return
+                }
+                
+                switch panGestureRecognizer.state {
+                    
+                case .began:
+                    
+                    if self.nowCellX == 0 {
+                        
+                        SwipeManager.shared.swipeOff()
+                    }
+                    self.swipeLeftView.isHidden = false
+                case .changed:
+                    
+                    let transLationX = panGestureRecognizer.translation(in: self).x
+                    let moveX = self.nowGesX - transLationX
+                    self.nowGesX = transLationX
+                    let newX: CGFloat = self.swipebackCardView.frame.origin.x - moveX
+                    
+                    let resultX: CGFloat
+                    
+                    if newX < 0 {
+                        
+                        resultX = 0
+                    } else {
+                        
+                        resultX = newX
+                    }
+                    
+                    self.swipebackCardView.changeLeft(to: resultX)
+                    
+                    if self.nowCellX > self.actionWidth, !self.isShock {
+                        
+                        //MARK: 震動
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.prepare()
+                        generator.impactOccurred()
+                        self.isShock = true
+                        
+                    } else if self.nowCellX < self.actionWidth, self.isShock {
+                        
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.prepare()
+                        generator.impactOccurred()
+                        self.isShock = false
+                    }
+                    
+                case .ended:
+                    if self.nowCellX > self.actionWidth {
+                        
+                        //MARK: swipe 行動
+                        self.swipeAction()
+                    } else if self.nowCellX < self.actionWidth, self.nowCellX > self.swipeWidth {
+                        
+                        self.swipeOn()
+                    } else {
+                        
+                        
+                        switch self.swipeStatus {
+                            
+                        case .on:
+                            
+                            self.swipeOff()
+                        case .off:
+                            
+                            if self.nowCellX == 0 {
+                                
+                                self.swipeOff()
+                            } else {
+                                
+                                self.swipeOn()
+                            }
+                        }
+                    }
+                    
+                    self.isShock = false
+                    
+                default:
+                    break
+                }
+            }).disposed(by: cellDeinitDisposedBag)
+        
         gestView.addGestureRecognizer(ges)
         swipeLeftView.addGestureRecognizer(copy)
     }
     private let cellDeinitDisposedBag: DisposeBag = .init()
     
     let baseTokenView: BaseTokenListView = .init(frame: .zero)
-
+    
     private let issuerTextField: UITextField = {
         
         let textField = UITextField()
@@ -691,7 +693,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         textField.isUserInteractionEnabled = true
         return textField
     }()
-
+    
     private let countTimeLabel: UILabel = {
         
         let label = UILabel()
@@ -709,26 +711,26 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }()
     
     private let backCardView: UIView = {
-       
+        
         let view = NeverClearColorView()
         view.setBackgroundColor(.tokenListBackCardColor)
         return view
     }()
     
     private let deletedButton: UIButton = {
-       
+        
         let button = UIButton()
         return button
     }()
     
     private let deletedButtonInContentView: UIButton = {
-       
+        
         let button = UIButton()
         return button
     }()
     
     private let deleteImageView: UIImageView = .init(image: .noSmsNoSelected)
-        
+    
     private var isOnTime: Bool = false
     
     private var hotpShowPassword: Bool = false
@@ -744,7 +746,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }()
     
     private var isInSearch: Bool = false
-        
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         
@@ -752,7 +754,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         addSwipeLeft()
         NotificationCenter.default.addObserver(self, selector: #selector(self.choseAllNotificationIdentifier(notification:)), name: Notification.Name("ChoseAllNotificationIdentifier"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(self.otpNotificationIdentifier(notification:)), name: Notification.Name("OTPNotificationIdentifier"), object: nil)
-
+        
     }
     
     @objc func choseAllNotificationIdentifier(notification: Notification) {
@@ -770,23 +772,24 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         let name = notification.userInfo?["name"] as? String
         let isSelect = notification.userInfo?["isSelect"] as? Bool ?? false
         let accountName = "[\(baseTokenView.issuerLabel.text!)] \(nameTextField.text!)"
-      
-        if accountName == name {
+        let token = notification.userInfo?["token"] as? Data
+        let viewModelToken = viewModel?.tokenID
+        if token == viewModelToken {
             if isSelect {
-                 baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
+                baseTokenView.selectImageView.image = UIImage(named: "NoSMS_groupAddSelect")
             } else {
                 baseTokenView.selectImageView.image = UIImage(named: "NoSMS_oval")
             }
         }
         
-       }
+    }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
     private let swipebackCardView: UIView = {
-         
+        
         let view = NeverClearColorView()
         view.setBackgroundColor(.tokenListBackCardColor)
         return view
@@ -841,9 +844,9 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.bottom.equalTo(ScaleWidth(at: 4))
             $0.height.equalTo(1)
         }
-
+        
         nameTextField.snp.makeConstraints {
-                        
+            
             $0.left.centerY.equalTo(baseTokenView.nameLabel).offset(1)
             $0.right.equalTo(ScaleWidth(at: -16))
         }
@@ -871,12 +874,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         }
         
         countTimeLabel.snp.makeConstraints {
-
+            
             $0.center.equalTo(circleView)
         }
         
         circleView.snp.makeConstraints {
-
+            
             $0.size.equalTo(ScaleWidth(at: 27))
             $0.centerY.equalTo(baseTokenView.nameLabel)
             $0.right.equalTo(ScaleWidth(at: -16))
@@ -899,12 +902,12 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     func runBackCardAnimation() {
         UIView.animate(withDuration: 0.3, animations: {
-
+            
             self.swipebackCardView.backgroundColor = .tokenListBackcardAnimationColor
             
         }, completion: { (value: Bool) in
             UIView.animate(withDuration: 0.1, animations: {
-
+                
                 self.swipebackCardView.backgroundColor = .tokenListBackCardColor
             })
         })
@@ -912,7 +915,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     func setBackCardAnimationColor(){
         
         for i in 1...3 {
-
+            
             let asyncTime:Double = Double(i) * 0.4
             DispatchQueue.main.asyncAfter(deadline: .now() + asyncTime) { [weak self] in
                 
@@ -958,7 +961,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         for view in self.subviews {
             
             if view.description.contains("UITableViewCellReorderControl") {
-
+                
                 let imageOfReorder = view.subviews[0] as? UIImageView
                 imageOfReorder?.image = nil
             }
@@ -978,7 +981,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             self.deletedButtonInContentView.isEnabled = self.isEditing
             self.baseTokenView.digitsView.isHidden = !self.isEditing
             self.deleteImageView.isHidden = !self.isEditing
-
+            
             if self.isOnTime {
                 
                 self.circleView.isHidden = self.isEditing
@@ -1002,7 +1005,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             for view in self.subviews {
                 
                 if view.description.contains("UITableViewCellReorderControl") {
-
+                    
                     let imageOfReorder = view.subviews[0] as? UIImageView
                     imageOfReorder?.image = nil
                     view.addSubview(moveImageView)
@@ -1018,7 +1021,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             swipeLeftView.isHidden = true
             
             pinImageView.snp.remakeConstraints {
-                  
+                
                 $0.top.equalTo(baseTokenView.issuerLabel)
                 $0.right.equalTo(self).offset(ScaleWidth(at: -16))
                 $0.size.equalTo(ScaleWidth(at: 30))
@@ -1045,7 +1048,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         pinImageView.isHidden = !(viewModel?.isPin ?? false)
         swipeLabel.text = viewModel?.isPin ?? false ? "取消置顶" : "置顶"
         swipeImageView.image = viewModel?.isPin ?? false ? UIImage.noSMStokenListPinRemoveAction : UIImage.noSMStokenListPinAction
-             
+        
         let isPinColor = viewModel?.isPin ?? false ? UIColor.tokenListCellBackCardPinColor : UIColor.tokenListBackCardColor
         swipebackCardView.backgroundColor = isPinColor
         backCardView.backgroundColor = isPinColor
@@ -1059,8 +1062,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         super.setEditing(editing, animated: true)
         changeLayout()
         if baseTokenView.passwordLabel.alpha == 0 {
-             self.baseTokenView.digitsView.isHidden = false
-             baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
+            self.baseTokenView.digitsView.isHidden = false
+            baseTokenView.digitsView.setColor(.tokenListHidePasswordInEditColor)
         }
     }
     
@@ -1072,8 +1075,8 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .disposed(by: disposedBag)
         viewModel.issuer.bind(to: issuerTextField.rx.text)
             .disposed(by: disposedBag)
-
-
+        
+        
         //hotp 的密碼是否顯示 有動作後要讓 button 不能按一陣子
         viewModel.passwordShow
             .subscribe(onNext: { [weak self] hotpShowPassword in
@@ -1095,7 +1098,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         viewModel.lastTime
             .bind(to: countTimeLabel.rx.text)
             .disposed(by: disposedBag)
-                
+        
         isOnTime = viewModel.isOnTime
         tapGetPasswordButton.isHidden = viewModel.isOnTime
         
@@ -1111,7 +1114,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         tapGetPasswordButton.rx.tap
             .subscribe(onNext: viewModel.getTapPassword)
             .disposed(by: disposedBag)
-       
+        
         
         let isOnTime = viewModel.isOnTime
         baseTokenView.passwordLabel.setTextColor(.tokenListPasswordColor)
@@ -1124,11 +1127,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             .map({ $0 ? UIImage.noSmsSelectedDelete : UIImage.noSmsNoSelected})
             .bind(to: deleteImageView.rx.image)
             .disposed(by: disposedBag)
-
+        
         let haveSeletToDelete = viewModel.haveSelectToDelete
-
+        
         deletedButton.rx.tap.subscribe(onNext: { [weak self, weak haveSeletToDelete] _ in
-
+            
             guard let self = self else { return }
             self.deletedButton.isSelected = !self.deletedButton.isSelected
             haveSeletToDelete?.onNext(self.deletedButton.isSelected)
@@ -1156,14 +1159,14 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             circleView.isHidden = false
             let reFreshTime = viewModel.reFreshTime
             viewModel.lastTime.subscribe(onNext: { [weak self] lastTimeString in
-
-                    guard let self = self else { return }
-                    guard let lastTime = Int(lastTimeString) else { return }
                 
-                    
-                    self.circleView.startAnimation(lastTime: Double(lastTime), refreshTime: Double(reFreshTime - 1))
-
-                }).disposed(by: disposedBag)
+                guard let self = self else { return }
+                guard let lastTime = Int(lastTimeString) else { return }
+                
+                
+                self.circleView.startAnimation(lastTime: Double(lastTime), refreshTime: Double(reFreshTime - 1))
+                
+            }).disposed(by: disposedBag)
         } else {
             
             circleView.isHidden = true
@@ -1178,11 +1181,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             self.isInSearch = isInSearch
             self.changeLayout()
             
-            }).disposed(by: disposedBag)
+        }).disposed(by: disposedBag)
         
         self.viewModel = viewModel
     }
-
+    
     override func willTransition(to state: UITableViewCell.StateMask) {
         super.willTransition(to: state)
         
