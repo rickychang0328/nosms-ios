@@ -97,7 +97,7 @@ class QRcodeOTPShareViewController: UIViewController {
             if self.self.pageInex == 1 {
                 button.isHidden = true
             }
-            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page)个二维码"
+            self.qrCodeIndex.text = "扫描第 \(self.pageInex)/\(self.page) 个二维码"
         }).disposed(by: disposedBag)
         return button
     }()
@@ -116,7 +116,7 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private lazy var qrCodeIndex: UILabel = {
         let label = UILabel()
-        label.text = "扫描第 \(self.pageInex)/\(page)个二维码"
+        label.text = "扫描第 \(self.pageInex)/\(page) 个二维码"
         label.font = .pingFangSemiBoldFont(size: 16)
         label.textAlignment = .center
         label.textColor = UIColor.getColor(red: 102, green: 102, blue: 102, alpha: 1)
