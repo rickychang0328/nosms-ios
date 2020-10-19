@@ -159,9 +159,9 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                         case .error(error: let error):
                             
                             break
-                        case .haveSameToken(message: let message, replaceHandler: let rereplaceHandler, newAddHandler: let newAddHandler):
+                        case .haveSameToken(message: let message, needMoreText: let needMoreText,replaceHandler: let rereplaceHandler, newAddHandler: let newAddHandler):
                             
-                            nowVC?.showReplaceAlert(message: message, confirmAction: newAddHandler, replaceAction: rereplaceHandler, cancelAction: nil)
+                            nowVC?.showReplaceAlert(message: message, needMoreText: needMoreText, confirmAction: newAddHandler, replaceAction: rereplaceHandler, cancelAction: nil)
                             break
                         }
                     }

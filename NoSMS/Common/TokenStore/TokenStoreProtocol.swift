@@ -608,7 +608,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
     enum MulitpleShareEvent {
         
         case success(toast: String)
-        case haveSameToken(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
+        case haveSameToken(message: String, needMoreText: Bool, replaceHandler: () -> Void, newAddHandler: () -> Void)
         case error(error: Error)
     }
     
@@ -729,6 +729,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
             }
             
             var message: String = ""
+            var needMoreText: Bool = false
             
             for index in filterTokens.indices {
                 
@@ -737,7 +738,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
                     
                 } else if index > 2 {
                     
-                    message += "\n..."
+                    needMoreText = true
                     break
                 } else {
                     message += "\n"
@@ -745,7 +746,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
                 }
             }
             
-            eventHandler(.haveSameToken(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
+            eventHandler(.haveSameToken(message: message, needMoreText: needMoreText, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
         }
     }
 }

@@ -178,6 +178,7 @@ extension UIViewController {
     }
     
     func showReplaceAlert(message: String,
+                          needMoreText: Bool,
                           confirmAction: (() -> Void)? = nil,
                           replaceAction: (() -> Void)? = nil,
                           cancelAction: (() -> Void)? = nil) {
@@ -185,6 +186,7 @@ extension UIViewController {
         let vc = NoSMSAlertThreeButtonViewController()
         vc.showAlertSetting(title: "验证码已存在，请确认导入",
                             message: message,
+                            needMoreText: needMoreText,
                             confirmTitle: "保留两者",
                             replaceTitle: "替换",
                             cancelTitle: "取消",
@@ -758,6 +760,16 @@ class NoSMSAlertThreeButtonView: UIView {
         return label
     }()
     
+    let moreTextLabel: UILabel = {
+    
+        let label = UILabel()
+        label.setFont(messageFont)
+            .setTextColor(.circleViewBackColorLight)
+            .setNumberOfLine(0)
+            .setTextAlignment(.center)
+        return label
+    }()
+    
     static let messageFont: UIFont = .pingFangMediumFont(size: 14)
     static let messageWidth: CGFloat = ScaleWidth(at: 240)
     
@@ -767,6 +779,7 @@ class NoSMSAlertThreeButtonView: UIView {
         backgroundColor = .alertsBackgroundColor
         addSubview(titleLabel)
         addSubview(messageLabel)
+        addSubview(moreTextLabel)
         addSubview(replaceButton)
         addSubview(cancelButton)
         addSubview(confirmButton)
@@ -784,12 +797,18 @@ class NoSMSAlertThreeButtonView: UIView {
             $0.centerX.equalToSuperview()
         }
         
+        moreTextLabel.snp.makeConstraints {
+            
+            $0.centerX.equalToSuperview()
+            $0.top.equalTo(messageLabel.snp.bottom)
+        }
+        
         confirmButton.snp.makeConstraints {
             
             $0.left.right.equalToSuperview().inset(ScaleWidth(at: 10.5))
             $0.height.equalTo(ScaleWidth(at: 37))
 //            $0.width.equalTo(ScaleWidth(at: 255))
-            $0.top.equalTo(messageLabel.snp.bottom).offset(ScaleWidth(at: 25))
+            $0.top.equalTo(moreTextLabel.snp.bottom).offset(ScaleWidth(at: 25))
         }
         
         replaceButton.snp.makeConstraints {
@@ -840,6 +859,7 @@ class NoSMSAlertThreeButtonViewController: UIViewController {
     
     func showAlertSetting(title: String? = nil,
                           message: String? = nil,
+                          needMoreText: Bool,
                           confirmTitle: String = "ok",
                           replaceTitle: String,
                           cancelTitle: String = "取消",
@@ -850,6 +870,10 @@ class NoSMSAlertThreeButtonViewController: UIViewController {
         
         alertView.titleLabel.text = title
         alertView.messageLabel.text = message
+        if needMoreText {
+            
+            alertView.moreTextLabel.text = "..."
+        }
         alertView.replaceButton.setTitle(replaceTitle, for: .normal)
         alertView.cancelButton.setTitle(cancelTitle, for: .normal)
         alertView.confirmButton.setTitle(confirmTitle, for: .normal)
