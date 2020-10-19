@@ -80,3 +80,39 @@ extension UIFont {
         return tFont(fontStyle: .AvenirBlack, size: size)
     }
 }
+
+extension String {
+    
+    func textWidth(font: UIFont) -> CGFloat {
+        let attributes = [NSAttributedString.Key.font: font]
+        return self.size(withAttributes: attributes).width
+    }
+    
+    func clipTextWithDot(width: CGFloat, font: UIFont) -> String {
+        
+        var result = self
+        
+        var isDeleteString = false
+        
+        while result.textWidth(font: font) >= width {
+            
+            result.removeLast()
+            isDeleteString = true
+        }
+        
+        if isDeleteString {
+            
+            for _ in 0 ... 2 {
+                
+                result.removeLast()
+            }
+            
+            for _ in 0 ... 2 {
+                
+                result.append(".")
+            }
+        }
+        
+        return result
+    }
+}
