@@ -12,7 +12,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
     private var lifeCycleDisposeBag: DisposeBag = .init()
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
-    private var groupVCs: [TokenListGroupViewController] = []
+    private var groupVCs: [ShareOTPGroupViewController] = []
   
     
     private var isFirstOpen:Bool = true
@@ -464,7 +464,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
             self.groupDisposedBag = .init()
             
             for tableViewModel in tableViewModels {
-                let viewController = TokenListGroupViewController(viewModel: tableViewModel)
+                let viewController = ShareOTPGroupViewController(viewModel: tableViewModel)
                 viewController.shareOTP = true
                 self.groupVCs.append(viewController)
             }
@@ -1052,14 +1052,14 @@ class ShareOTPVCViewModel: BaseVCViewModel, ShareOTPVCViewModelProtocol {
     
     let haveGroup: Observable<Bool>
     
-    var groupViewModels: Observable<[TokenListInGroupVCViewModel]> {
+    var groupViewModels: Observable<[ShareOTPGroupVCViewModel]> {
         
         return groupViewModelsBehavior.asObservable()
     }
     
-    private let groupViewModelsBehavior: BehaviorSubject<[TokenListInGroupVCViewModel]> = .init(value: [])
+    private let groupViewModelsBehavior: BehaviorSubject<[ShareOTPGroupVCViewModel]> = .init(value: [])
     
-    private var _groupViewModels: [TokenListInGroupVCViewModel] = [] {
+    private var _groupViewModels: [ShareOTPGroupVCViewModel] = [] {
         
         didSet {
             
@@ -1110,7 +1110,7 @@ class ShareOTPVCViewModel: BaseVCViewModel, ShareOTPVCViewModelProtocol {
         
         KeychainTokenStore.shared.groupListBehavior.subscribe(onNext: { [weak self] groups in
             guard let self = self else { return }
-            self._groupViewModels = groups.map({ TokenListInGroupVCViewModel(tokenListSupportPin: TokenListSupportPin(), groupID: $0.uuid)})
+            self._groupViewModels = groups.map({ ShareOTPGroupVCViewModel(tokenListSupportPin: TokenListSupportPin(), groupID: $0.uuid)})
             
             for groupViewModel in self._groupViewModels {
                 
@@ -1239,7 +1239,7 @@ protocol ShareOTPVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     var deleteIsEnable: Observable<Bool> { get }
     var tokenIsEmpty: Bool { get }
     var customSegmentControlViewModel: CustomSegmentControlViewModelType { get }
-    var groupViewModels: Observable<[TokenListInGroupVCViewModel]> { get }
+    var groupViewModels: Observable<[ShareOTPGroupVCViewModel]> { get }
     var haveGroup: Observable<Bool> { get }
     
     func deleteToken()
@@ -1249,9 +1249,118 @@ protocol ShareOTPVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     func viewDidAppear()
 }
 
+class ShareOTPGroupVCViewModel: BaseVCViewModel, BaseTableViewVCViewModelProtocol {
+    
+    var cellViewModels: [BaseTableViewSectionItemsProtocol] {
+        
+        return tokenListSupportPin.sections
+    }
+    
+    var tableViewStyle: UITableView.Style { return .grouped }
+    
+    let tokenListSupportPin: TokenListSupportPin
+    
+    private let groupObject: GroupObject
+    
+    init(tokenListSupportPin: TokenListSupportPin,
+         groupID: UUID) {
+        
+        self.tokenListSupportPin = tokenListSupportPin
+        self.groupObject = KeychainTokenStore.shared.getGroup(uuid: groupID) ?? GroupObject()
+        
+        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "")), backgroundColor: .clear)
+    }
+    
+    private var viewModels: [TokenListTableViewCellViewModelProtocol] = []
+    
+    func setCellViewModel(viewModels: [TokenListTableViewCellViewModelProtocol]) {
+        
+        let realViewModel = viewModels.filter({self.groupObject.tokens.contains($0.tokenID)})
+        self.viewModels = viewModels
+        tokenListSupportPin.setupTokens(tokens: realViewModel)
+    }
+    
+    func setSearchText(input: String) {
+        
+        tokenListSupportPin.setSearchString(input: input)
+    }
+    
+    
+    
+}
 
-
-
-
+class ShareOTPGroupViewController: BaseTableViewControllerNoGeneric {
+    
+    private let viewModel: ShareOTPGroupVCViewModel
+    init(viewModel: ShareOTPGroupVCViewModel) {
+        
+        self.viewModel = viewModel
+        super.init(baseTableViewModel: viewModel)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        tableView.showsVerticalScrollIndicator = false
+    }
+    
+    func addPinRefresh(id: Data) {
+        
+        let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
+        
+        var haveCellVisible = false
+        
+        for cell in cells {
+            
+            if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
+                cell.viewModel?.setPin(isPin: true)
+                cell.resetPinStatus()
+                tableView.beginUpdates()
+                tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 0))
+                tableView.endUpdates()
+                haveCellVisible = true
+                break
+                
+            }
+        }
+        
+        if !haveCellVisible {
+            
+            tableView.reloadData()
+        }
+    }
+    
+    func removePinRefresh(id: Data) {
+        
+        let cells = tableView.visibleCells.compactMap({ $0 as? TokenListTableViewCell<TokenListTableViewCellViewModel>})
+        
+        var haveCellVisible = false
+        
+        for cell in cells {
+            
+            if cell.viewModel?.tokenID == id ,let indexPath = tableView.indexPath(for: cell) {
+                cell.viewModel?.setPin(isPin: false)
+                cell.resetPinStatus()
+                tableView.beginUpdates()
+                tableView.moveRow(at: indexPath, to: IndexPath(row: 0, section: 1))
+                tableView.endUpdates()
+                haveCellVisible = true
+                break
+            }
+        }
+        
+        if !haveCellVisible {
+            
+            tableView.reloadData()
+        }
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        return .none
+    }
+}
 
 
