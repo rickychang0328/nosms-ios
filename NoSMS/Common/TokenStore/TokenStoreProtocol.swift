@@ -733,15 +733,15 @@ extension KeychainTokenStore: TokenStoreProtocol {
             for index in filterTokens.indices {
                 
                 if index == 0 {
-                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)".clipTextWithDot(width: NoSMSAlertThreeButtonView.messageWidth, font: NoSMSAlertThreeButtonView.messageFont)
                     
                 } else if index > 2 {
                     
                     message += "\n..."
                     break
                 } else {
-                    
-                    message += "\n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    message += "\n"
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)".clipTextWithDot(width: NoSMSAlertThreeButtonView.messageWidth, font: NoSMSAlertThreeButtonView.messageFont)
                 }
             }
             

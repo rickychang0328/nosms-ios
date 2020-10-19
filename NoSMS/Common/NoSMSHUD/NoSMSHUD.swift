@@ -751,12 +751,15 @@ class NoSMSAlertThreeButtonView: UIView {
     let messageLabel: UILabel = {
            
         let label = UILabel()
-        label.setFont(.pingFangMediumFont(size: 14))
+        label.setFont(messageFont)
             .setTextColor(.circleViewBackColorLight)
             .setNumberOfLine(0)
-            .setTextAlignment(.center)
+            .setTextAlignment(.left)
         return label
     }()
+    
+    static let messageFont: UIFont = .pingFangMediumFont(size: 14)
+    static let messageWidth: CGFloat = ScaleWidth(at: 240)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -774,7 +777,7 @@ class NoSMSAlertThreeButtonView: UIView {
             $0.centerX.equalToSuperview()
         }
         
-        messageLabel.preferredMaxLayoutWidth = ScaleWidth(at: 240)
+        messageLabel.preferredMaxLayoutWidth = NoSMSAlertThreeButtonView.messageWidth
         messageLabel.snp.makeConstraints {
             
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 15))
