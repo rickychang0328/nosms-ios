@@ -1037,28 +1037,7 @@ class ShareOTPViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTab
             }
         }).disposed(by: disposedBag)
     }
-    
-    private func showAlertToOpenSettingURL(title: String?, message: String?) {
         
-        let alertController = UIAlertController (title: title, message: message, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "确认", style: .default, handler: nil)
-        alertController.addAction(cancelAction)
-        let settingsAction = UIAlertAction(title: "设定", style: .default) { _ in
-            
-            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
-                return
-            }
-            
-            if UIApplication.shared.canOpenURL(settingsUrl) {
-                
-                UIApplication.shared.open(settingsUrl, completionHandler: nil)
-            }
-        }
-        alertController.addAction(settingsAction)
-        
-        self.present(alertController, animated: true, completion: nil)
-    }
-    
     private func showDeleteAlert() {
         
         showAlert(title: "删除此账号并不会影响已设置的身份验证功能\n您可能因此无法登录自己的帐号",

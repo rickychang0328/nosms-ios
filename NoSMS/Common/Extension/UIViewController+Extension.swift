@@ -30,5 +30,27 @@ extension UIViewController {
             AuthIDStatusManager.showIDAuthPage(inVC: BlurViewController.shared, sucessHandler: sucess, systemIsNotOpenHandler: systemIsNotOpenHandler)
         }
     }
+    
+    func showAlertToOpenSettingURL(title: String?, message: String?) {
+        
+        let alertController = UIAlertController (title: title, message: message, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "确认", style: .default, handler: nil)
+        alertController.addAction(cancelAction)
+        let settingsAction = UIAlertAction(title: "设定", style: .default) { _ in
+            
+            guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+                return
+            }
+            
+            if UIApplication.shared.canOpenURL(settingsUrl) {
+                
+                UIApplication.shared.open(settingsUrl, completionHandler: nil)
+            }
+        }
+        alertController.addAction(settingsAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+
 }
 
