@@ -37,9 +37,7 @@ class OTPShareAndReceiveViewController: UIViewController {
         button.addCornerRadius(at: 10)
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
-            
-            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
-            self.navigationController?.pushViewController(nextVC, animated: true)
+            self.showTokenScannerVC()
         }).disposed(by: disposedBag)
         return button
     }()
@@ -282,6 +280,17 @@ class OTPShareAndReceiveViewController: UIViewController {
         
     }
     
-    
-    
+    private func showTokenScannerVC() {
+        
+        let status = AuthorizationManager.cameraStatus()
+        
+        if status == .restricted || status == .denied {
+            
+            showAlertToOpenSettingURL(title: "相机启用失败", message: "相机权限未开启")
+        } else {
+            
+            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
+            navigationController?.pushViewController(nextVC, animated: true)
+        }
+    }
 }
