@@ -12,9 +12,11 @@ import RxCocoa
 class QRcodeOTPShareViewController: UIViewController {
     
     var disposedBag: DisposeBag = .init()
-    var secondsRemaining = 60
+    private let startTime = Date().timeIntervalSince1970
+    private let timeCounter: TimeInterval = 61
     var pageInex = 1
     var page = 1
+    var otpShareSelectedAccountDatatoken = [Data]()
     var otpShareSelectedAccount = [String]()
     var otpShareSelectedAccountToken = [String]()
     var timer : Timer?
@@ -27,7 +29,7 @@ class QRcodeOTPShareViewController: UIViewController {
         view.oneButtonAlertCase = .screenShot
         view.isHidden = true
         view.confirmButton.addTarget(self, action: #selector(buttonAction), for: .touchUpInside)
-        view.titleLabel.text = "此功能用于验证码分享，请不要将二维码发送给他人。"
+        
         return view
     }()
     
@@ -56,7 +58,7 @@ class QRcodeOTPShareViewController: UIViewController {
     private lazy var nextButton: UIButton = {
         
         let button = UIButton(type: UIButton.ButtonType.custom)
-        button.setTitle("下一頁", for: .normal)
+        button.setTitle("下一页", for: .normal)
         button.titleLabel?.textColor = .white
         button.backgroundColor = UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1)
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
@@ -81,7 +83,7 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private lazy var previousButton: UIButton = {
         let button = UIButton(type: UIButton.ButtonType.custom)
-        button.setTitle("上一頁", for: .normal)
+        button.setTitle("上一页", for: .normal)
         button.setTitleColor(UIColor.getColor(red: 98, green: 112, blue: 255, alpha: 1), for: .normal)
         button.backgroundColor = .tokenListBackgroundColor
         button.frame = CGRect(x: 0, y: 0, width: 345, height: 42)
@@ -186,10 +188,10 @@ class QRcodeOTPShareViewController: UIViewController {
         super.viewDidLoad()
         setNavigate()
         self.navigationItem.title = "扫描二维码"
-        page = self.otpShareSelectedAccount.count / 10
+        page = self.otpShareSelectedAccountDatatoken.count / 10
         if page == 0 {
             page = 1
-        } else if self.otpShareSelectedAccount.count % 10 > 0 {
+        } else if self.otpShareSelectedAccountDatatoken.count % 10 > 0 {
             page += 1
         }
         setLayOut()
@@ -230,9 +232,10 @@ class QRcodeOTPShareViewController: UIViewController {
     }
     private func initTokenArray() {
         let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
-        for account in otpShareSelectedAccount {
+        for tokenID in otpShareSelectedAccountDatatoken {
             for token in tokenStore.tokenList {
-                if account == "[\(token.token.issuer)] \(token.token.name)" {
+                if tokenID == token.uuid {
+                    otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)" )
                     var adapterToken:URL
                     do {
                         adapterToken = try token.getMustAuthTokenURL()
@@ -242,7 +245,6 @@ class QRcodeOTPShareViewController: UIViewController {
                     }
                 }
             }
-            
         }
     }
     
@@ -273,16 +275,28 @@ class QRcodeOTPShareViewController: UIViewController {
     
     private func addTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { (Timer) in
-            if self.secondsRemaining > 0 {
-                self.secondsRemaining -= 1
-                if self.secondsRemaining >= 10 {
-                    self.timeCount.text = "00:"+self.secondsRemaining.description+" 请在倒数计时结束前完成扫码"
-                } else {
-                    self.timeCount.text = "00:0"+self.secondsRemaining.description+" 请在倒数计时结束前完成扫码"
-                }
-            } else {
+            
+            let lastTime = Date().timeIntervalSince1970 - self.startTime
+            
+            if lastTime > self.timeCounter {
+                
                 self.timer?.invalidate()
                 self.popViewControllerss(popViews: 2)
+            } else {
+                
+                let displayTime = self.timeCounter - lastTime
+                
+                let firstTime: String
+                
+                if displayTime >= 10 {
+                    
+                    firstTime = "00:"
+                } else {
+                    
+                    firstTime = "00:0"
+                }
+                
+                self.timeCount.text =  firstTime + "\(Int(displayTime))" + " 请在倒数计时结束前完成扫码"
             }
         }
     }
@@ -361,7 +375,7 @@ class QRcodeOTPShareViewController: UIViewController {
         }
         
         qrCodeIndex.snp.makeConstraints {
-
+            
             $0.top.equalTo(ScaleWidth(at: 72))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 17))
             $0.right.equalToSuperview().offset(ScaleWidth(at: -17))
@@ -382,14 +396,23 @@ class QRcodeOTPShareViewController: UIViewController {
             $0.centerX.equalTo(qrCodeView.snp.centerX)
             $0.centerY.equalTo(qrCodeView.snp.centerY)
         }
-         if UIDevice.isIPhoneXUp {
+        if UIDevice.isIPhoneXUp {
             timeCount.snp.makeConstraints {
                 $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 35))
                 $0.left.equalTo(ScaleWidth(at: 17))
                 $0.right.equalTo(ScaleWidth(at: -17))
                 $0.height.equalTo(ScaleWidth(at: 21))
             }
-         } else {
+        } else if UIScreen.main.nativeBounds.height <= 1334 {
+            timeCount.snp.makeConstraints {
+                $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 5))
+                $0.left.equalTo(ScaleWidth(at: 17))
+                $0.right.equalTo(ScaleWidth(at: -17))
+                $0.height.equalTo(ScaleWidth(at: 21))
+            }
+            
+        } else
+        {
             timeCount.snp.makeConstraints {
                 $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 18))
                 $0.left.equalTo(ScaleWidth(at: 17))
@@ -601,6 +624,18 @@ class NoSMSAlertScanOneButtonView: UIView {
             .setTextColor(.alertScanTextColor)
             .setNumberOfLine(0)
             .setTextAlignment(.center)
+        label.text = "此功能用于验证码分享，"
+        return label
+    }()
+    
+    let titleSecondLabel: UILabel = {
+        
+        let label = UILabel()
+        label.setFont(.pingFangSemiBoldFont(size: 15))
+            .setTextColor(.alertScanTextColor)
+            .setNumberOfLine(0)
+            .setTextAlignment(.center)
+        label.text = "请不要将二维码发送给他人。"
         return label
     }()
     
@@ -614,12 +649,19 @@ class NoSMSAlertScanOneButtonView: UIView {
         backgroundColor = .alertScanViewColor
         alpha = 0.95
         addSubview(titleLabel)
+        addSubview(titleSecondLabel)
         addSubview(confirmButton)
         
         titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
         titleLabel.snp.makeConstraints {
-            
             $0.top.equalTo(ScaleWidth(at: 83))
+            $0.centerX.equalToSuperview()
+            $0.left.equalToSuperview().offset(20)
+            $0.right.equalToSuperview().offset(-20)
+        }
+        
+        titleSecondLabel.snp.makeConstraints {
+            $0.top.equalTo(titleLabel.snp.bottom).offset(5)
             $0.centerX.equalToSuperview()
             $0.left.equalToSuperview().offset(20)
             $0.right.equalToSuperview().offset(-20)

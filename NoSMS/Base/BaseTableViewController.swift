@@ -238,7 +238,7 @@ extension Reactive where Base: UITableViewCell {
 class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: BaseViewController<ViewModel>, UITableViewDelegate, UITableViewDataSource {
     
     var isShareOTP = false
-    var otpShareSelectedAccount = [String]()
+    var otpShareSelectedAccount = [Data]()
     
     lazy var tableView: UITableView = {
       
@@ -251,8 +251,8 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
         super.viewDidLoad()
         let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
                                         self.otpShareSelectedAccount.removeAll()
-                                        for token in tokenStore.tokenList {
-                                          self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+        for token in tokenStore.tokenList {
+            self.otpShareSelectedAccount.append(token.uuid)
                                           
                                           }
         view.addSubview(tableView)
@@ -377,7 +377,7 @@ private extension TableViewCellFactoryType {
         return .default
     }
     
-    func getCell(tableView: UITableView, isShareOTP: Bool = false, otpShareAccount: [String]) -> UITableViewCell {
+    func getCell(tableView: UITableView, isShareOTP: Bool = false, otpShareAccount: [Data]) -> UITableViewCell {
 
         switch self {
         case .tokenListWithTime(let viewModel):
@@ -513,7 +513,7 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
     
     let baseTableViewModel: BaseTableViewVCViewModelProtocol
     var shareOTP = false
-    var otpShareSelectedAccount = [String]()
+    var otpShareSelectedAccount = [Data]()
     private(set) lazy var tableView: CustomTableView = {
       
         let tableView = CustomTableView(frame: .zero, style: self.baseTableViewModel.tableViewStyle)
@@ -535,7 +535,7 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
         let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
                                         self.otpShareSelectedAccount.removeAll()
                                         for token in tokenStore.tokenList {
-                                          self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+                                            self.otpShareSelectedAccount.append(token.uuid)
                                           
                                           }
         view.addSubview(tableView)

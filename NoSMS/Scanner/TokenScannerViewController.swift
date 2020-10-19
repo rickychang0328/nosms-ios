@@ -95,7 +95,7 @@ enum TokenEvent {
     case endScanTask(toast: String)
     case endScanTaskRemoveVCAndShowToastSameTime(toast: String)
     case alertAction(title: String, message: String, completion: () -> Void)
-    case replaceAlertAction(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
+    case replaceAlertAction(message: String, needMoreText: Bool, replaceHandler: () -> Void, newAddHandler: () -> Void)
 }
 
 protocol TokenScannerVCViewModelProtocol: BaseVCViewModelProtocol {
@@ -153,9 +153,9 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                         case .error(error: let error):
                             
                             self.eventResult.onNext(.error(error))
-                        case .haveSameToken(message: let message, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
+                        case .haveSameToken(message: let message, needMoreText: let needMoreText, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
                         
-                            self.eventResult.onNext(.replaceAlertAction(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
+                            self.eventResult.onNext(.replaceAlertAction(message: message, needMoreText: needMoreText, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
                         
                         }
                         
@@ -263,9 +263,9 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
                     self?.viewModel.startScan()
                 }
                 
-            case .replaceAlertAction(message: let message, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
+            case .replaceAlertAction(message: let message, needMoreText: let needMoreText, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
                 
-                self.showReplaceAlert(message: message, confirmAction: newAddHandler, replaceAction: replaceHandler, cancelAction: { [weak self] in
+                self.showReplaceAlert(message: message, needMoreText: needMoreText, confirmAction: newAddHandler, replaceAction: replaceHandler, cancelAction: { [weak self] in
                     self?.viewModel.startScan()
                 })
             case .endScanTaskRemoveVCAndShowToastSameTime(toast: let toast):

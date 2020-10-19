@@ -608,7 +608,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
     enum MulitpleShareEvent {
         
         case success(toast: String)
-        case haveSameToken(message: String, replaceHandler: () -> Void, newAddHandler: () -> Void)
+        case haveSameToken(message: String, needMoreText: Bool, replaceHandler: () -> Void, newAddHandler: () -> Void)
         case error(error: Error)
     }
     
@@ -729,23 +729,24 @@ extension KeychainTokenStore: TokenStoreProtocol {
             }
             
             var message: String = ""
+            var needMoreText: Bool = false
             
             for index in filterTokens.indices {
                 
                 if index == 0 {
-                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)".clipTextWithDot(width: NoSMSAlertThreeButtonView.messageWidth, font: NoSMSAlertThreeButtonView.messageFont)
                     
                 } else if index > 2 {
                     
-                    message += "\n..."
+                    needMoreText = true
                     break
                 } else {
-                    
-                    message += "\n[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)"
+                    message += "\n"
+                    message += "[\(filterTokens[index].token.issuer)] \(filterTokens[index].token.name)".clipTextWithDot(width: NoSMSAlertThreeButtonView.messageWidth, font: NoSMSAlertThreeButtonView.messageFont)
                 }
             }
             
-            eventHandler(.haveSameToken(message: message, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
+            eventHandler(.haveSameToken(message: message, needMoreText: needMoreText, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
         }
     }
 }
