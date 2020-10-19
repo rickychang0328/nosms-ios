@@ -300,6 +300,7 @@ class SwipeManager {
 class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate, SwipeType {
     
     var isShareOTP = false
+    let ges = UIPanGestureRecognizer()
     //var otpShareAccount = [String]()
     
     private let pinImageView: UIImageView = {
@@ -350,7 +351,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
     }
     
     func shareOTP(otpShareAccount: [Data]) {
-        
+        ges.isEnabled = false
         let gesture = UITapGestureRecognizer(target: self, action:  #selector(self.itemClick))
         self.addGestureRecognizer(gesture)
         isShareOTP = true
@@ -490,7 +491,7 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
             $0.edges.equalToSuperview()
         }
         
-        let ges = UIPanGestureRecognizer()
+       
         let copy = UIPanGestureRecognizer()
         ges.rx.event
             .subscribe(onNext: { [weak self] panGestureRecognizer in
