@@ -97,12 +97,12 @@ extension String {
             result.removeLast()
         }
         
-        for _ in 0 ..< 2 {
+        for _ in 0 ... 2 {
                         
             result.removeLast()
         }
         
-        for _ in 0 ..< 2 {
+        for _ in 0 ... 2 {
             
             result.append(".")
         }
