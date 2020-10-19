@@ -249,7 +249,12 @@ class BaseTableViewController<ViewModel: BaseTableViewVCViewModelProtocol>: Base
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+                                        self.otpShareSelectedAccount.removeAll()
+                                        for token in tokenStore.tokenList {
+                                          self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+                                          
+                                          }
         view.addSubview(tableView)
         tableView.snp.makeConstraints {
             
@@ -527,7 +532,12 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        let tokenStore: TokenStoreProtocol = KeychainTokenStore.shared
+                                        self.otpShareSelectedAccount.removeAll()
+                                        for token in tokenStore.tokenList {
+                                          self.otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)")
+                                          
+                                          }
         view.addSubview(tableView)
         tableView.snp.makeConstraints {
             

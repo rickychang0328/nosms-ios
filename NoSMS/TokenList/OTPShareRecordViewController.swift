@@ -62,7 +62,7 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 25))
             $0.left.equalToSuperview()
             $0.right.equalToSuperview()
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -63.5))
+            $0.bottom.equalToSuperview()
         }
         
     }
@@ -73,6 +73,14 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
           }
     
     func setNavigate() {
+          let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+
+          leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+              
+              self?.navigationController?.popViewController(animated: true)
+          }).disposed(by: disposeBag)
+          
+          navigationItem.leftBarButtonItem = leftbarItem
           var color: UIColor
           if #available(iOS 13.0, *) {
               

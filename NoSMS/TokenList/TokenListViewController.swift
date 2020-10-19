@@ -2181,9 +2181,9 @@ class EditControllView: UIView {
         
         backImageView.snp.makeConstraints {
             $0.right.equalTo(0)
-            $0.topMargin.equalTo(topY)
+            $0.topMargin.equalTo(topY - 10)
             $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-            $0.height.equalTo(ScaleWidth(at: 136.7/2*3 - 12, with: withWidth))
+            $0.height.equalTo(ScaleWidth(at: 175 + 15))
         }
         
         editCodeLabel.snp.makeConstraints {
@@ -2195,7 +2195,7 @@ class EditControllView: UIView {
         editCodeImage.snp.makeConstraints {
             
             $0.size.equalTo(ScaleWidth(at: 20, with: withWidth))
-            $0.top.equalTo(ScaleWidth(at: 36, with: withWidth))
+            $0.top.equalTo(ScaleWidth(at: 45, with: withWidth))
             $0.left.equalTo(ScaleWidth(at: 26, with: withWidth))
         }
         

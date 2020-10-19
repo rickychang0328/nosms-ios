@@ -206,6 +206,8 @@ extension UIColor {
                                                                                 lightColor: .color_041_044_068)
     static let alertTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
                                                                          lightColor: .white)
+    static let alertScanTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
+                                                                            lightColor: .getColor(red: 51, green: 51, blue: 51, alpha: 1))
     static let alertCancelButtonBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_153_153_153_015,
                                                                                            lightColor: .color_153_153_153_015)
     static let alertCancelButtonTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_05,
@@ -297,4 +299,6 @@ extension UIColor {
     static let otpShareReceiveButtonHintColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 136, green: 136, blue: 138, alpha: 1), lightColor: .getColor(red: 136, green: 136, blue: 138, alpha: 1))
     static let otpScanHintColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 0, green: 0, blue: 0, alpha: 0.8), lightColor: .getColor(red: 255, green: 255, blue: 255, alpha: 0.8))
     static let otpScanHintTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .getColor(red: 51, green: 51, blue: 51, alpha: 1))
+    static let otpShareSearchTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .getColor(red: 136, green: 136, blue: 136, alpha: 1))
+    static let alertScanViewColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 0, green: 0, blue: 0, alpha: 0.95), lightColor: .white)
 }
