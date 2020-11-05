@@ -153,6 +153,9 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                         
                         switch event {
                         
+                        case .addSuccessButGroupIsMax(title: let title, message: let message):
+                            nowVC?.showNewOneButtonAlert(title: title, message: message, confirmAction: nil)
+                        
                         case .success(toast: let toast):
                             
                             NoSMSHUD.showToast(title: toast)

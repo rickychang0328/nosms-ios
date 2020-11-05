@@ -1075,7 +1075,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                         $0.height.equalTo(ScaleWidth(at: 41))
                     }
                 }
-                //                self.groupVCs.forEach({$0.tableView.setEditing(false, animated: true)})
                 self.viewModel.tableViewEndEdit()
                 self.wantToShowHomePageOrNot()
                 
@@ -1463,7 +1462,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             
             let viewHeight: CGFloat
             
-            if hasGroup {
+            if hasGroup && !self.tableView.isEditing {
                 
                 viewHeight = ScaleWidth(at: 41)
             } else {
@@ -1744,17 +1743,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         let photoVC = BaseNavigationController(rootViewController: PhotoCheckViewController(viewModel: PhotoCheckVCViewModel()))
         photoVC.modalPresentationStyle = .fullScreen
         
-        AuthorizationManager.photoLiabraryStatus().drive(onNext: { status in
-            
-            if status == .authorized || status == .notDetermined {
-                
-                self.present(photoVC, animated: true, completion: nil)
-                
-            } else {
-                
-                self.showAlertToOpenSettingURL(title: "相簿读取失败", message: "相簿权限未开启")
-            }
-        }).disposed(by: disposedBag)
+        present(photoVC, animated: true, completion: nil)
     }
         
     private func showDeleteAlert() {
@@ -1813,15 +1802,7 @@ class CustomSegmentControl: UIView {
         view.addCornerRadius(at: ScaleWidth(at: 2))
         return view
     }()
-    
-    private let secondUnderLine: UIView = {
         
-        let view = UIView()
-        view.setBackgroundColor(.customSegmentControlUnderLineColor)
-        view.addCornerRadius(at: ScaleWidth(at: 2))
-        return view
-    }()
-    
     private let disposedBag: DisposeBag = .init()
     
     private var gestDisposedBag: DisposeBag = .init()
@@ -1912,6 +1893,7 @@ class CustomSegmentControl: UIView {
                 
             }
             self.resetUnderLine()
+            self.selectIndex(at: self.selectIndex)
         }).disposed(by: disposedBag)
     }
     

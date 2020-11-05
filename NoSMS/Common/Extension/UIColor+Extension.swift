@@ -152,7 +152,10 @@ extension UIColor {
                                                                                lightColor: .color_000_000_000_04)
     static let photoCheckCountLabelColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_255_255_255_05,
                                                                                     lightColor: .color_255_255_255_05)
-       
+    
+    static let photoCheckAuthLabelColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white,
+                                                                                    lightColor: .black)
+
     
     //MARK: ChoseToAddToken
     static let choseToAddTokenViewBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_046_046_050,

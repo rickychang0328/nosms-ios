@@ -31,6 +31,18 @@ extension UIViewController {
         }
     }
     
+    func showSettingAppAuthPage() {
+        
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString) else {
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            
+            UIApplication.shared.open(settingsUrl, completionHandler: nil)
+        }
+    }
+    
     func showAlertToOpenSettingURL(title: String?, message: String?) {
         
         let alertController = UIAlertController (title: title, message: message, preferredStyle: .alert)
