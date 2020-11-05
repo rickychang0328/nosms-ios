@@ -13,8 +13,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private var groupVCs: [ShareOTPGroupViewController] = []
-  
-    
+    let currentDate = Date()
     private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -57,8 +56,9 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let shareRecordManager = ShareRecordStoreManager()
-            shareRecordManager.addNewRecord(description: "导出：\(self.otpShareSelectedAccount.count)个验证码")
+            shareRecordManager.addNewRecord(description: "导出：\(self.otpShareSelectedAccount.count)个验证码", date: self.currentDate)
             let newViewController = QRcodeOTPShareViewController()
+            newViewController.currentDate = self.currentDate
             newViewController.otpShareSelectedAccountDatatoken = self.otpShareSelectedAccount
             newViewController.view.backgroundColor = .optShareBackgroundColor
             self.navigationController?.pushViewController(newViewController, animated: true)

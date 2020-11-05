@@ -36,18 +36,22 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
         return label
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setNavigate()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigate()
         navigationController?.navigationBar.barTintColor = .navigationColor
         self.navigationController?.navigationBar.topItem?.title = ""
-        self.navigationItem.title = "近期分享记录"
+        self.navigationItem.title = "分享记录"
         tableView.register(ShareOTPRecordTableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.dataSource = self
         tableView.delegate = self
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
-        tableView.allowsSelection = false
         view.addSubview(titleLabel)
         view.addSubview(tableView)
         titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
@@ -57,7 +61,7 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
             $0.right.equalToSuperview().offset(-20)
             $0.height.equalTo(21)
         }
-      
+        
         tableView.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(ScaleWidth(at: 25))
             $0.left.equalToSuperview()
@@ -68,35 +72,35 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-              super.traitCollectionDidChange(previousTraitCollection)
-              setNavigate()
-          }
+        super.traitCollectionDidChange(previousTraitCollection)
+        setNavigate()
+    }
     
     func setNavigate() {
-          let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
-
-          leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
-              
-              self?.navigationController?.popViewController(animated: true)
-          }).disposed(by: disposeBag)
-          
-          navigationItem.leftBarButtonItem = leftbarItem
-          var color: UIColor
-          if #available(iOS 13.0, *) {
-              
-              if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
-                  
-                  color = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
-              } else {
-                  
-                  color = .navColorLight
-              }
-          } else {
-              color = .navColorLight
-              // Fallback on earlier versions
-          }
-          navigationController?.navigationBar.barTintColor = color
-      }
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+        
+        leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+            
+            self?.navigationController?.popViewController(animated: true)
+        }).disposed(by: disposeBag)
+        
+        navigationItem.leftBarButtonItem = leftbarItem
+        var color: UIColor
+        if #available(iOS 13.0, *) {
+            
+            if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
+                
+                color = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
+            } else {
+                
+                color = .navColorLight
+            }
+        } else {
+            color = .navColorLight
+            // Fallback on earlier versions
+        }
+        navigationController?.navigationBar.barTintColor = color
+    }
     
     @objc func confirm(sender:UIButton!) {
         self.view.removeFromSuperview()
@@ -121,10 +125,35 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
         return 80
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
+        let time = otpValueDicArray[indexPath.row].time
+        let otpShareDetailList = RealmDataManager.readOTPShareAccount().filter { account in
+            return account.time == time
+        }
+        if otpShareDetailList.isEmpty == false {
+            let newViewController = OTPShareRecordDetailViewController()
+            newViewController.navTitle = otpValueDicArray[indexPath.row].description
+            newViewController.navigationController?.navigationBar.barTintColor = .clear
+            newViewController.otpValueDicArray = otpShareDetailList
+            newViewController.otpValueFilterDicArray = otpShareDetailList
+            newViewController.view.backgroundColor = .optShareRecordBackgroundColor
+            self.navigationController?.pushViewController(newViewController, animated: true)
+        } else {
+            NoSMSHUD.showToast(title: "仅显示最新版本的验证码详情")
+        }
+    }
+    
     
 }
 
 class ShareOTPRecordTableViewCell: UITableViewCell {
+    
+    private lazy var narrowImageView: UIImageView = {
+        let view = UIImageView()
+        view.image = UIImage(named: "NoSMS_narrow")
+        return view
+    }()
     
     var otpValueCount: UILabel = {
         let label = UILabel()
@@ -148,9 +177,9 @@ class ShareOTPRecordTableViewCell: UITableViewCell {
     }()
     
     var lineView: UIView = {
-          let view = UIView()
-          view.backgroundColor = .otpshareRecordCellLineColor
-          return view
+        let view = UIView()
+        view.backgroundColor = .otpshareRecordCellLineColor
+        return view
     }()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -159,6 +188,7 @@ class ShareOTPRecordTableViewCell: UITableViewCell {
         contentView.addSubview(otpValueCount)
         contentView.addSubview(otpValueTime)
         contentView.addSubview(lineView)
+        contentView.addSubview(narrowImageView)
         otpValueCount.snp.makeConstraints {
             $0.height.equalTo(22.5)
             $0.left.equalToSuperview().offset(16)
@@ -178,6 +208,13 @@ class ShareOTPRecordTableViewCell: UITableViewCell {
             $0.left.equalToSuperview()
             $0.right.equalToSuperview()
             $0.bottom.equalToSuperview()
+        }
+        
+        narrowImageView.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.height.equalTo(ScaleWidth(at: 35))
+            $0.width.equalTo(ScaleWidth(at: 35))
+            $0.trailing.equalToSuperview().offset(-10)
         }
         
     }
@@ -201,7 +238,7 @@ class ShareRecordStoreManager {
     private let userDefaultKey: String = "shareOTPDicArray"
     private let userDefaultDicDescriptionKey: String = "shareInformation"
     private let userDefaultTimeKey: String = "time"
-
+    
     func getAllRecord() -> [ShareRecordObject] {
         
         let shareOTPDicArray: [[String: String]] = userDefault.object(forKey: userDefaultKey) as? [[String: String]] ?? []
@@ -218,17 +255,17 @@ class ShareRecordStoreManager {
             
             return ShareRecordObject(time: time, description: description)
         })
-
+        
         return result
     }
     
-    func addNewRecord(description: String) {
+    func addNewRecord(description: String, date: Date) {
         
         var shareOTPDicArray: [[String: String]] = []
         shareOTPDicArray = userDefault.object(forKey: userDefaultKey) as? [[String : String]] ?? []
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let time = dateFormatter.string(from: Date())
+        let time = dateFormatter.string(from: date)
         shareOTPDicArray.append([userDefaultDicDescriptionKey: description, userDefaultTimeKey: time])
         userDefault.set(shareOTPDicArray, forKey: userDefaultKey)
     }

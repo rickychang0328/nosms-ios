@@ -22,8 +22,11 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
     
     enum Event {
         
-        case success
+        case mulitpleSuccess(message: String)
+        case success(message: String)
         case showAlert(title: String, message: String, completionHander: () -> Void)
+        case oneButtonAlert(title: String, message: String, completion: (() -> Void)?)
+        case replaceAlertAction(message: String, needMoreText: Bool, replaceHandler: () -> Void, newAddHandler: () -> Void)
     }
     
     let choseImage: Observable<UIImage?>
@@ -49,7 +52,7 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
             let dispose = self.choseImage.subscribe(onNext: { image in
                 
                 var displayImage = image
-                for index in 0...1 {
+                for index in 0...2 {
 
                     guard let pickedImage = displayImage,
                            let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: nil, options: [CIDetectorAccuracy:CIDetectorAccuracyHigh]),
@@ -63,9 +66,13 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
                     guard !features.isEmpty else {
                             
                         
-                        if index == 0 {
+                        if index == 1 {
                            
                             displayImage = displayImage?.imageResize(sizeChange: .init(width: 500, height: 500))
+                            continue
+                        } else if index == 0 {
+                            
+                            displayImage = displayImage?.imageResize(sizeChange: .init(width: 5000, height: 5000))
                             continue
                         } else {
                                
@@ -76,21 +83,43 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
                                    
                     let qrCodeLink = features.reduce(""){ $0 + ($1.messageString ?? "")}
                     
-                    self.tokenStore.addTokenWith(urlString: qrCodeLink) { [weak self] (event) in
-                           
-                        guard let _ = self else { return }
-                        switch event {
-                               
-                        case .addSuccess:
-                               
-                            anyObserver.onNext(.success)
-                            anyObserver.onCompleted()
-                        case .haveTheSame(let title, let message, let completion):
-                               
-                            anyObserver.onNext(.showAlert(title: title, message: message, completionHander: completion))
-                        case .addError(let error):
-                               
-                            anyObserver.onError(error)
+                    if qrCodeLink.mustAuth.getActionEnum() == .some(.mulitpleShare), let urls = try? qrCodeLink.mustAuth.parsingMulitple().urlStrings {
+                        
+                        self.tokenStore.mulitpleShareURLAction(urlString: urls, eventHandler: { event in
+                            
+                            switch event {
+                            
+                            case .success(toast: let toast):
+                                anyObserver.onNext(.mulitpleSuccess(message: toast))
+                                anyObserver.onCompleted()
+                            case .haveSameToken(message: let message, needMoreText: let needMoreText, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
+                                anyObserver.onNext(.replaceAlertAction(message: message, needMoreText: needMoreText, replaceHandler: replaceHandler, newAddHandler: newAddHandler))
+                            case .error(error: let error):
+                                anyObserver.onError(error)
+                            case .addSuccessButGroupIsMax(title: let title, message: let message):
+                                anyObserver.onNext(.oneButtonAlert(title: title, message: message, completion: nil))
+                                anyObserver.onCompleted()
+                            }
+                        })
+                        
+                    } else {
+                        
+                        self.tokenStore.addTokenWith(urlString: qrCodeLink) { [weak self] (event) in
+                            
+                            guard let _ = self else { return }
+                            switch event {
+                            
+                            case .addSuccess:
+                                
+                                anyObserver.onNext(.success(message: "识别成功！"))
+                                anyObserver.onCompleted()
+                            case .haveTheSame(let title, let message, let completion):
+                                
+                                anyObserver.onNext(.showAlert(title: title, message: message, completionHander: completion))
+                            case .addError(let error):
+                                
+                                anyObserver.onError(error)
+                            }
                         }
                     }
                     break
@@ -166,11 +195,19 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             
             self.viewModel.saveToken()
-                .subscribe(onNext: { event in
-                    
+                .subscribe(onNext: { [weak self] event in
+                    guard let self = self else { return }
                     self.waitLabel.isHidden = true
                     
                     switch event {
+                    
+                    case .mulitpleSuccess(message: let message):
+                        
+                        let vc = self.presentingViewController
+                        self.dismiss(animated: true, completion: {
+                            
+                            NoSMSHUD.showToast(title: message, contentView: vc?.view)
+                        })
                         
                     case .success:
                         NoSMSHUD.showToast(title: "识别成功！") {
@@ -182,6 +219,18 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
                         self.showAlert(title: title, message: message, confirmTitle: "确认", cancelTitle: "取消", confirmAction: completionHander) {
                             self.navigationController?.popViewController(animated: true)
                         }
+                        
+                    case .oneButtonAlert(title: let title, message: let message, completion: _ ):
+                        
+                        self.showNewOneButtonAlert(title: title, message: message) {
+                            self.dismiss(animated: true, completion: nil)
+                        }
+                    case .replaceAlertAction(message: let message, needMoreText: let needMoreText, replaceHandler: let replaceHandler, newAddHandler: let newAddHandler):
+                        
+                        self.showReplaceAlert(message: message, needMoreText: needMoreText, confirmAction: newAddHandler, replaceAction: replaceHandler, cancelAction: { [weak self] in
+                            guard let self = self else { return }
+                            self.navigationController?.popViewController(animated: true)
+                        })
                     }
                     
                 }, onError: { _ in

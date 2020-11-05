@@ -100,7 +100,10 @@ class PhotoManager {
         
     let photoReloadOnceCount = 100
     
-    private init() {}
+    private init() {
+        
+        reloadAlbum()
+    }
     
     func reloadAlbum() {
                 

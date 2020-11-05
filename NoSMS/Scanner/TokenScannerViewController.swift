@@ -95,6 +95,7 @@ enum TokenEvent {
     case endScanTask(toast: String)
     case endScanTaskRemoveVCAndShowToastSameTime(toast: String)
     case alertAction(title: String, message: String, completion: () -> Void)
+    case oneButtonAlert(title: String, message: String, completion: (() -> Void)?)
     case replaceAlertAction(message: String, needMoreText: Bool, replaceHandler: () -> Void, newAddHandler: () -> Void)
 }
 
@@ -147,6 +148,9 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                         guard let self = self else { return }
                         switch event {
                         
+                        case .addSuccessButGroupIsMax(title: let title, message: let message):
+                            
+                            self.eventResult.onNext(.oneButtonAlert(title: title, message: message, completion: nil))
                         case .success(toast: let toast):
                             
                             self.eventResult.onNext(.endScanTaskRemoveVCAndShowToastSameTime(toast: toast))
@@ -245,7 +249,13 @@ class TokenScannerViewController<ViewModel: TokenScannerVCViewModelProtocol>: Ba
             
             guard let self = self else { return }
             switch result {
+            
+            case .oneButtonAlert(title: let title, message: let message, completion: _ ):
                 
+                self.showNewOneButtonAlert(title: title, message: message, confirmAction: { [weak self] in
+                                           
+                    self?.navigationController?.popViewController(animated: true)
+                })
             case .start:
                 break
             case .error(let error):

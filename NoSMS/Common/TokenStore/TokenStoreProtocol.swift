@@ -487,7 +487,8 @@ extension KeychainTokenStore: TokenStoreProtocol {
         let addTokenHalder: () -> Void = {
             
             do {
-                try self.addTokenSure(token, groupNames: groupNames)
+                _ = try self.addTokenSure(token, groupNames: groupNames)
+                self.afterAddTokensDoneReloadTokens()
                 eventHandler(.addSuccess)
 
             } catch {
@@ -505,17 +506,22 @@ extension KeychainTokenStore: TokenStoreProtocol {
         }
     }
     
-    private func addTokenSure(_ token: Token, groupNames: [String]) throws {
+    private func afterAddTokensDoneReloadTokens() {
+        
+        persistentTokensBehavior.onNext(adapterTokens)
+        resetTimer()
+        saveTokenOrder()
+    }
+    
+    private func addTokenSure(_ token: Token, groupNames: [String]) throws -> URLAddGroupResult {
         
         let newPersistentToken = try keychain.add(token)
         persistentTokens.append(newPersistentToken)
         let adapterToken = AdapterToken(persistentToken: newPersistentToken, observerTimer: timerObserver)
         adapterTokens.append(adapterToken)
-        persistentTokensBehavior.onNext(adapterTokens)
         adapterToken.passwordShow.onNext(true)
-        resetTimer()
-        saveTokenOrder()
-        newTokenAddGroups(tokenID: newPersistentToken.identifier, groupsName: groupNames)
+        let addGroupResult = newTokenAddGroups(tokenID: newPersistentToken.identifier, groupsName: groupNames)
+        return addGroupResult
     }
 
     func saveToken(_ token: Token, toPersistentToken persistentToken: PersistentToken) throws {
@@ -610,6 +616,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
         case success(toast: String)
         case haveSameToken(message: String, needMoreText: Bool, replaceHandler: () -> Void, newAddHandler: () -> Void)
         case error(error: Error)
+        case addSuccessButGroupIsMax(title: String, message: String)
     }
     
     private class MulitpleShareToken {
@@ -652,6 +659,8 @@ extension KeychainTokenStore: TokenStoreProtocol {
         
         let mulitpleShareNewSaveHandler = {
             
+            var groupIsAddConfirm = true
+            
             for mulitpleShareToken in mulitpleShareTokens {
                 
                 do {
@@ -659,18 +668,43 @@ extension KeychainTokenStore: TokenStoreProtocol {
                         
                     } else {
                         
-                        try self.addTokenSure(mulitpleShareToken.token, groupNames: mulitpleShareToken.groupNames)
+                        let result = try self.addTokenSure(mulitpleShareToken.token, groupNames: mulitpleShareToken.groupNames)
+                        
+                        switch result {
+                        
+                        case .groupMaxDidntAdd:
+                            groupIsAddConfirm = false
+                        case .addSuccess:
+                            break
+                        case .didntHaveGroupName:
+                            break
+                        }
                     }
                 } catch {
-                    
+                    self.afterAddTokensDoneReloadTokens()
                     eventHandler(.error(error: error))
                     return
                 }
             }
+            self.afterAddTokensDoneReloadTokens()
+            
             let toast = "已导入\(mulitpleShareTokens.count)个验证码"
-            eventHandler(.success(toast: toast))
+            
+            if groupIsAddConfirm {
+                
+                eventHandler(.success(toast: toast))
+            } else {
+                
+                let message = "分组已超过上限10组，将默认显示为[全部]分组"
+                eventHandler(.addSuccessButGroupIsMax(title: toast, message: message))
+            }
             let shareRecordManager = ShareRecordStoreManager()
-            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码")
+            let nowDate = Date()
+            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码", date: nowDate)
+            mulitpleShareTokens.forEach({
+                
+                RealmDataManager.addMulitpleShareTokenInRecord(account: $0.token.name, issuer: $0.token.issuer, groups: $0.groupNames, time: nowDate)
+            })
         }
         
         if dontHaveSame {
@@ -970,6 +1004,11 @@ extension KeychainTokenStore {
     
     private var groupMax: Int { return 10 }
     
+    var groupCanAdd: Bool {
+        
+        return !(groupList.count >= groupMax)
+    }
+    
     private func saveGroupList(data: [Data]) {
         
         _ = MustAuthKeychain.keyChainSaveData(data: data, withIdentifier: kMustAuthGroupListArray)
@@ -1043,19 +1082,33 @@ extension KeychainTokenStore {
         return groupList.filter({ $0.title == name })
     }
     
-    func newTokenAddGroups(tokenID: Data, groupsName: [String]) {
+    enum URLAddGroupResult {
+        
+        case groupMaxDidntAdd
+        case addSuccess
+        case didntHaveGroupName
+    }
+    
+    func newTokenAddGroups(tokenID: Data, groupsName: [String]) -> URLAddGroupResult {
         
         if groupsName.isEmpty {
             
-            return
+            return .didntHaveGroupName
         }
         
+        var result: URLAddGroupResult = .addSuccess
+        
         for groupName in groupsName {
-            
+                        
             let groups = getGroups(name: groupName)
             
             if groups.isEmpty {
                 
+                if !groupCanAdd {
+                    
+                    result = .groupMaxDidntAdd
+                    continue
+                }
                 var newGroup = GroupObject()
                 newGroup.title = groupName
                 newGroup.tokens.append(tokenID)
@@ -1069,6 +1122,7 @@ extension KeychainTokenStore {
                 }
             }
         }
+        return result
     }
     
     func moveGroup(_ origin: Int, toIndex destination: Int) {
