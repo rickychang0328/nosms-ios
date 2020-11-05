@@ -699,7 +699,12 @@ extension KeychainTokenStore: TokenStoreProtocol {
                 eventHandler(.addSuccessButGroupIsMax(title: toast, message: message))
             }
             let shareRecordManager = ShareRecordStoreManager()
-            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码", date: Date())
+            let nowDate = Date()
+            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码", date: nowDate)
+            mulitpleShareTokens.forEach({
+                
+                RealmDataManager.addMulitpleShareTokenInRecord(account: $0.token.name, issuer: $0.token.issuer, groups: $0.groupNames, time: nowDate)
+            })
         }
         
         if dontHaveSame {

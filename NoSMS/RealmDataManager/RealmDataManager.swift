@@ -10,6 +10,31 @@ import RealmSwift
 
 class RealmDataManager {
     
+    static func addMulitpleShareTokenInRecord(account: String, issuer: String, groups: [String] ,time: Date) {
+        
+        let groupsRemoveDuplicates = groups.removingDuplicates()
+        let realm = try! Realm()
+        let otpAccount: OTPAccount = OTPAccount()
+        otpAccount.account = account
+        otpAccount.issuer = issuer
+        let dateFormatter = DateFormatter()
+               dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        let time = dateFormatter.string(from: time)
+        otpAccount.time = time
+        var groupString = ""
+        for group in groupsRemoveDuplicates {
+            
+            groupString += group + " "
+        }
+        if groupString == "" {
+            groupString = "全部"
+        }
+        otpAccount.group = groupString
+        try! realm.write {
+            realm.add(otpAccount)
+        }
+    }
+    
     static func addOTPShareAccount(_ otpToken: AdapterTokenProtocol, time: Date) {
         let realm = try! Realm()
         let otpAccount: OTPAccount = OTPAccount()
@@ -61,4 +86,17 @@ class RealmDataManager {
     }
         
         
+}
+
+extension Array where Element: Hashable {
+    
+  func removingDuplicates() -> [Element] {
+      var addedDict = [Element: Bool]()
+      return filter {
+        addedDict.updateValue(true, forKey: $0) == nil
+      }
+   }
+   mutating func removeDuplicates() {
+      self = self.removingDuplicates()
+   }
 }

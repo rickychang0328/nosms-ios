@@ -519,8 +519,10 @@ class PhotoCheckAuthView: UIView {
         
         let button = UIButton()
         button.setTitle("前往系统设置", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.addCornerRadius(at: ScaleWidth(at: 20))
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.setBackgroundColor(.photoCheckButtonTextAndBackgroundColor)
+        button.addCornerRadius(at: ScaleWidth(at: 6))
         
         return button
     }()
@@ -529,7 +531,8 @@ class PhotoCheckAuthView: UIView {
         
         let button = UIButton()
         button.setTitle("继续访问部分照片", for: .normal)
-        button.setTitleColor(.black, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.setTitleColor(.photoCheckButtonTextAndBackgroundColor, for: .normal)
         return button
     }()
     
@@ -569,7 +572,7 @@ class PhotoCheckAuthView: UIView {
         continueButton.snp.makeConstraints {
             
             $0.centerX.equalToSuperview()
-            $0.bottom.equalTo(ScaleWidth(at: -58))
+            $0.bottom.equalTo(ScaleWidth(at: -81))
             $0.width.equalTo(ScaleWidth(at: 137))
             $0.height.equalTo(ScaleWidth(at: 17))
         }
@@ -578,8 +581,8 @@ class PhotoCheckAuthView: UIView {
             
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(continueButton.snp.top).offset(ScaleWidth(at: -25))
-            $0.width.equalTo(ScaleWidth(at: 250))
-            $0.height.equalTo(ScaleWidth(at: 45))
+            $0.width.equalTo(ScaleWidth(at: 345))
+            $0.height.equalTo(ScaleWidth(at: 42))
         }
     }
     
