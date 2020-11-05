@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import RealmSwift
 
 class QRcodeOTPShareViewController: UIViewController {
     
@@ -16,6 +17,7 @@ class QRcodeOTPShareViewController: UIViewController {
     private let timeCounter: TimeInterval = 61
     var pageInex = 1
     var page = 1
+    var currentDate: Date?
     var otpShareSelectedAccountDatatoken = [Data]()
     var otpShareSelectedAccount = [String]()
     var otpShareSelectedAccountToken = [String]()
@@ -236,6 +238,7 @@ class QRcodeOTPShareViewController: UIViewController {
         for tokenID in otpShareSelectedAccountDatatoken {
             for token in tokenStore.tokenList {
                 if tokenID == token.uuid {
+                    RealmDataManager.addOTPShareAccount(token, time: currentDate ?? Date())
                     otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)" )
                     var adapterToken:URL
                     do {
@@ -684,4 +687,24 @@ class NoSMSAlertScanOneButtonView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+class OTPAccount : Object{
+    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var account = ""
+    @objc dynamic var time = ""
+    @objc dynamic var issuer = ""
+    @objc dynamic var group = ""
+    override static func primaryKey() -> String? {
+        return "id"
+    }
+}
+
+class OTPAccountData {
+    
+    var account = ""
+    var time = ""
+    var issuer = ""
+    var group = ""
+
 }

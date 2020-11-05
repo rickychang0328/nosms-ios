@@ -670,7 +670,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
             let toast = "已导入\(mulitpleShareTokens.count)个验证码"
             eventHandler(.success(toast: toast))
             let shareRecordManager = ShareRecordStoreManager()
-            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码")
+            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码", date: Date())
         }
         
         if dontHaveSame {

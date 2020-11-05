@@ -4,6 +4,11 @@ PODS:
   - DynamicBlurView (5.0.3)
   - OneTimePassword (3.2.0):
     - Base32 (~> 1.1.2)
+  - Realm (10.1.1):
+    - Realm/Headers (= 10.1.1)
+  - Realm/Headers (10.1.1)
+  - RealmSwift (10.1.1):
+    - Realm (= 10.1.1)
   - RxCocoa (5.1.1):
     - RxRelay (~> 5)
     - RxSwift (~> 5)
@@ -16,6 +21,7 @@ DEPENDENCIES:
   - BiometricAuthentication
   - DynamicBlurView
   - OneTimePassword (~> 3.2)
+  - RealmSwift
   - RxCocoa (~> 5.1)
   - RxSwift (~> 5.1)
   - SnapKit (= 4.2.0)
@@ -26,6 +32,8 @@ SPEC REPOS:
     - BiometricAuthentication
     - DynamicBlurView
     - OneTimePassword
+    - Realm
+    - RealmSwift
     - RxCocoa
     - RxRelay
     - RxSwift
@@ -36,11 +44,13 @@ SPEC CHECKSUMS:
   BiometricAuthentication: 36445f3ab77699489f91995bed887be89890afac
   DynamicBlurView: b57e2f6aa33f85b2bcca272265162a3c7c5cc499
   OneTimePassword: c00ecc908e67e6c5bfda9d50b0b2e4696d0b066e
+  Realm: 784ca1da1453e31a9c9adc14445421a81f316119
+  RealmSwift: cc52fe0dcea56387274dff36e19219e055a3bb84
   RxCocoa: 32065309a38d29b5b0db858819b5bf9ef038b601
   RxRelay: d77f7d771495f43c556cbc43eebd1bb54d01e8e9
   RxSwift: 81470a2074fa8780320ea5fe4102807cb7118178
   SnapKit: fe8a619752f3f27075cc9a90244d75c6c3f27e2a
 
-PODFILE CHECKSUM: f0bd96dd88ed50275697e7b11f01f64d8b73bdf6
+PODFILE CHECKSUM: f606a31e05a11226dd511b8e69331884ccf1a3f5
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0

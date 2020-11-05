@@ -122,9 +122,19 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
-        let newViewController = OTPShareRecordDetailViewController()
-        newViewController.view.backgroundColor = .optShareRecordBackgroundColor
-        self.navigationController?.pushViewController(newViewController, animated: true)
+        let time = otpValueDicArray[indexPath.row].time
+        let otpShareDetailList = RealmDataManager.readOTPShareAccount().filter { account in
+            return account.time == time
+        }
+        if otpShareDetailList.isEmpty == false {
+            let newViewController = OTPShareRecordDetailViewController()
+            newViewController.otpValueDicArray = otpShareDetailList
+            newViewController.otpValueFilterDicArray = otpShareDetailList
+            newViewController.view.backgroundColor = .optShareRecordBackgroundColor
+            self.navigationController?.pushViewController(newViewController, animated: true)
+        } else {
+            NoSMSHUD.showToast(title: "仅显示最新版本的验证码详情")
+        }
     }
     
     
@@ -242,13 +252,13 @@ class ShareRecordStoreManager {
         return result
     }
     
-    func addNewRecord(description: String) {
+    func addNewRecord(description: String, date: Date) {
         
         var shareOTPDicArray: [[String: String]] = []
         shareOTPDicArray = userDefault.object(forKey: userDefaultKey) as? [[String : String]] ?? []
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        let time = dateFormatter.string(from: Date())
+        let time = dateFormatter.string(from: date)
         shareOTPDicArray.append([userDefaultDicDescriptionKey: description, userDefaultTimeKey: time])
         userDefault.set(shareOTPDicArray, forKey: userDefaultKey)
     }

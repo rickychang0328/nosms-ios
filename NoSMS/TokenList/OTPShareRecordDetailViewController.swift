@@ -14,8 +14,8 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     private let disposeBag: DisposeBag = .init()
     var tableView = UITableView()
     
-    var otpValueDicArray: [ShareRecordObject] = ShareRecordStoreManager().getAllRecord().reversed()
-    var otpValueFilterDicArray: [ShareRecordObject] = ShareRecordStoreManager().getAllRecord().reversed()
+    var otpValueDicArray = [OTPAccountData]()
+    var otpValueFilterDicArray = [OTPAccountData]()
     let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = .getColor(red: 41, green: 44, blue: 68, alpha: 1)
@@ -175,7 +175,8 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     
     @objc func textFieldDidChange(_ textField: UITextField) {
         otpValueFilterDicArray = otpValueDicArray.filter { word in
-            return word.description.contains(searchTextField.text!)
+            return word.account.description.contains(searchTextField.text!) ||
+                word.issuer.description.contains(searchTextField.text!)
         }
         if searchTextField.text == "" {
             otpValueFilterDicArray = otpValueDicArray
@@ -278,8 +279,9 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ShareOTPRecordDetailTableViewCell
-        cell.otpValueCount.text = otpValueFilterDicArray[indexPath.row].description
-        cell.otpValueTime.text = otpValueFilterDicArray[indexPath.row].time
+        let otpAccount = otpValueFilterDicArray[indexPath.row]
+        cell.account.text = "[\(otpAccount.issuer)] \(otpAccount.account)"
+        cell.group.text = "分组：\(otpAccount.group)"
         cell.backgroundColor = .otpShareReceiveButtonColor
         return cell
     }
@@ -293,7 +295,7 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
 
 class ShareOTPRecordDetailTableViewCell: UITableViewCell {
         
-    var otpValueCount: UILabel = {
+    var account: UILabel = {
         let label = UILabel()
         label.text = ""
         label.backgroundColor = .clear
@@ -304,7 +306,7 @@ class ShareOTPRecordDetailTableViewCell: UITableViewCell {
         return label
     }()
     
-    var otpValueTime: UILabel = {
+    var group: UILabel = {
         let label = UILabel()
         label.backgroundColor = .clear
         label.setFont(.pingFangMediumFont(size: 12))
@@ -323,21 +325,21 @@ class ShareOTPRecordDetailTableViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         contentView.backgroundColor = .clear
-        contentView.addSubview(otpValueCount)
-        contentView.addSubview(otpValueTime)
+        contentView.addSubview(account)
+        contentView.addSubview(group)
         contentView.addSubview(lineView)
-        otpValueCount.snp.makeConstraints {
+        account.snp.makeConstraints {
             $0.height.equalTo(22.5)
             $0.left.equalToSuperview().offset(16)
+            $0.right.equalToSuperview().offset(16)
             $0.top.equalToSuperview().offset(15)
-            $0.width.equalTo(200)
         }
         
-        otpValueTime.snp.makeConstraints {
+        group.snp.makeConstraints {
             $0.height.equalTo(16.5)
             $0.left.equalToSuperview().offset(16)
-            $0.top.equalTo(otpValueCount.snp.bottom).offset(11)
-            $0.width.equalTo(150)
+            $0.right.equalToSuperview().offset(16)
+            $0.top.equalTo(account.snp.bottom).offset(11)
         }
         
         lineView.snp.makeConstraints {
