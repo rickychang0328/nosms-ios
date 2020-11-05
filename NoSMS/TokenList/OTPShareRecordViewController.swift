@@ -36,6 +36,11 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
         return label
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setNavigate()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigate()
@@ -128,6 +133,8 @@ class OTPShareRecordViewController: UIViewController, UITableViewDelegate, UITab
         }
         if otpShareDetailList.isEmpty == false {
             let newViewController = OTPShareRecordDetailViewController()
+            newViewController.navTitle = otpValueDicArray[indexPath.row].description
+            newViewController.navigationController?.navigationBar.barTintColor = .clear
             newViewController.otpValueDicArray = otpShareDetailList
             newViewController.otpValueFilterDicArray = otpShareDetailList
             newViewController.view.backgroundColor = .optShareRecordBackgroundColor

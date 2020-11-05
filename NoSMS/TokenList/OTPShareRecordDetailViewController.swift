@@ -15,6 +15,7 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     var tableView = UITableView()
     
     var otpValueDicArray = [OTPAccountData]()
+    var navTitle = ""
     var otpValueFilterDicArray = [OTPAccountData]()
     let containerView: UIView = {
         let view = UIView()
@@ -26,7 +27,7 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     private lazy var searchTextField: UITextField = {
         
         let textField = CustomTextField(frame: .zero)
-        textField.textColor = .tokenListSearchTextFieldTextColor
+        textField.textColor = .otpShareSearchTextColor
         textField.backgroundColor = .tokenListSearchTextFieldBackgroundColor
         textField.placeholder = "搜索"
         textField.font = .pingFangMediumFont(size: 15)
@@ -58,9 +59,8 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigate()
-        navigationController?.navigationBar.barTintColor = .navigationColor
         self.navigationController?.navigationBar.topItem?.title = ""
-        self.navigationItem.title = "分享记录"
+        self.navigationItem.title = navTitle
         tableView.register(ShareOTPRecordDetailTableViewCell.self, forCellReuseIdentifier: "cell")
         tableView.dataSource = self
         tableView.delegate = self
@@ -175,8 +175,8 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     
     @objc func textFieldDidChange(_ textField: UITextField) {
         otpValueFilterDicArray = otpValueDicArray.filter { word in
-            return word.account.description.contains(searchTextField.text!) ||
-                word.issuer.description.contains(searchTextField.text!)
+            return word.account.description.lowercased().contains(searchTextField.text!.lowercased()) ||
+                word.issuer.description.lowercased().contains(searchTextField.text!.lowercased())
         }
         if searchTextField.text == "" {
             otpValueFilterDicArray = otpValueDicArray
@@ -249,7 +249,7 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
             
             if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
                 
-                color = .getColor(red: 33, green: 33, blue: 33, alpha: 0.56)
+                color = .clear
             } else {
                 
                 color = .navColorLight

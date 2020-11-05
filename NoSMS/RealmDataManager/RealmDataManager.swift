@@ -35,7 +35,7 @@ class RealmDataManager {
         try! realm.write {
             realm.add(otpAccount)
         }
-        print("fileURL: \(realm.configuration.fileURL!)")
+        //print("fileURL: \(realm.configuration.fileURL!)")
     }
     
     static func readOTPShareAccount() -> [OTPAccountData] {
@@ -50,7 +50,7 @@ class RealmDataManager {
             accountDetail.issuer = account.issuer
             accountOTPList.append(accountDetail)
         }
-        return accountOTPList.reversed()
+        return accountOTPList
     }
     
     static func deleteAll() {
