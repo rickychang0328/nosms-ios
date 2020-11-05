@@ -61,6 +61,7 @@
 		A1B8D020252DBFCF005099B7 /* QRcodeOTPShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D01F252DBFCF005099B7 /* QRcodeOTPShareViewController.swift */; };
 		A1B8D022252EBD69005099B7 /* OTPShareAndReceiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D021252EBD69005099B7 /* OTPShareAndReceiveViewController.swift */; };
 		A1B8D024253565A7005099B7 /* OTPShareRecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */; };
+		A1B8D02625528FEF005099B7 /* OTPShareRecordDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */; };
 		A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */; };
 		BB19B3C12449C22B00D5E9E4 /* UIDevice+VKKeychainIDFV.m in Sources */ = {isa = PBXBuildFile; fileRef = BB19B3BD2449C20100D5E9E4 /* UIDevice+VKKeychainIDFV.m */; };
 		BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8323F3FDCF00A08CD6 /* Repository.swift */; };
@@ -165,6 +166,7 @@
 		A1B8D01F252DBFCF005099B7 /* QRcodeOTPShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRcodeOTPShareViewController.swift; sourceTree = "<group>"; };
 		A1B8D021252EBD69005099B7 /* OTPShareAndReceiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareAndReceiveViewController.swift; sourceTree = "<group>"; };
 		A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareRecordViewController.swift; sourceTree = "<group>"; };
+		A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareRecordDetailViewController.swift; sourceTree = "<group>"; };
 		A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.debug.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.debug.xcconfig"; sourceTree = "<group>"; };
 		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -246,6 +248,7 @@
 				2A75E64B238B7D7700E8CAB9 /* TokenListViewController.swift */,
 				A1B8D021252EBD69005099B7 /* OTPShareAndReceiveViewController.swift */,
 				A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */,
+				A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */,
 				A1B8D01D252C2059005099B7 /* ShareOTPViewController.swift */,
 				A1B8D01F252DBFCF005099B7 /* QRcodeOTPShareViewController.swift */,
 				2A75E657238BB3D200E8CAB9 /* TokenListTableViewCell.swift */,
@@ -794,6 +797,7 @@
 				2A75E650238B7E1700E8CAB9 /* SnapKit+Extension.swift in Sources */,
 				2AE3DC4D238CC876009AC8EE /* TokenStoreProtocol.swift in Sources */,
 				BB93FD8623F3FDCF00A08CD6 /* APIClient.swift in Sources */,
+				A1B8D02625528FEF005099B7 /* OTPShareRecordDetailViewController.swift in Sources */,
 				2A21B08323A9C18A00922FBB /* AuthorizationManager.swift in Sources */,
 				2A75E65C238BB8E400E8CAB9 /* UILabel+SetValueReturnSelf+Extension.swift in Sources */,
 				2A75E658238BB3D200E8CAB9 /* TokenListTableViewCell.swift in Sources */,
