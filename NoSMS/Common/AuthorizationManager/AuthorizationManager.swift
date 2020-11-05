@@ -6,17 +6,25 @@ import RxSwift
 import RxCocoa
 
 
-struct AuthorizationManager {
+enum AuthorizationManager {
     
     static func photoLiabraryStatus() -> Driver<PHAuthorizationStatus> {
         
         return Observable<PHAuthorizationStatus>.create { (anyObserver) -> Disposable in
             
-            PHPhotoLibrary.requestAuthorization { (status) in
+            if #available(iOS 14, *) {
+                let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
                 
                 anyObserver.onNext(status)
                 anyObserver.onCompleted()
+            } else {
+                PHPhotoLibrary.requestAuthorization { (status) in
+                    
+                    anyObserver.onNext(status)
+                    anyObserver.onCompleted()
+                }
             }
+            
             return Disposables.create {}
         }.asDriver(onErrorJustReturn: .denied)
     }

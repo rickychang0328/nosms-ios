@@ -1,6 +1,7 @@
 
 import UIKit
 import BiometricAuthentication
+import CoreData
 
 @UIApplicationMain
 class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
@@ -152,6 +153,9 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
                     KeychainTokenStore.shared.mulitpleShareURLAction(urlString: urls) { (event) in
                         
                         switch event {
+                        
+                        case .addSuccessButGroupIsMax(title: let title, message: let message):
+                            nowVC?.showNewOneButtonAlert(title: title, message: message, confirmAction: nil)
                         
                         case .success(toast: let toast):
                             
