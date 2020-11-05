@@ -699,7 +699,7 @@ extension KeychainTokenStore: TokenStoreProtocol {
                 eventHandler(.addSuccessButGroupIsMax(title: toast, message: message))
             }
             let shareRecordManager = ShareRecordStoreManager()
-            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码")
+            shareRecordManager.addNewRecord(description: "导入：\(mulitpleShareTokens.count)个验证码", date: Date())
         }
         
         if dontHaveSame {

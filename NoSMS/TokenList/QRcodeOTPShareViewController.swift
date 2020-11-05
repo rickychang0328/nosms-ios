@@ -8,6 +8,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import RealmSwift
 
 class QRcodeOTPShareViewController: UIViewController {
     
@@ -16,10 +17,12 @@ class QRcodeOTPShareViewController: UIViewController {
     private let timeCounter: TimeInterval = 61
     var pageInex = 1
     var page = 1
+    var currentDate: Date?
     var otpShareSelectedAccountDatatoken = [Data]()
     var otpShareSelectedAccount = [String]()
     var otpShareSelectedAccountToken = [String]()
     var timer : Timer?
+    var showOTPAmount = 8
     let alertVc = NoSMSAlertOneButtonViewController()
     
     lazy var alertView: NoSMSAlertScanOneButtonView = {
@@ -146,8 +149,8 @@ class QRcodeOTPShareViewController: UIViewController {
         button.rx.tap.subscribe(onNext: { [weak self] _ in
             guard let self = self else { return }
             let view = ShareSelectedOTPViewController()
-            var startIndex = 10 * (self.pageInex-1)
-            var endIndex = startIndex + 9
+            var startIndex = self.showOTPAmount * (self.pageInex-1)
+            var endIndex = startIndex + 7
             if self.otpShareSelectedAccount.count - 1 < endIndex {
                 endIndex = self.otpShareSelectedAccount.count - 1
             }
@@ -188,10 +191,10 @@ class QRcodeOTPShareViewController: UIViewController {
         super.viewDidLoad()
         setNavigate()
         self.navigationItem.title = "扫描二维码"
-        page = self.otpShareSelectedAccountDatatoken.count / 10
+        page = self.otpShareSelectedAccountDatatoken.count / showOTPAmount
         if page == 0 {
             page = 1
-        } else if self.otpShareSelectedAccountDatatoken.count % 10 > 0 {
+        } else if self.otpShareSelectedAccountDatatoken.count % showOTPAmount > 0 {
             page += 1
         }
         setLayOut()
@@ -235,6 +238,7 @@ class QRcodeOTPShareViewController: UIViewController {
         for tokenID in otpShareSelectedAccountDatatoken {
             for token in tokenStore.tokenList {
                 if tokenID == token.uuid {
+                    RealmDataManager.addOTPShareAccount(token, time: currentDate ?? Date())
                     otpShareSelectedAccount.append("[\(token.token.issuer)] \(token.token.name)" )
                     var adapterToken:URL
                     do {
@@ -249,8 +253,8 @@ class QRcodeOTPShareViewController: UIViewController {
     }
     
     private func setQRcodeImageView(pageindex: Int) {
-        let startIndex = (pageindex - 1) * 10
-        var endIndex = startIndex + 9
+        let startIndex = (pageindex - 1) * showOTPAmount
+        var endIndex = startIndex + 7
         if endIndex >= otpShareSelectedAccount.count {
             endIndex = otpShareSelectedAccount.count - 1
         }
@@ -331,8 +335,8 @@ class QRcodeOTPShareViewController: UIViewController {
         
         alertView.snp.makeConstraints{
             $0.top.equalTo(topHint.snp.bottom).offset( ScaleWidth(at: 53))
-            $0.height.equalTo(ScaleWidth(at: 240))
-            $0.width.equalTo(ScaleWidth(at: 240))
+            $0.height.equalTo(ScaleWidth(at: ScaleWidth(at: UIScreen.main.bounds.width - 100)))
+            $0.width.equalTo(ScaleWidth(at: ScaleWidth(at: UIScreen.main.bounds.width - 100)))
             $0.centerX.equalToSuperview()
         }
         
@@ -385,14 +389,14 @@ class QRcodeOTPShareViewController: UIViewController {
         
         qrCodeView.snp.makeConstraints {
             $0.top.equalTo(topHint.snp.bottom).offset( ScaleWidth(at: 53))
-            $0.height.equalTo(ScaleWidth(at: 240))
-            $0.width.equalTo(ScaleWidth(at: 240))
+            $0.height.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 100))
+            $0.width.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 100))
             $0.centerX.equalToSuperview()
         }
         
         qrCodeImageView.snp.makeConstraints {
-            $0.height.equalTo(ScaleWidth(at: 176.5))
-            $0.width.equalTo(ScaleWidth(at: 176.5))
+            $0.height.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 181))
+            $0.width.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 181))
             $0.centerX.equalTo(qrCodeView.snp.centerX)
             $0.centerY.equalTo(qrCodeView.snp.centerY)
         }
@@ -654,7 +658,7 @@ class NoSMSAlertScanOneButtonView: UIView {
         
         titleLabel.preferredMaxLayoutWidth = ScaleWidth(at: 235)
         titleLabel.snp.makeConstraints {
-            $0.top.equalTo(ScaleWidth(at: 83))
+            $0.top.equalTo(ScaleWidth(at: 110))
             $0.centerX.equalToSuperview()
             $0.left.equalToSuperview().offset(20)
             $0.right.equalToSuperview().offset(-20)
@@ -671,9 +675,8 @@ class NoSMSAlertScanOneButtonView: UIView {
         confirmButton.snp.makeConstraints {
             
             $0.height.equalTo(ScaleWidth(at: 42))
-            $0.bottom.equalToSuperview().offset(-43)
-            $0.left.equalToSuperview().offset(13)
-            $0.right.equalToSuperview().offset(-13)
+            $0.top.equalTo(titleSecondLabel.snp.bottom).offset(20)
+            $0.width.equalTo(ScaleWidth(at: 214))
             $0.centerX.equalToSuperview()
             
         }
@@ -684,4 +687,24 @@ class NoSMSAlertScanOneButtonView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+}
+
+class OTPAccount : Object{
+    @objc dynamic var id = UUID().uuidString
+    @objc dynamic var account = ""
+    @objc dynamic var time = ""
+    @objc dynamic var issuer = ""
+    @objc dynamic var group = ""
+    override static func primaryKey() -> String? {
+        return "id"
+    }
+}
+
+class OTPAccountData {
+    
+    var account = ""
+    var time = ""
+    var issuer = ""
+    var group = ""
+
 }

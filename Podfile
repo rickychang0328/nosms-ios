@@ -11,6 +11,8 @@ target 'NoSMS' do
   pod 'SnapKit', '4.2.0'
   pod 'BiometricAuthentication'
   pod 'DynamicBlurView'
+  pod 'RealmSwift'
+
   # Pods for NoSMS
 
   target 'NoSMSTests' do

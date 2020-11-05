@@ -457,7 +457,7 @@ class NoSMSAlertViewController: UIViewController {
             }
         } else {
             alertView.bioImageView.isHidden = false
-            alertView.cancelButton.setBackgroundColor(.alertActionButtonBackgroundColor)
+            alertView.backgroundColor = .getColor(red: 41, green: 44, blue: 68, alpha: 1)
             alertView.cancelButton.setTitleColor(.white, for: .normal)
             alertView.snp.makeConstraints {
                 $0.center.equalToSuperview()
