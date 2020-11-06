@@ -392,7 +392,10 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
             .subscribe(onNext: { [weak self] _ in
                 
                 guard let self = self else { return }
-                self.choicePhotoAlbumAction()
+                if self.viewModel.isHaveAlbum {
+                    
+                    self.choicePhotoAlbumAction()
+                }
             }).disposed(by: disposedBag)
         
         navigationBarView.addGestureRecognizer(tapGestureRecognizer)
