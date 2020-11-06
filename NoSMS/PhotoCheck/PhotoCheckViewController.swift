@@ -293,9 +293,19 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
     
     private func authDidNotOpenHandler() {
         
+        let message: String
+        
+        if #available(iOS 14, *) {
+            
+            message = "当前无照片访问权限，建议前往系统设置，允许访问「照片」中的「所有照片」。"
+        } else {
+            
+            message = "当前无照片访问权限，建议前往系统设置，允许访问「照片」中的「读取和写入」。"
+        }
+        
         goAuthView()
         photoCheckAuthView.setupView(title: "无法访问相册中照片",
-                                     message: "当前无照片访问权限，建议前往系统设置，允许访问「照片」中的「所有照片」。",
+                                     message: message,
                                      continueButtonIsHidden: true)
     }
     
@@ -394,27 +404,29 @@ class PhotoCheckViewController<ViewModel: PhotoCheckVCViewModelProtocol>: BaseTa
         navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
         navigationController?.navigationBar.shadowImage = UIImage()
         
-        viewModel.reloadAlbum.subscribe(onNext: { [weak self] event in
-            guard let self = self else { return }
-            
-            self.collectionView.reloadData()
-            self.navigationBarView.isHidden = !self.viewModel.isHaveAlbum
-            switch event {
-                        
-            case .selectAlbumDone:
-                self.resetAlbumSelectView()
-                self.tableView.reloadData()
-            case .addPhotoDone:
-                break
-            case .authDidNotOpen:
-                self.authDidNotOpenHandler()
-            case .authIslimited:
-                self.authIslimitedHandler()
-            case .getPhoto:
+        viewModel.reloadAlbum
+            .subscribe(onNext: { [weak self] event in
+                guard let self = self else { return }
                 
-                self.goPhotoSetting()
-            }
-        }).disposed(by: disposedBag)
+                self.collectionView.reloadData()
+                self.navigationBarView.isHidden = !self.viewModel.isHaveAlbum
+                self.tableViewButtonInNavigationBar.isHidden = !self.viewModel.isHaveAlbum
+                switch event {
+                            
+                case .selectAlbumDone:
+                    self.resetAlbumSelectView()
+                    self.tableView.reloadData()
+                case .addPhotoDone:
+                    break
+                case .authDidNotOpen:
+                    self.authDidNotOpenHandler()
+                case .authIslimited:
+                    self.authIslimitedHandler()
+                case .getPhoto:
+                    
+                    self.goPhotoSetting()
+                }
+            }).disposed(by: disposedBag)
         
         let leftBarButton = UIBarButtonItem(title: "取消", style: .plain, target: nil, action: nil)
         leftBarButton.setTitleTextAttributes([NSAttributedString.Key.font: UIFont.pingFangMediumFont(size: 16)], for: .normal)
