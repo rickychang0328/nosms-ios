@@ -308,13 +308,7 @@ class QRcodeOTPShareViewController: UIViewController {
     private func addNotification() {
         NotificationCenter.default.addObserver(forName: UIApplication.userDidTakeScreenshotNotification, object: nil, queue: OperationQueue.main) { notification in
             self.alertView.isHidden = false
-            //            self.alertVc.alertCase = .screenShot
-            //            self.alertVc.showAlertSetting(title: "此功能用于验证码分享，请不要将二维码发送给他人。", actionTitle:"确定",confirmAction: nil)
-            //            self.alertVc.modalPresentationStyle = .overCurrentContext
-            //            self.alertVc.modalTransitionStyle = .crossDissolve
-            //            self.present(self.alertVc, animated: true, completion: nil)
         }
-        
     }
     
     private func setLayOut() {
@@ -328,21 +322,15 @@ class QRcodeOTPShareViewController: UIViewController {
         self.view.addSubview(nextButton)
         self.view.addSubview(previousButton)
         self.view.addSubview(qrCodeIndex)
-        //        alertView.confirmButton.rx.tap.subscribe(onNext: { [weak self] _ in
-        //            guard let self = self else { return }
-        //            self.alertView.isHidden = true
-        //        }).disposed(by: disposedBag)
         
-        alertView.snp.makeConstraints{
-            $0.top.equalTo(topHint.snp.bottom).offset( ScaleWidth(at: 53))
-            $0.height.equalTo(ScaleWidth(at: ScaleWidth(at: UIScreen.main.bounds.width - 100)))
-            $0.width.equalTo(ScaleWidth(at: ScaleWidth(at: UIScreen.main.bounds.width - 100)))
-            $0.centerX.equalToSuperview()
+        alertView.snp.makeConstraints {
+            
+            $0.edges.equalTo(qrCodeView)
         }
         
         if page == 1 {
             exportOTPButton.snp.makeConstraints {
-                $0.bottom.equalToSuperview().offset(ScaleWidth(at: -48))
+                $0.bottom.equalTo(view.snp.bottomMargin).offset(ScaleHeight(at: -14))
                 $0.left.equalToSuperview().offset(ScaleWidth(at: 15))
                 $0.right.equalToSuperview().offset(ScaleWidth(at: -15))
                 $0.height.equalTo(ScaleWidth(at: 42))
@@ -350,7 +338,7 @@ class QRcodeOTPShareViewController: UIViewController {
             }
         } else {
             exportOTPButton.snp.makeConstraints {
-                $0.bottom.equalToSuperview().offset(ScaleWidth(at: -48))
+                $0.bottom.equalTo(view.snp.bottomMargin).offset(ScaleHeight(at: -14))
                 $0.right.equalToSuperview().offset(ScaleWidth(at: -15))
                 $0.height.equalTo(ScaleWidth(at: 42))
                 $0.width.equalTo(ScaleWidth(at: 130))
@@ -358,29 +346,29 @@ class QRcodeOTPShareViewController: UIViewController {
         }
         
         nextButton.snp.makeConstraints {
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -48))
+            $0.bottom.equalTo(view.snp.bottomMargin).offset(ScaleHeight(at: -14))
             $0.right.equalToSuperview().offset(ScaleWidth(at: -15))
             $0.height.equalTo(ScaleWidth(at: 42))
             $0.width.equalTo(ScaleWidth(at: 130))
         }
         
         previousButton.snp.makeConstraints {
-            $0.bottom.equalToSuperview().offset(ScaleWidth(at: -48))
+            $0.bottom.equalTo(view.snp.bottomMargin).offset(ScaleHeight(at: -14))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 15))
             $0.height.equalTo(ScaleWidth(at: 42))
             $0.width.equalTo(ScaleWidth(at: 130))
         }
         
         topHint.snp.makeConstraints {
-            $0.top.equalTo(ScaleWidth(at: 124.5))
-            $0.width.equalToSuperview()
+            $0.top.equalTo(ScaleHeight(at: 124.5))
+            $0.width.equalTo(ScaleWidth(at: 305))
             $0.height.equalTo(ScaleWidth(at: 21))
             $0.centerX.equalToSuperview()
         }
         
         qrCodeIndex.snp.makeConstraints {
             
-            $0.top.equalTo(ScaleWidth(at: 72))
+            $0.top.equalTo(ScaleHeight(at: 72))
             $0.left.equalToSuperview().offset(ScaleWidth(at: 17))
             $0.right.equalToSuperview().offset(ScaleWidth(at: -17))
             $0.height.equalTo(ScaleWidth(at: 21))
@@ -388,21 +376,21 @@ class QRcodeOTPShareViewController: UIViewController {
         }
         
         qrCodeView.snp.makeConstraints {
-            $0.top.equalTo(topHint.snp.bottom).offset( ScaleWidth(at: 53))
-            $0.height.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 100))
-            $0.width.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 100))
+            $0.top.equalTo(topHint.snp.bottom).offset(ScaleHeight(at: 53))
+            $0.height.equalTo(topHint.snp.width)
+            $0.width.equalTo(topHint.snp.width)
             $0.centerX.equalToSuperview()
         }
         
         qrCodeImageView.snp.makeConstraints {
-            $0.height.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 181))
-            $0.width.equalTo(ScaleWidth(at: UIScreen.main.bounds.width - 181))
+            $0.height.equalTo(ScaleWidth(at: 225))
+            $0.width.equalTo(ScaleWidth(at: 225))
             $0.centerX.equalTo(qrCodeView.snp.centerX)
             $0.centerY.equalTo(qrCodeView.snp.centerY)
         }
         if UIDevice.isIPhoneXUp {
             timeCount.snp.makeConstraints {
-                $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 35))
+                $0.top.equalTo(qrCodeView.snp.bottom).offset(ScaleWidth(at: 35))
                 $0.left.equalTo(ScaleWidth(at: 17))
                 $0.right.equalTo(ScaleWidth(at: -17))
                 $0.height.equalTo(ScaleWidth(at: 21))
@@ -415,8 +403,7 @@ class QRcodeOTPShareViewController: UIViewController {
                 $0.height.equalTo(ScaleWidth(at: 21))
             }
             
-        } else
-        {
+        } else {
             timeCount.snp.makeConstraints {
                 $0.top.equalTo(qrCodeView.snp.bottom).offset( ScaleWidth(at: 18))
                 $0.left.equalTo(ScaleWidth(at: 17))

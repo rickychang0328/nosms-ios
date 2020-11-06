@@ -72,7 +72,7 @@ class PhotoChoseVCViewModel: BaseVCViewModel, PhotoChoseVCViewModelProtocol {
                             continue
                         } else if index == 0 {
                             
-                            displayImage = displayImage?.imageResize(sizeChange: .init(width: 5000, height: 5000))
+                            displayImage = displayImage?.imageResize(sizeChange: .init(width: 2000, height: 2000))
                             continue
                         } else {
                                
@@ -195,6 +195,7 @@ class PhotoChoseViewController<ViewModel: PhotoChoseVCViewModelProtocol>: BaseVi
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             
             self.viewModel.saveToken()
+                .observeOn(MainScheduler.asyncInstance)
                 .subscribe(onNext: { [weak self] event in
                     guard let self = self else { return }
                     self.waitLabel.isHidden = true

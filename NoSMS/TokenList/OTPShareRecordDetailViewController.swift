@@ -39,7 +39,6 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
             
             self?.cleanTextField()
         }).disposed(by: self.disposeBag)
-        textField.addTarget(self, action: #selector(self.textFieldDidChange(_:)), for: .editingChanged)
         textField.returnKeyType = .search
         
         textField.delegate = self
@@ -48,12 +47,12 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     
     private let resetSearchButton: UIButton = {
            
-           let button = UIButton()
-           button.setTitle("取消", for: .normal)
-           button.setTitleColor( .tokenListResetSearchButton, for: .normal)
-           button.titleLabel?.font = .pingFangMediumFont(size: 15)
-           button.isHidden = true
-           return button
+        let button = UIButton()
+        button.setTitle("取消", for: .normal)
+        button.setTitleColor( .tokenListResetSearchButton, for: .normal)
+        button.titleLabel?.font = .pingFangMediumFont(size: 15)
+        button.isHidden = true
+        return button
     }()
     
     override func viewDidLoad() {
@@ -91,26 +90,37 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
         }
         
         resetSearchButton.rx.tap
-                   .subscribe(onNext: { [weak self] in
-                       guard let self = self else { return }
-                       self.resetSearch()
-        }).disposed(by: disposeBag)
+            .subscribe(onNext: { [weak self] in
+                guard let self = self else { return }
+                self.resetSearch()
+            }).disposed(by: disposeBag)
         
-        tableView.rx.didScrollToTop.subscribe(onNext: {[weak self] in
-                   guard let self = self else { return }
-                   if (self.searchTextField.text?.isEmpty ?? true){
-                       self.showSearchTextAnimation()
-                   }
-        }).disposed(by: disposeBag)
-        tableView.rx.didScroll.subscribe { [weak self] _ in
-                   guard let self = self else { return }
-                   SwipeManager.shared.swipeOff()
-                   if (self.searchTextField.text?.isEmpty ?? true){
-                       DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                           self.showSearchTextAction(tableView: self.tableView)
-                       }
-                   }
-        }.disposed(by: disposeBag)
+        tableView.rx.didScrollToTop
+            .subscribe(onNext: {[weak self] in
+                guard let self = self else { return }
+                if (self.searchTextField.text?.isEmpty ?? true){
+                    self.showSearchTextAnimation()
+                }
+            }).disposed(by: disposeBag)
+        
+        tableView.rx.didScroll
+            .subscribe { [weak self] _ in
+                guard let self = self else { return }
+                SwipeManager.shared.swipeOff()
+                if (self.searchTextField.text?.isEmpty ?? true){
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        self.showSearchTextAction(tableView: self.tableView)
+                    }
+                }
+            }.disposed(by: disposeBag)
+        
+        searchTextField.rx.text
+            .orEmpty
+            .distinctUntilChanged()
+            .subscribe(onNext: { [weak self] text in
+                guard let self = self else { return }
+                self.textFieldDidChange(text: text)
+            }).disposed(by: disposeBag)
         
         
     }
@@ -173,12 +183,12 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
         }
     }
     
-    @objc func textFieldDidChange(_ textField: UITextField) {
+    func textFieldDidChange(text: String) {
         otpValueFilterDicArray = otpValueDicArray.filter { word in
-            return word.account.description.lowercased().contains(searchTextField.text!.lowercased()) ||
-                word.issuer.description.lowercased().contains(searchTextField.text!.lowercased())
+            return word.account.description.lowercased().contains(text.lowercased()) ||
+                word.issuer.description.lowercased().contains(text.lowercased())
         }
-        if searchTextField.text == "" {
+        if text == "" {
             otpValueFilterDicArray = otpValueDicArray
         }
         tableView.reloadData()
@@ -186,20 +196,9 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
  
     func textFieldDidBeginEditing(_ textField: UITextField) {
           
-          setupViewInSearchStatus()
-      }
+        setupViewInSearchStatus()
+    }
     
-//    func textFieldDidEndEditing(_ textField: UITextField) {
-//
-//        setupViewInSearchStatus()
-//        if textField.text?.isEmpty ?? true {
-//
-//
-//        } else {
-//
-//            searchTextField.layoutIfNeeded()
-//        }
-//    }
     
     private func resetSearch() {
         
@@ -213,21 +212,21 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     
     private func setupViewInSearchStatus() {
            
-           let textFieldWidth: CGFloat
-           let resetSearchButtonIsHidden: Bool
+        let textFieldWidth: CGFloat
+        let resetSearchButtonIsHidden: Bool
            
-           if !(searchTextField.text?.isEmpty ?? true) || searchTextField.isFirstResponder {
+        if !(searchTextField.text?.isEmpty ?? true) || searchTextField.isFirstResponder {
                
-               textFieldWidth = ScaleWidth(at: -52)
-               resetSearchButtonIsHidden = false
-           } else {
+            textFieldWidth = ScaleWidth(at: -52)
+            resetSearchButtonIsHidden = false
+        } else {
                
-               textFieldWidth = ScaleWidth(at: -12)
-               resetSearchButtonIsHidden = true
-           }
+            textFieldWidth = ScaleWidth(at: -12)
+            resetSearchButtonIsHidden = true
+        }
            
-           searchTextField.changeRight(to: textFieldWidth)
-           resetSearchButton.isHidden = resetSearchButtonIsHidden
+        searchTextField.changeRight(to: textFieldWidth)
+        resetSearchButton.isHidden = resetSearchButtonIsHidden
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -262,13 +261,10 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     }
     
     private func cleanTextField() {
-           searchTextField.text = ""
-           //viewModel.searchText(input: "")
+        searchTextField.text = ""
+        textFieldDidChange(text: "")
     }
     
-    @objc func confirm(sender:UIButton!) {
-        self.view.removeFromSuperview()
-    }
     
     // return the number of cells each section.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
