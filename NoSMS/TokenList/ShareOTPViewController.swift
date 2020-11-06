@@ -225,8 +225,6 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
                 }
                 self.scrollView.setContentOffset(.init(x: 0, y: 0), animated: false)
                 self.scrollView.isScrollEnabled = false
-                //                self.groupVCs.forEach({$0.tableView.setEditing(true, animated: true)})
-                //                self.navigationItem.leftBarButtonItem?.isEnabled = false
                 self.navigationItem.rightBarButtonItems = [self.inEditTableViewBarButton]
             case .group:
                 
@@ -274,16 +272,6 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
             $0.top.equalTo(view.snp.topMargin)
             $0.left.right.bottomMargin.equalToSuperview()
         }
-        
-        //        choseHowToAddTokenView.snp.makeConstraints {
-        //
-        //            $0.edges.equalToSuperview()
-        //        }
-        
-        //        menuView.snp.makeConstraints {
-        //
-        //            $0.edges.equalToSuperview()
-        //        }
         
         choseHowToAddTokenView.chosePhoto.subscribe(onNext: { [weak self] event in
             guard let self = self else { return }
@@ -1301,7 +1289,30 @@ class ShareOTPGroupViewController: BaseTableViewControllerNoGeneric {
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.showsVerticalScrollIndicator = false
+        NotificationCenter.default
+            .rx
+            .notification(Notification.Name("ChoseAllNotificationIdentifier"))
+            .subscribe(onNext: { [weak self] notification in
+                
+                guard let self = self else { return }
+                if let isSelectAll = notification.userInfo?["selectAll"] as? Bool {
+                    
+                    if isSelectAll {
+                        
+                        let tokenStore = KeychainTokenStore.shared
+                        self.otpShareSelectedAccount.removeAll()
+                        for token in tokenStore.tokenList {
+                            self.otpShareSelectedAccount.append(token.uuid)
+                        }
+                    } else {
+                                            
+                        self.otpShareSelectedAccount.removeAll()
+                    }
+                }
+            }).disposed(by: disposedBag)
     }
+    
+    
     
     func addPinRefresh(id: Data) {
         
