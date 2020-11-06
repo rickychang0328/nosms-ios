@@ -111,7 +111,7 @@ class OTPShareAndReceiveViewController: UIViewController {
     
     private lazy var receiveButtonHint: UILabel = {
         let label = UILabel()
-        label.text = "扫描设备的二维码即可导入验证码。 (需最新版本)"
+        label.text = "扫描设备的二维码即可导入验证码 (需最新版本)"
         label.font = UIFont(name: TFontName.PingFangFontMedium.rawValue , size: 12)
         label.textAlignment = .left
         label.sizeToFit()
