@@ -105,6 +105,12 @@ class PhotoManager {
         reloadAlbum()
     }
     
+    func resetAlbum() {
+        
+        photos = []
+        reloadAlbum()
+    }
+    
     func reloadAlbum() {
                 
         let smartOptions = PHFetchOptions()
