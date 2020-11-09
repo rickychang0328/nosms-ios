@@ -55,6 +55,11 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
         return button
     }()
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
+        setNavigate()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setNavigate()
