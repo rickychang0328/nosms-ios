@@ -13,7 +13,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
     let tokenListMenuVC:TokenListMenuViewController = .init(viewModel: TokenListMenuVCViewModel())
     
     private var groupVCs: [ShareOTPGroupViewController] = []
-    let currentDate = Date()
+    var currentDate = Date()
     private var isFirstOpen:Bool = true
     private lazy var addTokenBarButton: UIBarButtonItem = {
         let button = UIButton(type: UIButton.ButtonType.custom)
@@ -841,8 +841,15 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
         }
     }
     
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        setNavigate()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        setNavigate()
+        currentDate = Date()
         self.navigationItem.title = "选择验证码"
         wantToShowHomePageOrNot()
         
@@ -923,6 +930,32 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
         super.viewWillDisappear(animated)
          self.navigationItem.title = ""
         lifeCycleDisposeBag = .init()
+    }
+    
+    func setNavigate() {
+        let leftbarItem = UIBarButtonItem(image: .noSmsBack, style: .plain, target: nil, action: nil)
+        
+        leftbarItem.rx.tap.subscribe(onNext: {[weak self] in
+            
+            self?.navigationController?.popViewController(animated: true)
+        }).disposed(by: disposedBag)
+        
+        navigationItem.leftBarButtonItem = leftbarItem
+        var color: UIColor
+        if #available(iOS 13.0, *) {
+            
+            if UITraitCollection.current.userInterfaceStyle == .some(.dark) {
+                
+                color = .clear
+            } else {
+                
+                color = .navColorLight
+            }
+        } else {
+            color = .navColorLight
+            // Fallback on earlier versions
+        }
+        navigationController?.navigationBar.barTintColor = color
     }
     
     private func bottomViewSetup() {
