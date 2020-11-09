@@ -514,7 +514,7 @@ class ShareSelectedOTPViewController: UIViewController, UITableViewDelegate, UIT
             $0.top.equalToSuperview().offset(ScaleWidth(at: 151.5))
             $0.left.equalToSuperview().offset(49.5)
             $0.right.equalToSuperview().offset(-49.5)
-            $0.height.equalTo(337)
+            $0.height.equalTo(337 - 20 * (8 - otpValueArray.count) - 20)
         }
         
         confirmButton.snp.makeConstraints {
@@ -582,7 +582,6 @@ class ShareOTPTableViewCell: UITableViewCell {
             $0.right.equalToSuperview().offset(-10.5)
             $0.centerX.equalToSuperview()
         }
-        
     }
     
     required init?(coder aDecoder: NSCoder) {
