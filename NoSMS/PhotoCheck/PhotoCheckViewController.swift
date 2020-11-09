@@ -151,7 +151,7 @@ class PhotoCheckVCViewModel: BaseVCViewModel, PhotoCheckVCViewModelProtocol {
     
     func getAlbum() {
         
-        photoManager.reloadAlbum()
+        photoManager.resetAlbum()
         
         tableViewSectionItem.rowItems = []
         for index in photoManager.photos.indices {
