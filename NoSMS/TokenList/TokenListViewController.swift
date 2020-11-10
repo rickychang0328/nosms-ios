@@ -2130,12 +2130,15 @@ class EditControllView: UIView {
         
         //適應各種奇怪的尺寸 layout
         let withWidth: CGFloat
+        let backImageHeightWith: CGFloat
         
         if UIScreen.main.bounds.width < 375 {
             //比對後給的值並不是絕對
             withWidth = 355
+            backImageHeightWith = 320
         } else {
             
+            backImageHeightWith = 375
             withWidth = 414
         }
         
@@ -2153,7 +2156,7 @@ class EditControllView: UIView {
             $0.right.equalTo(0)
             $0.topMargin.equalTo(topY)
             $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-            $0.height.equalTo(ScaleWidth(at: 168))
+            $0.height.equalTo(ScaleWidth(at: 168, with: backImageHeightWith))
         }
         
         editCodeLabel.snp.makeConstraints {
