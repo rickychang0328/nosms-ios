@@ -2022,6 +2022,15 @@ class EditControllView: UIView {
     private let backImageView: UIImageView = {
         
         let view = UIImageView(image: .noSMSchoseEditControl)
+        if UIDevice.isOniOS13UpDarkMode {
+            
+            let image = UIImage.noSMSchoseEditControl.withRenderingMode(.alwaysTemplate)
+            view.tintColor = .getColor(red: 46, green: 46, blue: 50, alpha: 1)
+            view.image = image
+        } else {
+            
+            view.image = .noSMSchoseEditControl
+        }
         return view
     }()
     
@@ -2121,12 +2130,15 @@ class EditControllView: UIView {
         
         //適應各種奇怪的尺寸 layout
         let withWidth: CGFloat
+        let backImageHeightWith: CGFloat
         
         if UIScreen.main.bounds.width < 375 {
             //比對後給的值並不是絕對
             withWidth = 355
+            backImageHeightWith = 320
         } else {
             
+            backImageHeightWith = 375
             withWidth = 414
         }
         
@@ -2140,20 +2152,11 @@ class EditControllView: UIView {
             topY = 46
         }
         
-        if UIScreen.main.nativeBounds.height <= 1334 {
-            backImageView.snp.makeConstraints {
-                $0.right.equalTo(0)
-                $0.topMargin.equalTo(topY)
-                $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-                $0.height.equalTo(ScaleWidth(at: 175 + 25))
-            }
-        } else {
-            backImageView.snp.makeConstraints {
-                $0.right.equalTo(0)
-                $0.topMargin.equalTo(topY)
-                $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
-                $0.height.equalTo(ScaleWidth(at: 175 + 15))
-            }
+        backImageView.snp.makeConstraints {
+            $0.right.equalTo(0)
+            $0.topMargin.equalTo(topY)
+            $0.width.equalTo(ScaleWidth(at: 161, with: withWidth))
+            $0.height.equalTo(ScaleWidth(at: 168, with: backImageHeightWith))
         }
         
         editCodeLabel.snp.makeConstraints {
@@ -2165,7 +2168,7 @@ class EditControllView: UIView {
         editCodeImage.snp.makeConstraints {
             
             $0.size.equalTo(ScaleWidth(at: 20, with: withWidth))
-            $0.top.equalTo(ScaleWidth(at: 45, with: withWidth))
+            $0.top.equalTo(ScaleWidth(at: 36, with: withWidth))
             $0.left.equalTo(ScaleWidth(at: 26, with: withWidth))
         }
         
@@ -2252,31 +2255,18 @@ class EditControllView: UIView {
         
         fatalError("init(coder:) has not been implemented")
     }
-}
-
-enum DeviceTypeModel{
-    case iphoneX
-    case iphone8Plus
-    case iphone8
-    case iphoneSE //SE is the like iphone 5 and iphone 5s
-    case iphone4s
-}
-
-extension UIView{
-    func runOnTheDeviceType(_ completion: (DeviceTypeModel) -> Void) {
-        if UIDevice().userInterfaceIdiom == .phone{
-            switch UIScreen.main.nativeBounds.height{
-            case 2436:
-                completion(.iphoneX)
-            case 1920:
-                completion(.iphone8Plus)
-            case 1334:
-                completion(.iphone8)
-            case 1136:
-                completion(.iphoneSE)
-            default:
-                completion(.iphone4s)
-            }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        
+        if UIDevice.isOniOS13UpDarkMode {
+            
+            let image = UIImage.noSMSchoseEditControl.withRenderingMode(.alwaysTemplate)
+            backImageView.tintColor = .getColor(red: 46, green: 46, blue: 50, alpha: 1)
+            backImageView.image = image
+        } else {
+            
+            backImageView.image = .noSMSchoseEditControl
         }
     }
 }
