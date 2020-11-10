@@ -176,6 +176,11 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
         
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+
         isShareOTP = true
         self.navigationItem.title = "选择验证码"
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
@@ -554,6 +559,23 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
         } else {
             selectAllButton.setTitle("取消全选", for: .normal)
         }
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        scrollView.snp.remakeConstraints {
+            $0.top.equalTo(customSegmentView.snp.bottom)
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(bottomView.snp.top).offset(0)
+        }
+    }
+        
+    @objc func keyboardWillHide(_ notification: Notification) {
+        scrollView.snp.remakeConstraints {
+            $0.top.equalTo(customSegmentView.snp.bottom)
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(bottomView.snp.top).offset(-100)
+        }
+            
     }
 
     

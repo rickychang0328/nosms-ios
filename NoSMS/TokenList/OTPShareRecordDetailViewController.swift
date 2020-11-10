@@ -62,6 +62,8 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         setNavigate()
         self.navigationController?.navigationBar.topItem?.title = ""
         self.navigationItem.title = navTitle
@@ -128,6 +130,26 @@ class OTPShareRecordDetailViewController: UIViewController, UITableViewDelegate,
             }).disposed(by: disposeBag)
         
         
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue {
+                tableView.snp.remakeConstraints {
+                    $0.top.equalTo(searchTextField.snp.bottom).offset(ScaleWidth(at: 17))
+                    $0.left.equalToSuperview()
+                    $0.right.equalToSuperview()
+                    $0.bottom.equalToSuperview().offset(0 - keyboardFrame.cgRectValue.height)
+                }
+            }
+    }
+        
+    @objc func keyboardWillHide(_ notification: Notification) {
+        tableView.snp.remakeConstraints {
+            $0.top.equalTo(searchTextField.snp.bottom).offset(ScaleWidth(at: 17))
+            $0.left.equalToSuperview()
+            $0.right.equalToSuperview()
+            $0.bottom.equalToSuperview()
+        }
     }
     
     private func showSearchTextAction(tableView: UITableView){
