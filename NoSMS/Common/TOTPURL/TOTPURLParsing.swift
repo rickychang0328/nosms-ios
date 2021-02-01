@@ -162,20 +162,29 @@ struct MustAuth {
         init(_ value: String) throws {
             
             let stringURL = value.trimmingCharacters(in: .whitespaces)
-                                
-            guard let url = URL(string: stringURL) else {
+            
+            let urlComfirm: URL
+            
+            if let url = URL(string: stringURL) {
+                
+                urlComfirm = url
+            } else if let decodeURL = stringURL.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+                let url = URL(string: decodeURL) {
+                
+                urlComfirm = url
+            } else {
                 
                 throw SerializationError.urlGenerationFailure
             }
             
-            guard url.scheme?.lowercased() == kOTPAuthScheme || url.scheme?.lowercased() == kMustAuthScheme else {
+            guard urlComfirm.scheme?.lowercased() == kOTPAuthScheme || urlComfirm.scheme?.lowercased() == kMustAuthScheme else {
                 throw DeserializationError.invalidURLScheme
             }
 
-            let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems ?? []
+            let queryItems = URLComponents(url: urlComfirm, resolvingAgainstBaseURL: false)?.queryItems ?? []
 
             let factor: Generator.Factor
-            switch url.host {
+            switch urlComfirm.host {
             case .some(kFactorCounterKey):
                 let counterValue = try queryItems.value(for: kQueryCounterKey).map(parseCounterValue) ?? defaultCounter
                 factor = .counter(counterValue)
@@ -205,7 +214,7 @@ struct MustAuth {
                 throw DeserializationError.missingSecret
             }
             
-            guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+            guard var urlComponents = URLComponents(url: urlComfirm, resolvingAgainstBaseURL: false) else {
                 
                 throw SerializationError.urlGenerationFailure
             }
@@ -232,7 +241,7 @@ struct MustAuth {
                 throw SerializationError.urlGenerationFailure
             }
             
-            let nameAndIssuer = try getNameAndIssuer(queryItems: queryItems, url: url)
+            let nameAndIssuer = try getNameAndIssuer(queryItems: queryItems, url: urlComfirm)
             let groups = queryItems.filter({ $0.name == MustAuth.kQueryGroupKey }).compactMap({$0.value})
             
             self.name = nameAndIssuer.name
