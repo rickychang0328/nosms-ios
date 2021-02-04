@@ -3,7 +3,7 @@ import UIKit
 import RxCocoa
 import RxSwift
 
-class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItemsProtocol>: BaseTableViewCell<ViewModel> {
+class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItemsProtocol>: BaseTableViewCell<ViewModel>, UITextFieldDelegate {
     
     private let titleLabel: UILabel = {
         
@@ -44,6 +44,8 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         addSubview(textField)
         addSubview(textFieldUnderLine)
         
+        textField.delegate = self
+        
         titleLabel.snp.makeConstraints {
             
             $0.top.equalTo(ScaleWidth(at: 30))
@@ -66,6 +68,8 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
         }
     }
     
+    var isNameOrIssuerCell: Bool = false
+    
     override func bindData(viewModel: ViewModel) {
         super.bindData(viewModel: viewModel)
         
@@ -77,11 +81,23 @@ class JoinManuallyTOTPTextInTableViewCell<ViewModel: JoinManuallyCellTextInItems
                   .bind(to: textField.rx.text)
                   .disposed(by: disposedBag)
         
+        isNameOrIssuerCell = viewModel.isNameOrIssuerTextField
         textField.rx.text
             .orEmpty
             .distinctUntilChanged()
             .bind(to: viewModel.inputString)
             .disposed(by: disposedBag)
+    }
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if isNameOrIssuerCell {
+            
+            return string.isNameAndIssuerVaild()
+        } else {
+            
+            return true
+        }
     }
 }
 

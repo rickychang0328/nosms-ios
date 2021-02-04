@@ -115,4 +115,50 @@ extension String {
         
         return result
     }
+    
+    func isNameAndIssuerVaild() -> Bool {
+        
+        
+        if contains(":") {
+            
+            return false
+        }
+           
+        if contains("&") {
+            
+            return false
+        }
+        
+        if contains(" ") {
+            
+            return false
+        }
+        
+        if contains("/") {
+            
+            return false
+        }
+        
+        if contains("=") {
+            
+            return false
+        }
+        
+        if contains("#") {
+            
+            return false
+        }
+        
+        if contains("?") {
+            
+            return false
+        }
+        
+        if contains("%") {
+            
+            return false
+        }
+        
+        return true
+    }
 }
