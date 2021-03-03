@@ -552,6 +552,18 @@ class BaseTableViewControllerNoGeneric: BaseViewControllerNoGeneric, UITableView
         tableView.delegate = self
         tableView.dataSource = self
         tableView.estimatedRowHeight = 20
+        NotificationCenter.default.addObserver(self, selector: #selector(self.receivedOTPNotification(notification:)), name: Notification.Name("OTPNotificationIdentifier"), object: nil)
+    }
+    
+    @objc func receivedOTPNotification(notification: Notification) {
+        let token = notification.userInfo?["token"] as? Data
+        if otpShareSelectedAccount.contains(token!) {
+            if let index = otpShareSelectedAccount.firstIndex(of: token!) {
+                otpShareSelectedAccount.remove(at: index)
+            }
+        } else {
+             otpShareSelectedAccount.append(token!)
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
