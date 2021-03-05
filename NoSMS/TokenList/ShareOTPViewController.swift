@@ -425,7 +425,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
                     
                     if self.groupVCs.count == lastPage {
                         
-                        
+                        self.customSegmentView.selectIndex(at: lastPage)
                     } else {
                         
                         self.customSegmentView.selectIndex(at: lastPage + 1)
@@ -434,7 +434,7 @@ class ShareOTPViewController<VCViewModel: ShareOTPVCViewModelProtocol>: BaseTabl
                     
                     if lastPage == 0 {
                         
-                        
+                        self.customSegmentView.selectIndex(at: lastPage)
                     } else {
                         
                         self.customSegmentView.selectIndex(at: lastPage - 1)
