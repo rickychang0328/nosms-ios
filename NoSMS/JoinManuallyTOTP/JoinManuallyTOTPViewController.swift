@@ -23,9 +23,12 @@ protocol JoinManuallyCellTextInItemsProtocol: BaseTableViewCellViewModelProtocol
     var title: String { get }
     var textfieldPlaceHolder: String { get }
     var inputString: BehaviorSubject<String> { get }
+    var isNameOrIssuerTextField: Bool { get }
 }
 
 class JoinManuallyCellTextInItems: JoinManuallyCellTextInItemsProtocol {
+    
+    let isNameOrIssuerTextField: Bool
     
     let title: String
     
@@ -39,6 +42,7 @@ class JoinManuallyCellTextInItems: JoinManuallyCellTextInItemsProtocol {
     
     internal init(title: String,
                   textfieldPlaceHolder: String,
+                  isNameOrIssuerTextField: Bool,
                   baseCellItem: BaseTableViewCellViewModelItemProtocol =
         BaseTableViewCellViewModelItem(cellSelectionStyle: .init(value: .none),
                                        cellHeight: UITableView.automaticDimension,
@@ -48,6 +52,7 @@ class JoinManuallyCellTextInItems: JoinManuallyCellTextInItemsProtocol {
         self.title = title
         self.textfieldPlaceHolder = textfieldPlaceHolder
         self.baseCellItem = baseCellItem
+        self.isNameOrIssuerTextField = isNameOrIssuerTextField
     }
     
 }
@@ -111,13 +116,13 @@ class JoinManuallySectionItems: JoinManuallySectionItemsProtocol {
     let baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol
     
     init(urlCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "验证码",
-                                                                                             textfieldPlaceHolder: "otpauth://"),
+                                                                                             textfieldPlaceHolder: "otpauth://", isNameOrIssuerTextField: false),
          accountCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "账号",
-                                                                                                 textfieldPlaceHolder: "hello@example.com"),
+                                                                                                 textfieldPlaceHolder: "hello@example.com", isNameOrIssuerTextField: true),
          issuerCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "issuer",
-                                                                                                    textfieldPlaceHolder: "small-chat-test"),
+                                                                                                textfieldPlaceHolder: "small-chat-test", isNameOrIssuerTextField: true),
          keyTokenCellViewModel: JoinManuallyCellTextInItemsProtocol = JoinManuallyCellTextInItems(title: "密钥",
-                                                                                                  textfieldPlaceHolder: "fwjf btrf"),
+                                                                                                  textfieldPlaceHolder: "fwjf btrf", isNameOrIssuerTextField: false),
          baseTimeCellViewModel: JoinManuallyCellSwitchItemsProtocol = JoinManuallyCellSwitchItems(title: "基于时间")) {
          
         self.urlCellViewModel = urlCellViewModel

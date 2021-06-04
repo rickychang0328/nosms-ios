@@ -212,11 +212,6 @@ class BaseTokenListView: UIView {
     
     func bindData(viewModel: BaseTokenListViewType) {
         disposedBag = .init()
-        do {
-            let a = try viewModel.name.value()
-        } catch {
-            print("User creation failed with error: \(error)")
-        }
         //MARK: 給空白讓 label 的 auto 高不會跑掉
         let name = viewModel.name.map({ string -> String in
             
@@ -935,6 +930,11 @@ class TokenListTableViewCell<ViewModel: TokenListTableViewCellViewModelProtocol>
         if string.isEmpty {
             
             return true
+        }
+        
+        if !string.isNameAndIssuerVaild() {
+            
+            return false
         }
         
         if (textField.text?.count ?? 0) + string.count > MustAuth.issuerAndAccountLimit {

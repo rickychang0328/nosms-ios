@@ -1183,7 +1183,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     
                     if self.groupVCs.count == lastPage {
                         
-                        
+                        self.customSegmentView.selectIndex(at: lastPage)
                     } else {
                         
                         self.customSegmentView.selectIndex(at: lastPage + 1)
@@ -1192,7 +1192,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     
                     if lastPage == 0 {
                         
-                        
+                        self.customSegmentView.selectIndex(at: 0)
                     } else {
                         
                         self.customSegmentView.selectIndex(at: lastPage - 1)

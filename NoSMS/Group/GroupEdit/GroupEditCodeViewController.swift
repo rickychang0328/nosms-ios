@@ -447,9 +447,13 @@ class GroupEditTableHeaderView: UIView, UITextFieldDelegate {
     
     //MARK: 限制長度
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-         guard let text = textField.text else { return true }
-         let newLength = text.count + string.count - range.length
-         return newLength <= 10
+        guard let text = textField.text else { return true }
+        if !string.isNameAndIssuerVaild() {
+            
+            return false
+        }
+        let newLength = text.count + string.count - range.length
+        return newLength <= 10
     }
 }
 
