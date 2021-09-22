@@ -9,6 +9,8 @@ import UIKit
 import RxSwift
 import BiometricAuthentication
 import LocalAuthentication
+import RxCocoa
+
 public enum FaceIDAuthenticationStatus{
     case success
     case error
@@ -111,17 +113,43 @@ enum AuthIDStatusManager {
         return canEvaluate
     }
 }
+
+enum FaceIDSettingVCViewModelEvent {
+    
+    case goSetupGest
+    case goSelectSettingGest
+}
+
 protocol FaceIDSettingVCViewModelProtocol: BaseTableViewVCViewModelProtocol {
     
     var idStyleTitle: String { get }
-    
+    var eventObservable: Observable<FaceIDSettingVCViewModelEvent> { get }
+
     func setIsUseAuthID(_ isUse: Bool)
+    func selectCell(at indexPath: IndexPath)
 }
 
 private let kFaceID = "面容ID"
 private let kTouchID = "指纹解锁"
 
 class FaceIDSettingVCViewModel: BaseVCViewModel, FaceIDSettingVCViewModelProtocol {
+    
+    private let eventPublisher: PublishSubject<FaceIDSettingVCViewModelEvent> = .init()
+    
+    var eventObservable: Observable<FaceIDSettingVCViewModelEvent> { return eventPublisher.asObservable()}
+    
+    func selectCell(at indexPath: IndexPath) {
+        let viewModel = cellViewModels[indexPath.section][indexPath.row]
+        guard viewModel === tableViewSectionItem.gestSettingTableViewCellViewModel else { return }
+        
+        if GestVerificationManager.isOpen {
+             
+            eventPublisher.onNext(.goSelectSettingGest)
+        } else {
+            
+            eventPublisher.onNext(.goSetupGest)
+        }
+    }
     
     let idStyleTitle: String
     
@@ -149,12 +177,13 @@ class FaceIDSettingVCViewModel: BaseVCViewModel, FaceIDSettingVCViewModelProtoco
 protocol FaceIDSettingVCTableViewSectionItemsProtocol: BaseTableViewSectionItemsProtocol{
     
     var switchItem: FaceIDSettingCellSwitchItems { get }
+    var gestSettingTableViewCellViewModel: GestSettingTableViewCellViewModelType { get }
 }
 
 class FaceIDSettingVCTableViewSectionItems: FaceIDSettingVCTableViewSectionItemsProtocol {
     
     let switchItem: FaceIDSettingCellSwitchItems
-    let settingItem:FaceIDSettingTableViewCellViewModel
+    let gestSettingTableViewCellViewModel: GestSettingTableViewCellViewModelType
     let sectionHeaderViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol? = nil
     
     let sectionFooterViewModel: BaseTableViewSectionHeaderFooterViewModelProtocol? = nil
@@ -165,10 +194,10 @@ class FaceIDSettingVCTableViewSectionItems: FaceIDSettingVCTableViewSectionItems
     }
     
     init(isFaceID: Bool, title: String) {
-
-        settingItem = FaceIDSettingTableViewCellViewModel(isFaceID: isFaceID)
+        
+        gestSettingTableViewCellViewModel = GestSettingTableViewCellViewModel()
         switchItem = FaceIDSettingCellSwitchItems(title:title)
-        rowItems = [settingItem,switchItem]
+        rowItems = [switchItem, gestSettingTableViewCellViewModel]
     }
     
     subscript(index: Int) -> BaseTableViewCellViewModelProtocol {
@@ -370,8 +399,53 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
         UserDefaults.standard.set(!isOpened, forKey: UserDefaults.Key.faceIDString.string)
     }
     
+    func goSelectSettingGest() {
+        
+        let viewModel = GestVerificationOpenedMeunViewControllerViewModel { coordinator in
+            switch coordinator {
+            
+            case .popToBeforeVC:
+                
+                self.navigationController?.popToViewController(self, animated: true)
+            }
+        }
+        let vc = GestVerificationOpenedMeunViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func goSetupGest() {
+        
+        let viewModel = GestVerificationSettingViewControllerViewModel { [weak self] coordinator in
+            guard let self = self else { return }
+            switch coordinator {
+            
+            case .settingPasswordDone:
+                self.navigationController?.popToViewController(self, animated: true)
+                NoSMSHUD.showToast(title: "手势解锁已开启")
+            }
+        }
+        let vc = GestVerificationSettingViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        tableView.rx.itemSelected
+            .subscribe(onNext: viewModel.selectCell(at:))
+            .disposed(by: disposedBag)
+        viewModel.eventObservable
+            .subscribe(onNext: { [weak self] event in
+                guard let self = self else { return }
+                switch event {
+                
+                case .goSelectSettingGest:
+                    
+                    self.goSelectSettingGest()
+                case .goSetupGest:
+                    
+                    self.goSetupGest()
+                }
+            }).disposed(by: disposedBag)
         
         self.viewModel.tableViewSectionItem.switchItem.authStatus.subscribe(onNext: { [weak self] status in
             guard let self = self else { return }
@@ -474,6 +548,19 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
                 }
             }
         }
+    }
+    
+    //MARK: 為了補上面空的位子
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        
+        return ScaleWidth(at: 15)
     }
 }
 

@@ -906,6 +906,13 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
     
     private let editControllView: EditControllView = .init(frame: .zero)
     
+    private func pushShareVC(animated: Bool) {
+        
+        let newViewController = OTPShareAndReceiveViewController()
+        newViewController.view.backgroundColor = .optShareBackgroundColor
+        self.navigationController?.pushViewController(newViewController, animated: animated)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationController?.navigationBar.layer.shadowColor = UIColor.black.withAlphaComponent(0.12).cgColor
@@ -929,27 +936,41 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         
         editControllView.shareOTPButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
-            let bioTitle = BioMetricAuthenticator.shared.isFaceIdDevice() ? "您的设备尚未开启面容ID识别" : "您的设备尚未开启指纹识别"
+            let bioTitle = "您的设备尚未开启手势解锁"
             if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) {
-                self.showFaceIDAlert(title: "",
-                                     message: bioTitle,
-                                     confirmTitle: "设置",
-                                     cancelTitle: "取消", confirmAction: {
-                                        let newViewController = FaceIDSettingViewController()
-                                        guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
-                                        navigationController.pushViewController(newViewController, animated: true)
-                                        self.editControllView.isHidden = true
-                                 
-                }, cancelAction: {
-                    
-                })
                 
+                if GestVerificationManager.isOpen {
+                    
+                    let viewModel = GestVerificationViewControllerViewModel { coordinator  in
+                        switch coordinator {
+                        
+                        case .verifySuccess:
+                            
+                            self.navigationController?.popViewController(animated: false)
+                            self.pushShareVC(animated: false)
+                        }
+                    }
+                    let vc = GestVerificationViewController(viewModel: viewModel)
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    self.editControllView.isHidden = true
+                } else {
+                    
+                    self.showGestVerificationWithImageAlert(title: "",
+                                         message: bioTitle,
+                                         confirmTitle: "设置",
+                                         cancelTitle: "取消", confirmAction: {
+                                            let newViewController = FaceIDSettingViewController()
+                                            guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
+                                            navigationController.pushViewController(newViewController, animated: true)
+                                            self.editControllView.isHidden = true
+                                            
+                                         }, cancelAction: {
+                                            
+                                         })
+                }
                 return
             }
-            let newViewController = OTPShareAndReceiveViewController()
-            newViewController.view.backgroundColor = .optShareBackgroundColor
-//            guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
-            self.navigationController?.pushViewController(newViewController, animated: true)
+            self.pushShareVC(animated: true)
             self.editControllView.isHidden = true
         }).disposed(by: disposedBag)
         

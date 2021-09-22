@@ -69,6 +69,12 @@ extension UIColor {
     private static let color_240_240_240: UIColor = .getColor(red: 240, green: 240, blue: 240, alpha: 1)
     private static let color_239_239_239: UIColor = .getColor(red: 239, green: 239, blue: 255, alpha: 1)
     private static let color_026_026_028: UIColor = .getColor(red: 26, green: 26, blue: 28, alpha: 1)
+    private static let color_240_241_255: UIColor = .getColor(red: 240, green: 241, blue: 255, alpha: 1)
+    private static let color_183_183_183: UIColor = .getColor(red: 183, green: 183, blue: 183, alpha: 1)
+    private static let color_119_119_119: UIColor = .getColor(red: 119, green: 119, blue: 119, alpha: 1)
+    private static let color_217_217_217: UIColor = .getColor(red: 217, green: 217, blue: 217, alpha: 1)
+    private static let color_153_153_153_03: UIColor = .getColor(red: 153, green: 153, blue: 153, alpha: 0.3)
+    private static let color_170_170_170: UIColor = .getColor(red: 170, green: 170, blue: 170, alpha: 1)
 
     
     static let mustAuthRedColor: UIColor = .color_237_085_085
@@ -293,6 +299,15 @@ extension UIColor {
 
 
     //MARK: FaceIDSetting
+    static let faceIDSettingGestOpenColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_036_205_132,
+                                                                        lightColor: .color_036_205_132)
+    static let faceIDSettingGestNotOpenColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_170_170_170,
+                                                                        lightColor: .color_170_170_170)
+    static let faceIDSettingLineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_153_153_153_03,
+                                                                        lightColor: .color_153_153_153_03)
+    static let faceIDSettingDescriptionColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: UIColor.white.withAlphaComponent(0.3),
+                                                                        lightColor: .color_170_170_170)
+
     static let faceIDSettingBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .color_026_026_028,
     lightColor: .white)
     static let faceIDSettingVCBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
@@ -307,4 +322,19 @@ extension UIColor {
     static let otpScanHintTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .getColor(red: 51, green: 51, blue: 51, alpha: 1))
     static let otpShareSearchTextColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .white, lightColor: .getColor(red: 136, green: 136, blue: 136, alpha: 1))
     static let alertScanViewColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .getColor(red: 0, green: 0, blue: 0, alpha: 0.95), lightColor: .white)
+    
+    //MARK: GestVerificationConfig
+    static let errorColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: color_237_085_085, lightColor: color_237_085_085)
+    static let errorOutFillColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: UIColor.color_237_085_085.withAlphaComponent(0.2), lightColor: UIColor.color_237_085_085.withAlphaComponent(0.1))
+
+    static let innerColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: color_098_112_255, lightColor: color_098_112_255)
+    static let lineColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: UIColor.color_183_183_183.withAlphaComponent(0.6), lightColor: color_183_183_183)
+    static let outerFillConnectColor = UIColor.createUIColorForDarkModeDynmic(darkColor: UIColor.color_240_241_255.withAlphaComponent(0.6), lightColor: .color_240_241_255)
+
+    static let highlightColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: UIColor.color_240_241_255.withAlphaComponent(0.1), lightColor: color_240_241_255)
+    static let normalTitleColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: color_119_119_119, lightColor: color_119_119_119)
+    static let normalPathColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: UIColor.color_217_217_217.withAlphaComponent(0.6), lightColor: color_217_217_217)
+    static let gestVerificationBackgroundColor: UIColor = .createUIColorForDarkModeDynmic(darkColor: .black,
+                                        lightColor: .white)
+    
 }
