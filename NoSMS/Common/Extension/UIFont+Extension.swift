@@ -116,14 +116,15 @@ extension String {
         return result
     }
     
+    func isHaveMoreThanTwoColon() -> Bool {
+        
+        let components = self.components(separatedBy: ":")
+        
+        return (components.count > 2)
+    }
+    
     func isNameAndIssuerVaild() -> Bool {
         
-        
-        if contains(":") {
-            
-            return false
-        }
-           
         if contains("&") {
             
             return false

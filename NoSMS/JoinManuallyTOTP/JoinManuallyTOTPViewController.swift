@@ -292,13 +292,7 @@ class JoinManuallyVCViewModel: BaseVCViewModel, JoinManuallyVCViewModelProtocol 
                 
                 guard let generator = Generator(factor: factor, secret: secret, algorithm: algorithm, digits: digits) else {
                     return }
-                
-                guard !account.contains(":"), !issuer.contains(":") else {
-                    
-                    anyObserver.onError(SerializationError.urlGenerationFailure)
-                    return
-                }
-                
+                                
                 guard !account.trimmingCharacters(in: .whitespaces).isEmpty else {
                     
                     anyObserver.onError(SerializationError.urlGenerationFailure)

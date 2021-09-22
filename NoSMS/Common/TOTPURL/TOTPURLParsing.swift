@@ -413,6 +413,12 @@ private func stringForAlgorithm(_ algorithm: Generator.Algorithm) -> String {
 }
 
 private func shortNameFix(from fullName: String) -> String {
+        
+    if fullName.isHaveMoreThanTwoColon() {
+        
+        return fullName
+    }
+    
     if fullName.contains(":") {
         let prefix = ":"
         if let prefixRange = fullName.range(of: prefix) {
@@ -447,6 +453,9 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
     let issuer: String
     if let issuerString = try queryItems.value(for: kQueryIssuerKey) {
         issuer = issuerString
+    } else if fullName.isHaveMoreThanTwoColon() {
+        
+        issuer = ""
     } else if let separatorRange = fullName.range(of: ":") {
         // If there is no issuer string, try to extract one from the name
         issuer = String(fullName[..<separatorRange.lowerBound])
@@ -455,23 +464,13 @@ private func getNameAndIssuer(queryItems: [URLQueryItem], url: URL) throws -> (n
         issuer = ""
     }
     
-    if issuer.contains(":") {
-        
-        throw SerializationError.urlGenerationFailure
-    }
-    
     let name = shortNameFix(from: fullName)
     
     if name.trimmingCharacters(in: .whitespaces).isEmpty {
         
         throw SerializationError.urlGenerationFailure
     }
-    
-    if name.contains(":") {
-
-        throw SerializationError.urlGenerationFailure
-    }
-    
+        
     return (name, issuer)
 }
 
