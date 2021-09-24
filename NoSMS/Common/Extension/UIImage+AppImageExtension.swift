@@ -206,6 +206,11 @@ extension UIImage {
         return UIImage(named: "NoSMS_move") ?? UIImage()
     }
     
+    static var noSmsGestVerification: UIImage {
+        
+        return UIImage(named: "NoSMS_GestVerification") ?? UIImage()
+    }
+    
     
     public class func gif(data: Data) -> UIImage? {
         // Create source from data

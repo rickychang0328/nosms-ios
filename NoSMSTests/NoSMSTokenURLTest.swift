@@ -16,7 +16,31 @@ class NoSMSTokenURLTest: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
-        
+        if let url = URL(string: "otpauth://totp/prod%3Axnb.fenko%3Abuoucheck01?secret=MFRGCNRWMU3WMLLCMU4GMLJUMFTGMLJYMU3GMLLGHEYDONLFGY3WGMBUHE") {
+            
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(token.issuer, "")
+            XCTAssertEqual(token.name, "prod:xnb.fenko:buoucheck01")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "prod:xnb.fenko:buoucheck01")
+            XCTAssertEqual(mustAuth.issuer, "")
+            
+        } else {
+            
+            XCTFail()
+            return
+        }
         if let url = URL(string: "mustauth://totp/google:Levi@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ") {
             
             guard let token = Token(customURL: url) else {
@@ -300,11 +324,23 @@ class NoSMSTokenURLTest: XCTestCase {
         }
         if let url = URL(string: "mustauth://totp/google:Levi:@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=google") {
             
-            let token = Token(customURL: url)
-            XCTAssertNil(token)
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
             
-            let mustauth = try? url.mustAuth.parsingSetURL()
-            XCTAssertNil(mustauth)
+            XCTAssertEqual(token.issuer, "google")
+            XCTAssertEqual(token.name, "google:Levi:@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "google:Levi:@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
         } else {
             
             XCTFail()
@@ -323,55 +359,120 @@ class NoSMSTokenURLTest: XCTestCase {
         }
         if let url = URL(string: "mustauth://totp/google%3ALevi%3A@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=google") {
             
-            let token = Token(customURL: url)
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
             
-            XCTAssertNil(token)
-            let mustauth = try? url.mustAuth.parsingSetURL()
-            XCTAssertNil(mustauth)
+            XCTAssertEqual(token.issuer, "google")
+            XCTAssertEqual(token.name, "google:Levi:@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "google:Levi:@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "google")
+
         } else {
             
             XCTFail()
         }
         if let url = URL(string: "mustauth://totp/google:Levi:@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ") {
             
-            let token = Token(customURL: url)
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
             
-            XCTAssertNil(token)
-            let mustauth = try? url.mustAuth.parsingSetURL()
-            XCTAssertNil(mustauth)
+            XCTAssertEqual(token.issuer, "")
+            XCTAssertEqual(token.name, "google:Levi:@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "google:Levi:@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "")
+
         } else {
             
             XCTFail()
         }
         if let url = URL(string: "mustauth://totp/google:Levi@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=goo:gle") {
             
-            let token = Token(customURL: url)
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
             
-            XCTAssertNil(token)
-            let mustauth = try? url.mustAuth.parsingSetURL()
-            XCTAssertNil(mustauth)
+            XCTAssertEqual(token.issuer, "goo:gle")
+            XCTAssertEqual(token.name, "Levi@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "goo:gle")
+
         } else {
             
             XCTFail()
         }
         if let url = URL(string: "mustauth://totp/google:Levi@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=goo%3Agle") {
             
-            let token = Token(customURL: url)
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
             
-            XCTAssertNil(token)
-            let mustauth = try? url.mustAuth.parsingSetURL()
-            XCTAssertNil(mustauth)
+            XCTAssertEqual(token.issuer, "goo:gle")
+            XCTAssertEqual(token.name, "Levi@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "goo:gle")
+
         } else {
             
             XCTFail()
         }
         if let url = URL(string: "mustauth://totp/::Levi@gmail.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=") {
             
-            let token = Token(customURL: url)
+            guard let token = Token(customURL: url) else {
+                
+                XCTFail()
+                return
+            }
             
-            XCTAssertNil(token)
-            let mustauth = try? url.mustAuth.parsingSetURL()
-            XCTAssertNil(mustauth)
+            XCTAssertEqual(token.issuer, "")
+            XCTAssertEqual(token.name, "::Levi@gmail.com")
+            
+            guard let mustAuth = try? url.mustAuth.parsingSetURL() else {
+                    
+                XCTFail()
+                return
+            }
+            
+            XCTAssertEqual(mustAuth.name, "::Levi@gmail.com")
+            XCTAssertEqual(mustAuth.issuer, "")
+
         } else {
             
             XCTFail()

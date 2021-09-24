@@ -12,6 +12,7 @@ target 'NoSMS' do
   pod 'BiometricAuthentication'
   pod 'DynamicBlurView'
   pod 'RealmSwift'
+  pod 'JXPatternLock'
 
   # Pods for NoSMS
 

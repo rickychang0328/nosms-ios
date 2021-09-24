@@ -89,6 +89,8 @@ enum TableViewCellFactoryType {
     case groupAddCodeTableViewCell(viewModel: GroupAddCodeTableViewCellViewModelType)
     case faceIDSettingTableViewCell(viewModel: FaceIDSettingTableViewCellViewModel)
     case faceIDSwitcherTableViewCell(viewModel:FaceIDSettingCellSwitchItems)
+    case faceIDGestVerificationInSericyTableViewCell(viewModel: GestSettingTableViewCellViewModelType)
+    case gestVerificationMenuTableViewCell(viewModel: GestVerificationMenuTableViewCellViewModelType)
 }
 
 enum TableViewHeaderFooterFactoryType {
@@ -132,7 +134,7 @@ class BaseTableViewCellViewModelItem: BaseTableViewCellViewModelItemProtocol {
     let cellContentViewBGColor: BehaviorSubject<UIColor>
 }
 
-protocol BaseTableViewCellViewModelProtocol {
+protocol BaseTableViewCellViewModelProtocol: AnyObject {
     
     var baseCellItem: BaseTableViewCellViewModelItemProtocol { get }
     var cellFactoryType: TableViewCellFactoryType { get }
@@ -370,7 +372,10 @@ private extension TableViewCellFactoryType {
             return String(describing: FaceIDSettingTableViewCell.self)
         case .faceIDSwitcherTableViewCell:
             return String(describing: FaceIDSettingSwitchTableViewCell<FaceIDSettingCellSwitchItems>.self)
-
+        case .faceIDGestVerificationInSericyTableViewCell:
+            return GestVerificationInSericyTableViewCell.description()
+        case .gestVerificationMenuTableViewCell:
+            return GestVerificationMenuTableViewCell.description()
         }
     }
     var cellStyle: UITableViewCell.CellStyle {
@@ -502,6 +507,31 @@ private extension TableViewCellFactoryType {
             }
             
 
+            cell.bindData(viewModel: viewModel)
+            return cell
+        case .faceIDGestVerificationInSericyTableViewCell(viewModel: let viewModel):
+            let cell: GestVerificationInSericyTableViewCell
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? GestVerificationInSericyTableViewCell {
+                
+                cell = reuseCell
+            } else {
+                
+                cell = GestVerificationInSericyTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
+        
+            cell.bindData(viewModel: viewModel)
+            return cell
+        case .gestVerificationMenuTableViewCell(viewModel: let viewModel):
+            
+            let cell: GestVerificationMenuTableViewCell
+            
+            if let reuseCell = tableView.dequeueReusableCell(withIdentifier: reuseID) as? GestVerificationMenuTableViewCell {
+                
+                cell = reuseCell
+            } else {
+                
+                cell = GestVerificationMenuTableViewCell(style: cellStyle, reuseIdentifier: reuseID)
+            }
             cell.bindData(viewModel: viewModel)
             return cell
         }

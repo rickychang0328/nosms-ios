@@ -8,11 +8,7 @@ class NoSMSAlertView: UIView {
     
     let bioImageView: UIImageView = {
         let image = UIImageView()
-        if BioMetricAuthenticator.shared.isFaceIdDevice() {
-            image.image = UIImage(named: "NOSMS_FaceID2")
-        } else {
-            image.image = UIImage(named: "NOSMS_TouchID")
-        }
+        image.image = .noSmsGestVerification
         image.isHidden = true
         return image
     }()
@@ -130,12 +126,12 @@ extension UIViewController {
         present(vc, animated: true, completion: nil)
     }
     
-    func showFaceIDAlert(title: String? = nil,
-                         message: String? = nil,
-                         confirmTitle: String = "确认",
-                         cancelTitle: String = "取消",
-                         confirmAction: (() -> Void)? = nil,
-                         cancelAction: (() -> Void)? = nil) {
+    func showGestVerificationWithImageAlert(title: String? = nil,
+                                            message: String? = nil,
+                                            confirmTitle: String = "确认",
+                                            cancelTitle: String = "取消",
+                                            confirmAction: (() -> Void)? = nil,
+                                            cancelAction: (() -> Void)? = nil) {
         
         
         let vc = NoSMSAlertViewController()

@@ -10,6 +10,8 @@ extension UserDefaults {
         case faceIDString
         case enterBackgroundTime
         case isAppTerminate
+        case gestVerifyPassWord
+        case isGestVerifyOpen
         var string: String {
             switch self{
             case .pastedString:
@@ -22,6 +24,10 @@ extension UserDefaults {
                 return "isAppTerminate"
             case .isFirstSetFaceID:
                 return "isFirstSetFaceID"
+            case .gestVerifyPassWord:
+                return "gestVerifyPassWord"
+            case .isGestVerifyOpen:
+                return "isGestVerifyOpen"
             }
         }
     }
