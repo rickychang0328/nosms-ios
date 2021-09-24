@@ -1,9 +1,3 @@
-//
-//  GestVerificationTableViewCellViewModel.swift
-//  NoSMS
-//
-//  Created by 誠帷數位科技 on 2021/7/5.
-//
 
 import Foundation
 

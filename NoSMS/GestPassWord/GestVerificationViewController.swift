@@ -37,7 +37,7 @@ class GestVerificationViewController: BaseViewControllerNoGeneric {
             $0.topMargin.equalTo(ScaleWidth(at: 100))
         }
         
-        let lockWidth = ScaleWidth(at: 375) - 90
+        let lockWidth = ScaleWidth(at: 375 - 90)
         
         lockView.snp.makeConstraints {
             $0.width.height.equalTo(lockWidth)

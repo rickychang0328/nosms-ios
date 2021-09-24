@@ -1,9 +1,3 @@
-//
-//  GestVerificationConfig.swift
-//  NoSMS
-//
-//  Created by 誠帷數位科技 on 2021/6/7.
-//
 
 import JXPatternLock
 
@@ -40,7 +34,7 @@ struct PasswordPathConfig: PatternLockViewConfig {
 struct PasswordConfig: PatternLockViewConfig {
     
     var matrix: Matrix = Matrix(row: 3, column: 3)
-    var gridSize: CGSize = CGSize(width: 70, height: 70)
+    var gridSize: CGSize = CGSize(width: ScaleWidth(at: 70), height: ScaleWidth(at: 70))
     var connectLine: ConnectLine?
     var autoMediumGridsConnect: Bool = false
     var connectLineHierarchy: ConnectLineHierarchy = .top
