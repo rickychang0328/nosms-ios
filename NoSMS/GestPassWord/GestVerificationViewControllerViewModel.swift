@@ -98,10 +98,10 @@ class GestVerificationViewControllerViewModel: BaseVCViewModel  ,GestVerificatio
     private let eventBehavior: PublishSubject<GestVerificationViewControllerViewModelEvent> = .init()
     
     private let cooridator: (GestVerificationViewControllerViewModelEvent) -> Void
-    init(navigationTitle: String, cooridator: @escaping (GestVerificationViewControllerViewModelEvent) -> Void) {
+    init(navigationTitle: String, title: String, cooridator: @escaping (GestVerificationViewControllerViewModelEvent) -> Void) {
         
         self.cooridator = cooridator
-        self.titleBehavior = .init(value: "请输入原手势密码")
+        self.titleBehavior = .init(value: title)
         self.titleColorBehavior = .init(value: .normalTitleColor)
         super.init(navigationItem: BaseNavigaitonItem(title: .init(value: navigationTitle)), backgroundColor: .gestVerificationBackgroundColor)
     }

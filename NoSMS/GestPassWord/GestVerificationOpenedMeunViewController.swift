@@ -43,7 +43,7 @@ class GestVerificationOpenedMeunViewController: BaseTableViewControllerNoGeneric
     
     private func pushGestVerificationViewController(navigationTitle: String, verifySuccessCoordinator: @escaping () -> Void) {
         
-        let viewModel = GestVerificationViewControllerViewModel(navigationTitle: navigationTitle) { coordinator in
+        let viewModel = GestVerificationViewControllerViewModel(navigationTitle: navigationTitle, title: "请输入原手势密码") { coordinator in
             switch coordinator {
             
             case .verifySuccess:

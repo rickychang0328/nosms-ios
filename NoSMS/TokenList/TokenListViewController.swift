@@ -942,7 +942,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                 
                 if GestVerificationManager.isOpen {
                     
-                    let viewModel = GestVerificationViewControllerViewModel(navigationTitle: "验证手势密码") { coordinator  in
+                    let viewModel = GestVerificationViewControllerViewModel(navigationTitle: "验证手势密码", title: "绘制手势密码") { coordinator  in
                         switch coordinator {
                         
                         case .verifySuccess:
