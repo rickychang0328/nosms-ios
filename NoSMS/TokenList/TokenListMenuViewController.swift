@@ -342,7 +342,10 @@ class ChoseToAddTokenView: UIView {
 //            $0.left.right.equalTo(self)
 //            $0.height.equalTo((cellHeight * CGFloat(integerLiteral: choseEvnets.count)))
 //        }
-        
+        if #available(iOS 15, *) {
+            optionTableView.sectionHeaderTopPadding = 0
+        }
+
         optionTableView.snp.makeConstraints {
             $0.left.right.equalTo(self)
 //            $0.top.equalTo(10)
