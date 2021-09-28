@@ -117,15 +117,39 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
         return qrCodeScanner.qrCodeCaptureSession
     }
     
+    enum ScanerEnterViewType {
+        
+        case firstPage
+        case shared
+        
+        var singleAddTokenToastString: String {
+            
+            switch self {
+                
+            case .firstPage:
+                
+                return "识别成功！"
+                
+            case .shared:
+                
+                return "已导入1个验证码"
+            }
+        }
+    }
+    
     private let qrCodeScanner: QRCodeScannerProtocol
     
     private let tokenStore: TokenStoreProtocol
+    private let type: ScanerEnterViewType
+    
     
     init(navigationItem: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "扫一扫")),
         backgroundColor: UIColor = .clear,
         tokenStore: TokenStoreProtocol = KeychainTokenStore.shared,
-        qrCodeScanner: QRCodeScannerProtocol = QRCodeScanner()) {
+        qrCodeScanner: QRCodeScannerProtocol = QRCodeScanner(),
+        type: ScanerEnterViewType) {
         
+        self.type = type
         self.tokenStore = tokenStore
         self.qrCodeScanner = qrCodeScanner
         super.init(navigationItem: navigationItem, backgroundColor: backgroundColor)
@@ -174,7 +198,7 @@ class TokenScannerViewModel: BaseVCViewModel, TokenScannerVCViewModelProtocol {
                         
                         case .addSuccess:
                             
-                            self.eventResult.onNext(.endScanTask(toast: "识别成功！"))
+                            self.eventResult.onNext(.endScanTask(toast: self.type.singleAddTokenToastString))
                         case .haveTheSame(title: let title, message: let message, completion: let completion):
                             
                             self.eventResult.onNext(.alertAction(title: title, message: message, completion: completion))
