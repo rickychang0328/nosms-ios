@@ -415,7 +415,7 @@ class FaceIDSettingViewController : BaseTableViewController<FaceIDSettingVCViewM
     
     func goSetupGest() {
         
-        let viewModel = GestVerificationSettingViewControllerViewModel { [weak self] coordinator in
+        let viewModel = GestVerificationSettingViewControllerViewModel(navigationTitle: "设置手势密码") { [weak self] coordinator in
             guard let self = self else { return }
             switch coordinator {
             

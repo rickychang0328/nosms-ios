@@ -224,6 +224,10 @@ class AdapterToken: AdapterTokenProtocol {
         let secretQuery = URLQueryItem(name: MustAuth.kQuerySecretKey, value: secret)
         urlComponents?.queryItems = baseQuerys + filtergroupsQuery + [secretQuery]
         urlComponents?.scheme = MustAuth.kMustAuthScheme
+        if let path = urlComponents?.path, path.filter({$0 == ":"}).count == 1 {
+            urlComponents?.path = path + ":"
+        }
+        
         guard let result = urlComponents?.url else {
             
             throw NoSMSError.urlError
@@ -924,7 +928,7 @@ extension KeychainTokenStore {
     }
        
     private func updatePinList(data: [Data]) {
-           
+        
         let updateSuccess = MustAuthKeychain.keyChainUpdata(data: data, withIdentifier: kMustAuthPinListArray)
            
         if updateSuccess {

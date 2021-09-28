@@ -41,7 +41,7 @@ class GestVerificationViewControllerViewModel: BaseVCViewModel  ,GestVerificatio
             currentPassword = .init()
         } else if !isSamePassword {
             
-            let errorString = "与原手势不一致，请重新绘制"
+            let errorString = "与原手势密码不一致，请重新绘制"
             titleBehavior.onNext(errorString)
             titleColorBehavior.onNext(.errorColor)
             currentPassword = .init()
@@ -98,11 +98,11 @@ class GestVerificationViewControllerViewModel: BaseVCViewModel  ,GestVerificatio
     private let eventBehavior: PublishSubject<GestVerificationViewControllerViewModelEvent> = .init()
     
     private let cooridator: (GestVerificationViewControllerViewModelEvent) -> Void
-    init(cooridator: @escaping (GestVerificationViewControllerViewModelEvent) -> Void) {
+    init(navigationTitle: String, cooridator: @escaping (GestVerificationViewControllerViewModelEvent) -> Void) {
         
         self.cooridator = cooridator
-        self.titleBehavior = .init(value: "绘制手势密码")
+        self.titleBehavior = .init(value: "请输入原手势密码")
         self.titleColorBehavior = .init(value: .normalTitleColor)
-        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: "验证手势密码")), backgroundColor: .gestVerificationBackgroundColor)
+        super.init(navigationItem: BaseNavigaitonItem(title: .init(value: navigationTitle)), backgroundColor: .gestVerificationBackgroundColor)
     }
 }
