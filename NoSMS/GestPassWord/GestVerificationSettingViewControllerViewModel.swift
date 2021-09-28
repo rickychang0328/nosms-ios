@@ -38,7 +38,7 @@ class GestVerificationSettingViewControllerViewModel:
         }
     }
     
-    let navigationItemViewModel: BaseNavigaitonItemProtocol = BaseNavigaitonItem(title: .init(value: "设置手势密码"))
+    let navigationItemViewModel: BaseNavigaitonItemProtocol
     
     let vcBackgroundColor: BehaviorSubject<UIColor> = .init(value: .gestVerificationBackgroundColor)
 
@@ -84,7 +84,8 @@ class GestVerificationSettingViewControllerViewModel:
     var status: Status = .firstIn
     var currentPassWord: String = .init()
     
-    init(cooridnator: @escaping (GestVerificationSettingCooridator) -> ()) {
+    init(navigationTitle: String, cooridnator: @escaping (GestVerificationSettingCooridator) -> ()) {
+        self.navigationItemViewModel = BaseNavigaitonItem(title: .init(value: navigationTitle))
         self.cooridnator = cooridnator
     }
     

@@ -25,7 +25,7 @@ class GestVerificationOpenedMeunViewController: BaseTableViewControllerNoGeneric
         
         case .changeGestPassword:
             
-            self.goChangGestPassword()
+            self.goChangeGestPassword()
         case .closePassword:
             
             self.goClosePassword()
@@ -41,34 +41,55 @@ class GestVerificationOpenedMeunViewController: BaseTableViewControllerNoGeneric
         fatalError("init(coder:) has not been implemented")
     }
     
-    func goChangGestPassword() {
+    private func pushGestVerificationViewController(navigationTitle: String, verifySuccessCoordinator: @escaping () -> Void) {
         
-        let viewModel = GestVerificationSettingViewControllerViewModel { coordinator in
-            
-            switch coordinator {
-            
-            case .settingPasswordDone:
-                self.viewModel.popToBeforeVC()
-                NoSMSHUD.showToast(title: "手势解锁已开启")
-            }
-        }
-        
-        let vc = GestVerificationSettingViewController(viewModel: viewModel)
-        self.navigationController?.pushViewController(vc, animated: true)
-    }
-    
-    func goClosePassword() {
-        
-        let viewModel = GestVerificationViewControllerViewModel { coordinator in
+        let viewModel = GestVerificationViewControllerViewModel(navigationTitle: navigationTitle) { coordinator in
             switch coordinator {
             
             case .verifySuccess:
-                self.viewModel.closeGestPassword()
-                self.viewModel.popToBeforeVC()
-                NoSMSHUD.showToast(title: "手势解锁已关闭")
+                
+                verifySuccessCoordinator()
             }
         }
         let vc = GestVerificationViewController(viewModel: viewModel)
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    private func pushGestVerificationSettingViewController(navigationTitle: String, animated: Bool, settingPasswordDoneCoordinator: @escaping () -> Void) {
+        
+        let viewModel = GestVerificationSettingViewControllerViewModel(navigationTitle: navigationTitle) { coordinator in
+                    
+            switch coordinator {
+            
+            case .settingPasswordDone:
+                settingPasswordDoneCoordinator()
+            }
+        }
+        let vc = GestVerificationSettingViewController(viewModel: viewModel)
+        self.navigationController?.pushViewController(vc, animated: animated)
+    }
+    
+    func goChangeGestPassword() {
+        
+        let navigationTitle = "验证手势密码"
+        pushGestVerificationViewController(navigationTitle: navigationTitle) {
+            
+            self.navigationController?.popViewController(animated: false)
+            self.pushGestVerificationSettingViewController(navigationTitle: navigationTitle, animated: false, settingPasswordDoneCoordinator: {
+                
+                self.viewModel.popToBeforeVC()
+                NoSMSHUD.showToast(title: "手势密码已修改")
+            })
+        }
+    }
+    
+    func goClosePassword() {
+        
+        pushGestVerificationViewController(navigationTitle: "验证手势密码", verifySuccessCoordinator: {
+            
+            self.viewModel.closeGestPassword()
+            self.viewModel.popToBeforeVC()
+            NoSMSHUD.showToast(title: "手势解锁已关闭")
+        })
     }
 }

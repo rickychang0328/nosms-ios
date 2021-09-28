@@ -937,11 +937,12 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
         editControllView.shareOTPButton.rx.tap.subscribe(onNext: { [weak self] in
             guard let self = self else { return }
             let bioTitle = "您的设备尚未开启手势解锁"
+            self.editControllView.isHidden = true
             if !UserDefaults.standard.bool(forKey: UserDefaults.Key.faceIDString.string) {
                 
                 if GestVerificationManager.isOpen {
                     
-                    let viewModel = GestVerificationViewControllerViewModel { coordinator  in
+                    let viewModel = GestVerificationViewControllerViewModel(navigationTitle: "验证手势密码") { coordinator  in
                         switch coordinator {
                         
                         case .verifySuccess:
@@ -952,7 +953,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                     }
                     let vc = GestVerificationViewController(viewModel: viewModel)
                     self.navigationController?.pushViewController(vc, animated: true)
-                    self.editControllView.isHidden = true
                 } else {
                     
                     self.showGestVerificationWithImageAlert(title: "",
@@ -962,7 +962,6 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
                                             let newViewController = FaceIDSettingViewController()
                                             guard let navigationController = UIApplication.shared.keyWindow?.rootViewController as? UINavigationController else { return }
                                             navigationController.pushViewController(newViewController, animated: true)
-                                            self.editControllView.isHidden = true
                                             
                                          }, cancelAction: {
                                             

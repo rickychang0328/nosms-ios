@@ -48,7 +48,7 @@ class GestVerificationOpenedMeunViewControllerViewModel: GestVerificationOpenedM
     let menuViewModels: [GestVerificationMenuTableViewCellViewModelType]
     
     let cooridnator: (GestVerificationOpenedMeunViewControllerViewModelCooridnator) -> Void
-    init (cooridnator: @escaping (GestVerificationOpenedMeunViewControllerViewModelCooridnator) -> Void) {
+    init(cooridnator: @escaping (GestVerificationOpenedMeunViewControllerViewModelCooridnator) -> Void) {
         
         let cellTypes: [GestVerificationOpenedMeunViewControllerViewModelCellType] = [.changeGestPassword, .closePassword]
         var menuViewModels: [GestVerificationMenuTableViewCellViewModelType] = []
@@ -72,7 +72,6 @@ class GestVerificationOpenedMeunViewControllerViewModel: GestVerificationOpenedM
         
         return menuViewModels[index]
     }
-    
     
     var cellViewModels: [BaseTableViewSectionItemsProtocol] {
         
