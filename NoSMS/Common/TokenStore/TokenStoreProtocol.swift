@@ -394,6 +394,14 @@ class KeychainTokenStore {
             
             saveTokenOrder()
         }
+        
+        //MARK: For iOS 15 KeyChain 記憶體位址改變所造成的 ID 混亂，把存下來用不到的 ID 通通移除
+        let tokenIDs = persistentTokens.map({$0.identifier})
+        pinList = checkAndRemovePinForUpdateiOS15(pinList: pinList, tokenIDs: tokenIDs)
+        savePinList(data: pinList)
+        let newFilterGroupList = checkAndRemoveGroupForUpdateiOS15(groupList: groupList, tokenIDs: tokenIDs)
+        groupList = newFilterGroupList
+        updateGroipList(data: newFilterGroupList)
     }
     
     fileprivate func saveTokenOrder() {
@@ -944,6 +952,34 @@ extension KeychainTokenStore {
     private func getPinListInKeyChain() {
         
         pinList = MustAuthKeychain.keyChainReadData(identifier: kMustAuthPinListArray) as? [Data] ?? []
+    }
+    //MARK: 升級到 iOS 15 後 token 的 ID 因為記憶體位址改變了會有批配不到的狀況，以防萬一移除不符合原先所儲存的資料
+    private func checkAndRemovePinForUpdateiOS15(pinList: [Data], tokenIDs: [Data]) -> [Data] {
+        
+        return filterAndCheckTokenID(checkIDList: pinList, nowTokenIDs: tokenIDs)
+    }
+    
+    private func filterAndCheckTokenID(checkIDList: [Data], nowTokenIDs: [Data]) -> [Data] {
+        
+        let resultData = checkIDList.filter({nowTokenIDs.contains($0)})
+        return resultData
+
+    }
+    //MARK: 升級到 iOS 15 後 token 的 ID 因為記憶體位址改變了會有批配不到的狀況，以防萬一移除不符合原先所儲存的資料
+    private func checkAndRemoveGroupForUpdateiOS15(groupList: [GroupObject], tokenIDs: [Data]) -> [GroupObject] {
+        
+        var resultGroupList: [GroupObject] = []
+        
+        for group in groupList {
+            
+            let newGroupTokenIDs = filterAndCheckTokenID(checkIDList: group.tokens, nowTokenIDs: tokenIDs)
+            
+            if !newGroupTokenIDs.isEmpty {
+                
+                resultGroupList.append(.init(title: group.title, uuid: group.uuid, tokens: newGroupTokenIDs))
+            }
+        }
+        return resultGroupList
     }
     
     func tokenAddPin(id: Data) {
