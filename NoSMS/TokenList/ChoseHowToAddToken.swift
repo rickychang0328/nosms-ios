@@ -50,6 +50,9 @@ class ChoseHowToAddTokenView: UIView {
         tableView.separatorStyle = .none
         tableView.backgroundColor = .menuBackgroundColor
         tableView.register(ChoseTableViewCell.self, forCellReuseIdentifier: ChoseTableViewCell.description())
+        if #available(iOS 15.0, *) {
+            tableView.sectionHeaderTopPadding = 0
+        } 
         return tableView
     }()
     
