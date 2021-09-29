@@ -19,7 +19,14 @@ class NoSMSAppDelegate: UIResponder, UIApplicationDelegate {
         let firstVC = BaseNavigationController(rootViewController: rootVC)
         self.window?.rootViewController = firstVC
         self.window?.makeKeyAndVisible()
-        
+        let barAppearance = UINavigationBarAppearance()
+        barAppearance.configureWithOpaqueBackground()
+        barAppearance.backgroundColor = .navigationColor
+        barAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+            
+        UINavigationBar.appearance().scrollEdgeAppearance = barAppearance
+        UINavigationBar.appearance().standardAppearance = barAppearance
+
         //MARK: LaunchScreen 坑
         
         clearLaunchScreenCache()

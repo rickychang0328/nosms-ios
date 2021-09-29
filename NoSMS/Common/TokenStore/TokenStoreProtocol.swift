@@ -836,7 +836,8 @@ class MustAuthKeychain {
         // 删除旧的存储数据
         SecItemDelete(keyChainSaveMutableDictionary)
         // 设置数据
-        keyChainSaveMutableDictionary.setValue(NSKeyedArchiver.archivedData(withRootObject: data), forKey: kSecValueData as String)
+        let data = try? NSKeyedArchiver.archivedData(withRootObject: data, requiringSecureCoding: false)
+        keyChainSaveMutableDictionary.setValue(data, forKey: kSecValueData as String)
         // 进行存储数据
         let saveState = SecItemAdd(keyChainSaveMutableDictionary, nil)
         if saveState == noErr  {
@@ -852,7 +853,8 @@ class MustAuthKeychain {
         // 创建数据存储字典
         let updataMutableDictionary = NSMutableDictionary.init(capacity: 0)
         // 设置数据
-        updataMutableDictionary.setValue(NSKeyedArchiver.archivedData(withRootObject: data), forKey: kSecValueData as String)
+        let data = try? NSKeyedArchiver.archivedData(withRootObject: data, requiringSecureCoding: false)
+        updataMutableDictionary.setValue(data, forKey: kSecValueData as String)
         // 更新数据
         let updataStatus = SecItemUpdate(keyChainUpdataMutableDictionary, updataMutableDictionary)
         if updataStatus == noErr {
@@ -875,8 +877,8 @@ class MustAuthKeychain {
         // 通过查询是否存储在数据
         let readStatus = withUnsafeMutablePointer(to: &queryResult) { SecItemCopyMatching(keyChainReadmutableDictionary, UnsafeMutablePointer($0))}
         if readStatus == errSecSuccess {
-            if let data = queryResult as! NSData? {
-                idObject = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as Any
+            if let data = queryResult as? NSData {
+                idObject = try? NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data as Data) as Any
             }
         }
         return idObject as Any

@@ -1752,7 +1752,7 @@ class TokenListViewController<VCViewModel: TokenListVCViewModelProtocol>: BaseTa
             self.showAlertToOpenSettingURL(title: "相机启用失败", message: "相机权限未开启")
         } else {
             
-            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel())
+            let nextVC = TokenScannerViewController(viewModel: TokenScannerViewModel(type: .firstPage))
             
             navigationController?.pushViewController(nextVC, animated: true)
         }
