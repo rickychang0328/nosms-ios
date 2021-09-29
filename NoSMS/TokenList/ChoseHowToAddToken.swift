@@ -309,6 +309,7 @@ class ChoseTableViewCell: UITableViewCell {
         contentView.addSubview(titleImageView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(underLineView)
+        backgroundColor = .menuBackgroundColor
         contentView.backgroundColor = .menuBackgroundColor
         titleImageView.snp.makeConstraints {
             

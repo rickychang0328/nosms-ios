@@ -351,7 +351,7 @@ class MenuViewTableViewCell: UITableViewCell {
         contentView.addSubview(titleLabel)
         contentView.addSubview(updateRedView)
         contentView.addSubview(underLineView)
-
+        backgroundColor = .menuBackgroundColor
         titleImageView.snp.makeConstraints {
             
             $0.left.equalTo(ScaleWidth(at: 20))
@@ -400,7 +400,6 @@ class MenuViewTableViewCell: UITableViewCell {
         } else {
            
             contentView.backgroundColor = .menuBackgroundColor
-            
         }
     }
 }
