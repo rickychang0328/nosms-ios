@@ -675,22 +675,3 @@ class NoSMSAlertScanOneButtonView: UIView {
     }
 }
 
-class OTPAccount : Object{
-    @objc dynamic var id = UUID().uuidString
-    @objc dynamic var account = ""
-    @objc dynamic var time = ""
-    @objc dynamic var issuer = ""
-    @objc dynamic var group = ""
-    override static func primaryKey() -> String? {
-        return "id"
-    }
-}
-
-class OTPAccountData {
-    
-    var account = ""
-    var time = ""
-    var issuer = ""
-    var group = ""
-
-}
