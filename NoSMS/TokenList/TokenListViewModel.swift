@@ -136,14 +136,17 @@ class TokenListViewModel: ObservableObject {
         return await withCheckedContinuation { continuation in
             tokenService.addTokenWith(urlString: urlString) { result in
                 switch result {
-                case .addSuccess:
+                case .success:
                     continuation.resume(returning: .success(()))
-                case .haveTheSame(_, _, let completion):
-                    // Force add duplicate
-                    completion()
-                    continuation.resume(returning: .success(()))
-                case .addError(let error):
-                    continuation.resume(returning: .failure(error))
+                case .failure(let error):
+                    let nsError = error as NSError
+                    if nsError.domain == "TokenService" && nsError.code == 409,
+                       let retryAction = nsError.userInfo["retryAction"] as? () -> Void {
+                        retryAction()
+                        continuation.resume(returning: .success(()))
+                    } else {
+                        continuation.resume(returning: .failure(error))
+                    }
                 }
             }
         }
