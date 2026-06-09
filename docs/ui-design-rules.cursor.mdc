@@ -1,0 +1,58 @@
+---
+description: NoSMS SwiftUI UI 設計規則。修改或新增 NoSMS 介面時套用，對齊既有元件與 design tokens，減少 token 消耗。
+globs: NoSMS/**/*.swift
+alwaysApply: false
+---
+
+# NoSMS UI Rules（精簡版）
+
+完整文件：`docs/ui-design-rules.md`
+
+## 核心約束
+
+- 新 UI 用 **SwiftUI + MVVM**；顏色用 `Color(UIColor.xxx)`（見 `UIColor+Extension.swift`）
+- 文案 **繁體中文**；首頁標題 **MustAuth**
+- **Reuse 元件**：`TokenRowView`、`CustomSegmentControl`、`.toast()`、`PatternLockView`、`CircleProgressView`、`SideMenuView`、`WebContentView`
+- 只改任務指定檔案；最小 diff；不重寫無關 ViewModel
+
+## 參考畫面（新頁先對齊其一）
+
+| 類型 | 參考 |
+|------|------|
+| 列表+搜尋+Segment | `TokenListView.swift`, `ShareOTPListView.swift` |
+| 設定卡片 rows | `SecuritySettingsView.swift` |
+| Logo 資訊頁 | `AboutView.swift` |
+| Web 頁 | `WebContentView` in `WebViewContainer.swift` |
+| 底部 sheet | `TokenListView.addMenuOverlay` |
+| Empty state | `TokenListView.emptyStateView` |
+| 鎖屏 | `RootContainerView.swift` |
+
+## Design Tokens（常用）
+
+- 背景：`tokenListTableViewBackgroundColor`（列表）、`tokenListBackgroundColor`（設定）、`menuBackgroundColor`（側欄 290pt）
+- 文字：`tokenListIssuerColor`（16 bold）、`tokenListNameColor`（13）、OTP 用 `manuallyTOTPTextSelectedColor`（26 monospaced）
+- Accent：`manuallyTOTPSwitchColor`（Toggle/swipe）、`tokenListTimerColor`（倒數環）
+- 間距：水平 16；row padding vertical 12；按鈕高度 42–48；圓角 8/10/16
+- 遮罩：`Color.black.opacity(0.4)`；動畫 `.easeOut(duration: 0.25)`
+
+## 導航
+
+- 隱式 `NavigationLink(destination:isActive:) { EmptyView() }`
+- 子頁：`.navigationBarBackButtonHidden(true)` + toolbar `chevron.left` 白字
+- 深連結：`DeepLinkManager.swift`
+
+## 互動
+
+- 複製 OTP → `.toast()`，文案 `[issuer] name\n驗證碼已複製`
+- 破壞性操作 → `.alert`
+- 生物驗證 → `BiometricManager` + `Task`
+
+## 禁止
+
+- 硬編 Color RGB、新建 Toast/Segment/PatternLock、View 內直接 Realm/網路、無故改 pbxproj/RootContainerView
+
+## Prompt 建議
+
+```
+任務：[描述] | 參考：[View 檔名] | 只改：[檔案] | 不做：[限制]
+```
