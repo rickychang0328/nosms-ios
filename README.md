@@ -14,6 +14,7 @@ NoSMS（又稱 MustAuth）是一款專注於安全性與使用者體驗的雙重
 *   **[SwiftUI 重構與架構設計方案](docs/swiftui_refactoring_plan.md)**：詳細規劃並說明如何將原有 UIKit + RxSwift 架構轉型為 SwiftUI + Combine / MVVM 架構，包含資料響應、事件與生命週期收納、第三方庫原生替代方案以及重構前後的關鍵技術對照表。
 *   **[SwiftUI 重構階段任務清單](docs/task.md)**：記錄階段 5（全面 SwiftUI 功能補全、系統介接與依賴/舊代碼清理）的具體實作與完成進度。
 *   **[專案架構圖、類別圖與循序圖](docs/project_architecture_diagrams.md)**：包含專案在重構至 SwiftUI + Combine 之後的系統分層架構圖、主要類別依賴圖、以及 App 啟動驗證解鎖與 2FA 密碼更新的互動循序圖。
+*   **[非同步處理技術文件](docs/async_processing.md)**：詳述專案目前採用的現代化非同步處理模式，包含 Swift Concurrency (async/await)、Combine 反應式框架、以及 Grand Central Dispatch (GCD) 的具體應用情境。
 
 ---
 
@@ -58,8 +59,7 @@ NoSMS（又稱 MustAuth）是一款專注於安全性與使用者體驗的雙重
     *   `OTPAccount`：使用 `RealmSwift` 儲存，記錄金鑰的匯入與分享歷史記錄。
 *   **ViewModel 層**：
     *   負責封裝業務邏輯與數據加工，使用原生的 Combine 框架（`@Published` 與 `Publisher`）提供資料流給視圖。
-*   **View / SwiftUI 層**：
-    *   採用原生 SwiftUI 宣告式佈局（`VStack`, `HStack`, `List`, `ZStack`），替代了原先的 `SnapKit` 與 UIKit 視圖。
-    *   原生毛玻璃效果 `.blur` 與自訂 `ZStack` 隱私覆蓋層取代了 `DynamicBlurView`。
-    *   自訂 `PatternLockView`（基於 `LazyVGrid` 與拖曳手勢）取代了 `JXPatternLock`。
-    *   原生的 `LocalAuthentication` 取代了 `BiometricAuthentication` 套件。
+*   **View  層**：
+    *   blur效果 `DynamicBlurView`。
+    *   圖形鎖 `JXPatternLock`。
+    *   `BiometricAuthentication` 套件。
