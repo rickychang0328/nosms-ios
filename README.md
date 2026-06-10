@@ -13,6 +13,7 @@ NoSMS（又稱 MustAuth）是一款專注於安全性與使用者體驗的雙重
 *   **[SDD 技術規格文件](docs/sdd_technical_specification.md)**：包含專案的功能概述、核心業務邏輯流（金鑰生命週期、啟動解鎖流）、畫面狀態管理（RxSwift 時代的狀態定義）與第三方庫依賴分析。
 *   **[SwiftUI 重構與架構設計方案](docs/swiftui_refactoring_plan.md)**：詳細規劃並說明如何將原有 UIKit + RxSwift 架構轉型為 SwiftUI + Combine / MVVM 架構，包含資料響應、事件與生命週期收納、第三方庫原生替代方案以及重構前後的關鍵技術對照表。
 *   **[SwiftUI 重構階段任務清單](docs/task.md)**：記錄階段 5（全面 SwiftUI 功能補全、系統介接與依賴/舊代碼清理）的具體實作與完成進度。
+*   **[專案架構圖、類別圖與循序圖](docs/project_architecture_diagrams.md)**：包含專案在重構至 SwiftUI + Combine 之後的系統分層架構圖、主要類別依賴圖、以及 App 啟動驗證解鎖與 2FA 密碼更新的互動循序圖。
 
 ---
 

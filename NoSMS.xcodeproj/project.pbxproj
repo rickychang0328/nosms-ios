@@ -74,6 +74,7 @@
 		A1B8D024253565A7005099B7 /* OTPShareRecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */; };
 		A1B8D02625528FEF005099B7 /* OTPShareRecordDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */; };
 		A1B8D04C2553C032005099B7 /* RealmDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D04B2553C032005099B7 /* RealmDataManager.swift */; };
+		A37E2FE42FD96EF3008947CC /* project_architecture_diagrams.md in Resources */ = {isa = PBXBuildFile; fileRef = A37E2FE32FD96EF2008947CC /* project_architecture_diagrams.md */; };
 		A3FA4EE92FD67CB20046BEE1 /* sdd_technical_specification.md in Resources */ = {isa = PBXBuildFile; fileRef = A3FA4EE62FD67CB20046BEE1 /* sdd_technical_specification.md */; };
 		A3FA4EEA2FD67CB20046BEE1 /* task.md in Resources */ = {isa = PBXBuildFile; fileRef = A3FA4EE82FD67CB20046BEE1 /* task.md */; };
 		A3FA4EEB2FD67CB20046BEE1 /* swiftui_refactoring_plan.md in Resources */ = {isa = PBXBuildFile; fileRef = A3FA4EE72FD67CB20046BEE1 /* swiftui_refactoring_plan.md */; };
@@ -194,6 +195,7 @@
 		A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareRecordViewController.swift; sourceTree = "<group>"; };
 		A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareRecordDetailViewController.swift; sourceTree = "<group>"; };
 		A1B8D04B2553C032005099B7 /* RealmDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataManager.swift; sourceTree = "<group>"; };
+		A37E2FE32FD96EF2008947CC /* project_architecture_diagrams.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = project_architecture_diagrams.md; sourceTree = "<group>"; };
 		A3FA4EE62FD67CB20046BEE1 /* sdd_technical_specification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = sdd_technical_specification.md; sourceTree = "<group>"; };
 		A3FA4EE72FD67CB20046BEE1 /* swiftui_refactoring_plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = swiftui_refactoring_plan.md; sourceTree = "<group>"; };
 		A3FA4EE82FD67CB20046BEE1 /* task.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = task.md; sourceTree = "<group>"; };
@@ -559,6 +561,7 @@
 				A3FA4EE62FD67CB20046BEE1 /* sdd_technical_specification.md */,
 				A3FA4EE72FD67CB20046BEE1 /* swiftui_refactoring_plan.md */,
 				A3FA4EE82FD67CB20046BEE1 /* task.md */,
+				A37E2FE32FD96EF2008947CC /* project_architecture_diagrams.md */,
 			);
 			path = docs;
 			sourceTree = "<group>";
@@ -741,6 +744,7 @@
 				A3FA4EE92FD67CB20046BEE1 /* sdd_technical_specification.md in Resources */,
 				A3FA4EEA2FD67CB20046BEE1 /* task.md in Resources */,
 				A3FA4EEB2FD67CB20046BEE1 /* swiftui_refactoring_plan.md in Resources */,
+				A37E2FE42FD96EF3008947CC /* project_architecture_diagrams.md in Resources */,
 				2AAED82B23F287D60094A193 /* loading_ae.gif in Resources */,
 				2AE756AF24289D69002181F9 /* loading_dark_2.gif in Resources */,
 				2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */,
@@ -817,9 +821,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
