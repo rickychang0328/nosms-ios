@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -74,6 +74,10 @@
 		A1B8D024253565A7005099B7 /* OTPShareRecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */; };
 		A1B8D02625528FEF005099B7 /* OTPShareRecordDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */; };
 		A1B8D04C2553C032005099B7 /* RealmDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B8D04B2553C032005099B7 /* RealmDataManager.swift */; };
+		A37E2FE42FD96EF3008947CC /* project_architecture_diagrams.md in Resources */ = {isa = PBXBuildFile; fileRef = A37E2FE32FD96EF2008947CC /* project_architecture_diagrams.md */; };
+		A3FA4EE92FD67CB20046BEE1 /* sdd_technical_specification.md in Resources */ = {isa = PBXBuildFile; fileRef = A3FA4EE62FD67CB20046BEE1 /* sdd_technical_specification.md */; };
+		A3FA4EEA2FD67CB20046BEE1 /* task.md in Resources */ = {isa = PBXBuildFile; fileRef = A3FA4EE82FD67CB20046BEE1 /* task.md */; };
+		A3FA4EEB2FD67CB20046BEE1 /* swiftui_refactoring_plan.md in Resources */ = {isa = PBXBuildFile; fileRef = A3FA4EE72FD67CB20046BEE1 /* swiftui_refactoring_plan.md */; };
 		A92E9AFF3539AF8D5429B66B /* Pods_NoSMSTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6B380CE65F2465987DFE9E47 /* Pods_NoSMSTests.framework */; };
 		BB19B3C12449C22B00D5E9E4 /* UIDevice+VKKeychainIDFV.m in Sources */ = {isa = PBXBuildFile; fileRef = BB19B3BD2449C20100D5E9E4 /* UIDevice+VKKeychainIDFV.m */; };
 		BB93FD8523F3FDCF00A08CD6 /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB93FD8323F3FDCF00A08CD6 /* Repository.swift */; };
@@ -191,6 +195,10 @@
 		A1B8D023253565A7005099B7 /* OTPShareRecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareRecordViewController.swift; sourceTree = "<group>"; };
 		A1B8D02525528FEF005099B7 /* OTPShareRecordDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTPShareRecordDetailViewController.swift; sourceTree = "<group>"; };
 		A1B8D04B2553C032005099B7 /* RealmDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmDataManager.swift; sourceTree = "<group>"; };
+		A37E2FE32FD96EF2008947CC /* project_architecture_diagrams.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = project_architecture_diagrams.md; sourceTree = "<group>"; };
+		A3FA4EE62FD67CB20046BEE1 /* sdd_technical_specification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = sdd_technical_specification.md; sourceTree = "<group>"; };
+		A3FA4EE72FD67CB20046BEE1 /* swiftui_refactoring_plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = swiftui_refactoring_plan.md; sourceTree = "<group>"; };
+		A3FA4EE82FD67CB20046BEE1 /* task.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = task.md; sourceTree = "<group>"; };
 		A54BB1B459A613FBD7F23211 /* Pods-NoSMS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-NoSMS.debug.xcconfig"; path = "Target Support Files/Pods-NoSMS/Pods-NoSMS.debug.xcconfig"; sourceTree = "<group>"; };
 		A823901B720E6CD9235D0962 /* Pods-TWAzureAuthenticatorUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; path = "Target Support Files/Pods-TWAzureAuthenticatorUITests/Pods-TWAzureAuthenticatorUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		AC3998DDEF5F71F707A53FD6 /* Pods_NoSMS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_NoSMS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -476,6 +484,7 @@
 		2AF6552C2387ABA6000D8787 /* NoSMS */ = {
 			isa = PBXGroup;
 			children = (
+				A3FA4EE52FD67C8C0046BEE1 /* docs */,
 				BB19B3BB2449C1EA00D5E9E4 /* Modulization */,
 				2A4B4CED266DF6CF0097340F /* GestPassWord */,
 				A1B8D04A2553C014005099B7 /* RealmDataManager */,
@@ -544,6 +553,17 @@
 				A1B8D04B2553C032005099B7 /* RealmDataManager.swift */,
 			);
 			path = RealmDataManager;
+			sourceTree = "<group>";
+		};
+		A3FA4EE52FD67C8C0046BEE1 /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				A3FA4EE62FD67CB20046BEE1 /* sdd_technical_specification.md */,
+				A3FA4EE72FD67CB20046BEE1 /* swiftui_refactoring_plan.md */,
+				A3FA4EE82FD67CB20046BEE1 /* task.md */,
+				A37E2FE32FD96EF2008947CC /* project_architecture_diagrams.md */,
+			);
+			path = docs;
 			sourceTree = "<group>";
 		};
 		A82008539CEB88538873CCF8 /* Frameworks */ = {
@@ -721,6 +741,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				2AAED82A23F287D60094A193 /* loading_ps.gif in Resources */,
+				A3FA4EE92FD67CB20046BEE1 /* sdd_technical_specification.md in Resources */,
+				A3FA4EEA2FD67CB20046BEE1 /* task.md in Resources */,
+				A3FA4EEB2FD67CB20046BEE1 /* swiftui_refactoring_plan.md in Resources */,
+				A37E2FE42FD96EF3008947CC /* project_architecture_diagrams.md in Resources */,
 				2AAED82B23F287D60094A193 /* loading_ae.gif in Resources */,
 				2AE756AF24289D69002181F9 /* loading_dark_2.gif in Resources */,
 				2AF6553A2387ABA8000D8787 /* LaunchScreen.storyboard in Resources */,
@@ -797,9 +821,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-NoSMS/Pods-NoSMS-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
